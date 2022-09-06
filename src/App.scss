@@ -1,5 +1,13 @@
 .App {
   text-align: center;
+
+  &.bsc {
+    background-color: gold;
+  }
+
+  &.polygon {
+    background-color: purple;
+  }
 }
 
 .App-logo {
