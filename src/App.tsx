@@ -1,16 +1,19 @@
 import { ethers } from 'ethers';
 import React, { useCallback, useState } from 'react';
 import './App.scss';
-import { requestSwitchChain } from './common/ethUtils';
-import MetaMaskConnect, { CHAIN_BSC, CHAIN_POLYGON } from './components/MetaMaskConnect';
+import { EVMConnector, ChainConfigs, EVMSwitcher } from './components/EVM';
 
+const { BSC, POLYGON } = ChainConfigs;
 const allowedChains =[
-    CHAIN_BSC,
-    CHAIN_POLYGON,
+    BSC,
+    POLYGON,
 ];
+const allowedIds: string[] = allowedChains.map(x => ethers.utils.hexlify(x.id));
 
 function App() {
     const [address, setAddress] = useState('');
+    const [showSwitcher, setShowSwitcher] = useState(true);
+    const [showLoader, setShowLoader] = useState(true);
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
 
@@ -19,18 +22,13 @@ function App() {
     }, []);
 
     const handleChainChange = useCallback(async (chain: string) => {
-        //get allowed chains
-        let hexIds: string[] = allowedChains.map(x => x.id);
-
-        if(!hexIds.includes(chain)) {
+        if(!allowedIds.includes(chain)) {
             //handle unsupported network
-            //switch chain default to polygon
-            requestSwitchChain(
-                CHAIN_BSC.id,
-                CHAIN_BSC.name,
-                { name: 'BNB', decimals: 18, symbol: 'BNB' },
-                [CHAIN_BSC.rpc]
-            );
+            setShowSwitcher(true);
+        }
+
+        else {
+            setShowSwitcher(false);
         }
 
         setChain(chain);
@@ -38,14 +36,37 @@ function App() {
         setChainName(chainName.toLowerCase());
     }, []);
 
+    const onFinishLoading = () => {
+        console.log('here')
+        setShowLoader(false);
+    }
+
     return (
-        <div className={`App ${chainName}`}>
+        <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             <div>{chain}</div>
             <div>{chainName}</div>
-            <MetaMaskConnect
+            <EVMConnector
                 handleNewAccount={handleNewAccount}
                 handleChainChange={handleChainChange}
+                onFinishLoading={onFinishLoading}
             />
+            <EVMSwitcher
+                hide={!showSwitcher}
+                targetChain={BSC}
+                handleChainChange={handleChainChange}
+            />
+            <EVMSwitcher
+                hide={!showSwitcher}
+                targetChain={POLYGON}
+                handleChainChange={handleChainChange}
+            />
+
+            {
+                showLoader &&
+                <div className='loader'>
+                    <i className='fa fa-spinner fa-spin fa-4x'></i>
+                </div>
+            }
         </div>
     );
 }

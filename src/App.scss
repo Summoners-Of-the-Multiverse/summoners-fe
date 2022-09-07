@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  min-height: 100vh;
 
   &.bsc {
     background-color: gold;
@@ -7,6 +8,21 @@
 
   &.polygon {
     background-color: purple;
+  }
+
+  &.loading {
+    overflow: hidden;
+  }
+
+  > .loader {
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
   }
 }
 
