@@ -1,13 +1,8 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 import React, { useState, useEffect, useRef } from 'react';
-import { ellipsizeThis } from '../../../common/utils';
 import { ButtonProps } from './types';
 
-const ONBOARD_TEXT = 'Click here to install MetaMask!';
-const CONNECT_TEXT = 'Connect';
-
-const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChainChange, onFinishLoading }: ButtonProps) => {
-    const [buttonText, setButtonText] = useState(CONNECT_TEXT);
+const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChainChange, onFinishLoading, children, style, className, }: ButtonProps) => {
     const [isDisabled, setDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [chain, setChain] = useState('');
@@ -35,9 +30,9 @@ const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChain
 
         if (MetaMaskOnboarding.isMetaMaskInstalled()) {
             if (accounts.length > 0) {
-                setButtonText(ellipsizeThis(accounts[0], 4, 3));
                 setDisabled(true);
                 handleNewAccount(accounts[0]);
+
                 setChain(window.ethereum!.chainId ?? '');
 
                 if(onboarding.current) {
@@ -46,7 +41,8 @@ const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChain
             } 
             
             else {
-                setButtonText(CONNECT_TEXT);
+                handleNewAccount('');
+                setChain('');
                 setDisabled(false);
             }
         }
@@ -82,6 +78,10 @@ const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChain
                         setAccounts(newAccounts);
                     }
                 }
+
+                else {
+                    setAccounts([]);
+                }
             });
 
             window.ethereum!.on('chainChanged', (hexId) => {
@@ -95,7 +95,6 @@ const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChain
 
         else {
             setDisabled(false);
-            setButtonText(ONBOARD_TEXT);
         }
     }, []);
 
@@ -112,8 +111,13 @@ const OnboardingButton: React.FC<ButtonProps> = ({ handleNewAccount, handleChain
     };
 
     return (
-        <button disabled={isDisabled} onClick={onClick}>
-            {buttonText}
+        <button 
+            disabled={isDisabled} 
+            onClick={onClick}
+            style={style}
+            className={className}
+        >
+            {children}
         </button>
     );
 }
