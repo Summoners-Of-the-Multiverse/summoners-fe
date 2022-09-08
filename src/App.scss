@@ -1,62 +1,153 @@
 .App {
-  text-align: center;
-  min-height: 100vh;
-
-  &.bsc {
-    background-color: gold;
-  }
-
-  &.polygon {
-    background-color: purple;
-  }
-
-  &.loading {
-    overflow: hidden;
-  }
-
-  > .loader {
-    position: absolute;
-    top: 0;
-    height: 100vh;
-    width: 100vw;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-  }
-}
+    flex-direction: column;
+    text-align: center;
+    min-height: 100vh;
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+    /* &.bsc {
+        background-color: gold;
+    }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+    &.polygon {
+        background-color: purple;
+    } */
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+    &.loading {
+        overflow: hidden;
+    }
 
-.App-link {
-  color: #61dafb;
-}
+    > .loader {
+        position: absolute;
+        top: 0;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+    }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    > video.bg {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        width: 100vw;
+        object-fit: cover;
+        z-index: -1;
+    }
+
+    .connector-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        max-width: 900px;
+        width: 100vw;
+        position: relative;
+    }
+
+    .metamask-connector {
+        margin-top: 3%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border: none;
+        background-color: transparent;
+        position: relative;
+        width: 235px;
+
+        -webkit-transition: -webkit-transform 0.5s;
+        -moz-transition: -moz-transform 0.5s;
+        transition: transform 0.5s;
+
+        &.logged-in {
+            transform: translateX(-23vw);
+
+            @media screen and (max-width: 900px) {
+                transform: translateX(-19vw);
+            }
+        }
+    }
+
+    .metamask-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background-color: #b9b0ba;
+        height: 60px;
+        width: 60px;
+        border-radius: 30px;
+        cursor: pointer;
+
+        &.disabled {
+            cursor: no-drop;
+        }
+
+        &:not(.disabled) {
+            animation: pulse 3s infinite;
+        }
+
+        > img {
+            height: 30px;
+            width: 30px;
+        }
+    }
+
+    .metamask-text {
+        position: absolute;
+        left: 55px;
+        width: 175px;
+        padding-left: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-top-right-radius: 22.5px;
+        border-bottom-right-radius: 22.5px;
+        display: flex;
+        align-items: center;
+        background-color: #b9b0ba;
+        color: black;
+        font-size: 12px;
+    }
+
+    .switcher-container {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+
+        animation: fadeIn 1s;
+
+        > button {
+            border: none;
+            background-color: #a099a1;
+            width: 100px;
+            height: 32px;
+            border-radius: 10px;
+
+            margin-left: 15px;
+            margin-bottom: 9px;
+            cursor: pointer;
+
+            &.active {
+                background-color: #b9b0ba;
+                color: white;
+            }
+
+            &:disabled {
+                cursor: no-drop;
+            }
+
+            @media screen and (max-width: 900px) {
+                height: 40px;
+                width: 40px;
+                border-radius: 20px;
+                margin-right: 5px;
+                margin-left: 0px;
+                margin-bottom: 10px;
+            }
+        }
+    }
 }
