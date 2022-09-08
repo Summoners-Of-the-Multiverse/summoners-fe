@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { runIfFunction } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
 import { ButtonProps } from './types';
+import MetaMaskOnboarding from '@metamask/onboarding';
 
 const requestSwitchChain = async(
     targetChain: ChainConfig,
@@ -55,29 +56,64 @@ const requestSwitchChain = async(
 const Switcher: React.FC<ButtonProps> = ({ 
     style, 
     className, 
+    children,
     handleChainChange,  
+    handleUserRejection,
+    handleUnknownError,
     targetChain,
     hide,
-    disabled,
-    text,
+    currentChainId,
 }: ButtonProps) => {
     const [isRequesting, setIsRequesting] = useState(false);
     const [chain, setChain] = useState('');
+    const [isDisabled, setIsDisabled] = useState(false);
 
     useEffect(() => {
-        handleChainChange(chain);
-    }, [handleChainChange, chain]);
+        if(currentChainId !== undefined && currentChainId !== null) {
+            setChain(currentChainId);
+        }
+    }, [currentChainId]);
+
+    useEffect(() => {
+        if(chain !== '') {
+            //only handle chain change when chain is not empty
+            //handle disconnect with connector
+            handleChainChange(chain);
+        }
+
+        setIsDisabled(chain === targetChain.id);
+    }, [handleChainChange, chain, targetChain]);
+    
+    useEffect(() => {
+        if (MetaMaskOnboarding.isMetaMaskInstalled()) {
+            setTimeout(() => {
+                if(!window.ethereum || !window.ethereum.isConnected()) {
+                    return;
+                }
+                
+                // get connected address
+                if(!window.ethereum.selectedAddress) {
+                    return;
+                }
+
+                setChain(window.ethereum.chainId ?? '');
+            }, 500);
+        }
+    }, []);
 
     const onSuccess = () => {
         setChain(chain);
         handleChainChange(chain);
-
         setIsRequesting(false);
     }
 
     const onError = (e: any) => {
         if(e.code === 4001) {
-            alert(`Please manually add ${targetChain.name} to your MetaMask.`)
+            runIfFunction(handleUserRejection);
+        }
+
+        else {
+            runIfFunction(handleUnknownError);
         }
 
         setIsRequesting(false);
@@ -103,12 +139,12 @@ const Switcher: React.FC<ButtonProps> = ({
 
     return (
         <button 
-            disabled={disabled} 
+            disabled={isDisabled} 
             onClick={onClick} 
             style={style} 
             className={className}
         >
-            {text ?? `Connect to ${targetChain.name}`}
+            {children}
         </button>
     );
 }
