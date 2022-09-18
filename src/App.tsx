@@ -1,16 +1,28 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { EVMConnector, ChainConfigs, EVMSwitcher } from './components/EVM';
 import { ellipsizeThis } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
+import { Route, Routes } from 'react-router';
+import { Battle, Home } from './pages';
+import { io, Socket } from 'socket.io-client';
 
 const { BSC, POLYGON } = ChainConfigs;
 const allowedChains =[
     BSC,
     POLYGON,
 ];
+
+export const AddressContext = createContext({
+    address: "",
+    chain: "",
+});
+
+const socket = io('ws://localhost:8081');
+export const SocketContext = createContext<Socket>(socket);
+
 
 function App() {
     const [address, setAddress] = useState('');
@@ -66,7 +78,9 @@ function App() {
 
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
-            <video autoPlay muted loop src="/bg.mp4" className="bg"></video>
+            {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
+
+            {/** Connectors */}
             <div className='d-flex vw-100 align-items-center justify-content-center'>
                 <div className='connector-container'>
                     <EVMConnector
@@ -128,6 +142,17 @@ function App() {
                     }
                 </div>
             </div>
+            
+            {/** Main Pages */}
+            <AddressContext.Provider value={{
+                address,
+                chain,
+            }}>
+                <Routes>
+                    <Route path="/home" element={<Home />}></Route>
+                    <Route path="/" element={<Battle />}/>
+                </Routes>
+            </AddressContext.Provider>
             <ToastContainer 
                 position="bottom-left"
                 autoClose={3000}
