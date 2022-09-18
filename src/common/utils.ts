@@ -1,10 +1,20 @@
+import moment from 'moment';
+
+export function sleep(ms: number) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(true);
+        }, ms);
+    });
+}
+
 /**
  * Returns the number with 'en' locale settings, ie 1,000
  * @param x number
  * @param minDecimal number
  * @param maxDecimal number
  */
-export function toLocaleDecimal(x: number, minDecimal: number, maxDecimal: number) {
+ export function toLocaleDecimal(x: number, minDecimal: number, maxDecimal: number) {
     return x.toLocaleString('en', {
         minimumFractionDigits: minDecimal,
         maximumFractionDigits: maxDecimal,
@@ -48,14 +58,14 @@ export function ellipsizeThis(x: string, leftCharLength: number, rightCharLength
  * Returns the new object that has no reference to the old object to avoid mutations.
  * @param obj 
  */
-export const cloneObj = (obj: {[key: string]: any}) => {
-    return JSON.parse(JSON.stringify(obj));
+export const cloneObj = <T = any>(obj: {[key: string]: any}) => {
+    return JSON.parse(JSON.stringify(obj)) as T;
 }
 
 /**
  * @returns string
  */
-export const randomColor = () => {
+export const getRandomColor = () => {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
@@ -64,14 +74,40 @@ export const randomColor = () => {
     return color;
 }
 
-/**
- * @param date
- */
- export const getUnifiedTime = ( date?: Date ) => {
-    
-    if ( date ) {
-        //current time offset by timezone offset in seconds
-        return ( date.setHours( 0, 0, 0, 0 ) / 1000 ) - ( date.getTimezoneOffset() * 60 )
+export const getRandomNumber = (min: number, max: number, isInteger = false) => {
+    let rand = min + (Math.random() * (max - min));
+    if(isInteger) {
+        rand = Math.round(rand);
     }
-    return null
+
+    else {
+        // to 3 decimals
+        rand = Math.floor(rand * 1000) / 1000;
+    }
+
+    return rand;
+}
+
+export const getRandomChance = () => {
+    return getRandomNumber(0, 100);
+}
+
+export const getRandomNumberAsString = (min: number, max: number, isInteger = false) => {
+    return getRandomNumber(min, max, isInteger).toString();
+}
+
+export const getRandomChanceAsString = () => {
+    return getRandomNumberAsString(0, 100);
+}
+
+export const getUTCMoment = () => {
+    return moment().utc();
+}
+
+export const getUTCDatetime = () => {
+    return getUTCMoment().format('YYYY-MM-DD HH:mm:ss');
+}
+
+export const getUTCDate = () => {
+    return getUTCMoment().format('YYYY-MM-DD');
 }
