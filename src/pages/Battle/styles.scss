@@ -1,0 +1,190 @@
+$battleButtonSize: 100px;
+$battleButtonCenterSize: 30px;
+
+.battle-page {
+
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+
+    .battle-container {
+        width: 60vw;
+        display: flex;
+        flex-direction: column;
+
+        img.encounter-img {
+            height: 30vh;
+        }
+
+        .hp-bar {
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            height: 20px;
+            border-radius: 15px;
+            background-color: grey;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            > div.hp-left {
+                height: 20px;
+                border-radius: 15px;
+                transition: width 0.5s;
+            }
+
+            > div.hp-number {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .hp-bar.encounter {
+            width: 90%;
+            margin: auto;
+            margin-top: 5px;
+        }
+
+        .player-monster-image {
+            position: relative;
+            
+            &.on-cd::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #00000055;
+            }
+        }
+
+        .battle-button-container {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            height: $battleButtonSize;
+            width: calc(#{$battleButtonSize} * 2);
+
+            .battle-center {
+                position: absolute;
+                top: calc(#{$battleButtonSize} - (#{$battleButtonCenterSize} / 2));
+                left: calc(#{$battleButtonSize} - (#{$battleButtonCenterSize} / 2));
+                aspect-ratio: 1;
+                width: $battleButtonCenterSize;
+                background-color: red;
+                border-radius: 50%;
+            }
+        }
+
+        .battle-button {
+            position: relative;
+            width: $battleButtonSize;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border: none;
+            background-color: transparent;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+
+            > span {
+                -webkit-transform: rotate(-45deg);
+                -ms-transform: rotate(-45deg);
+                transform: rotate(-45deg);
+            }
+
+            &.top-left {
+                transform-origin: bottom right;
+                > span {
+                    padding-top: calc(#{$battleButtonSize} / 5);
+                }
+            }
+
+            &.top-right {
+                transform-origin: bottom left;
+                > span {
+                    padding-right: calc(#{$battleButtonSize} / 5);
+                }
+            }
+
+            &.bottom-left {
+                transform-origin: top right;
+                > span {
+                    padding-left: calc(#{$battleButtonSize} / 5);
+                }
+            }
+
+            &.bottom-right {
+                transform-origin: top left;
+                > span {
+                    padding-bottom: calc(#{$battleButtonSize} / 5);
+                }
+            }
+
+            > div {
+                position: absolute;
+                border-radius: 50%;
+                height: calc(#{$battleButtonSize} * 2);
+                aspect-ratio: 1;
+                z-index: -1;
+
+                &.top-left {
+                    top: 0;
+                    left: 0;
+                    background-color: rgb(196, 22, 22);
+                }
+
+                &.top-right {
+                    top: 0;
+                    right: 0;
+                    background-color: rgb(43, 170, 79);
+                }
+
+                &.bottom-left {
+                    bottom: 0;
+                    left: 0;
+                    background-color: rgb(119, 127, 50);
+                }
+
+                &.bottom-right {
+                    bottom: 0;
+                    right: 0;
+                    background-color: rgb(54, 47, 141);
+                }
+            } 
+
+            /* &:after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                -webkit-transform-origin: 100% 0;
+                -ms-transform-origin: 100% 0;
+                transform-origin: 100% 0;
+                -webkit-transform: skew(-45deg);
+                -ms-transform: skew(-45deg);
+                transform: skew(-45deg);
+                z-index: -1;
+            }  */
+        }
+    }
+}
