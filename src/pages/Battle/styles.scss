@@ -54,7 +54,7 @@ $battleButtonCenterSize: 30px;
 
         .player-monster-image {
             position: relative;
-            
+
             &.on-cd::before {
                 content: '';
                 position: absolute;
@@ -64,6 +64,14 @@ $battleButtonCenterSize: 30px;
                 height: 100%;
                 background: #00000055;
             }
+        }
+
+        .battle-button-big-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
         }
 
         .battle-button-container {
@@ -185,6 +193,81 @@ $battleButtonCenterSize: 30px;
                 transform: skew(-45deg);
                 z-index: -1;
             }  */
+        }
+
+        .encounter-img-container {
+            position: relative;
+
+            > img {
+                height: 30vh;
+            }
+
+            .attacks {
+                position: absolute;
+
+                &.attack-index-0 {
+                    bottom: 25%;
+                    left: 30%;
+                }
+
+                &.attack-index-1 {
+                    bottom: 10%;
+                    left: 40%;
+                }
+
+                &.attack-index-2 {
+                    bottom: 15%;
+                    right: 40%;
+                }
+
+                &.attack-index-3 {
+                    bottom: 20%;
+                    right: 30%;
+                }
+
+                .attack {
+                    position: absolute;
+                    top: 0;
+                    opacity: 0;
+                    left: 0;
+                    transform: translateY(-50px);
+                    animation: moveUpAndFade 1.25s linear;
+                    font-weight: bold;
+                    font-family: 'Ultra', serif;
+                    width: 50px;
+                    text-align: center;
+
+                    text-transform: uppercase;
+
+                    -webkit-text-stroke-width: 1px;
+                    -webkit-text-stroke-color: black;
+
+                    &.crit {
+                        font-size: 1.5rem;
+                        -webkit-text-fill-color: red; /* Will override color (regardless of order) */
+                        animation: critMoveUpAndFade 1.25s linear;
+                    }
+
+                    &.immune {
+                        -webkit-text-fill-color: grey; /* Will override color (regardless of order) */
+                    }
+
+                    &.miss {
+                        -webkit-text-fill-color: white; /* Will override color (regardless of order) */
+                    }
+
+                    &.normal {
+                        -webkit-text-fill-color: gold; /* Will override color (regardless of order) */
+                    }
+                }
+
+                /* for damage numbers */
+                @for $i from 1 through 99 {
+                    .attack:nth-child(#{$i}n) {
+                        animation-delay: #{$i * 0.125}s;
+                    }
+                }
+            }
         }
     }
 }

@@ -51,7 +51,7 @@ export type StartBattleParams = {
     chainId: string; 
     areaId: number; 
     onLoad: (battleDetails: BattleDetails) => void;
-    onEncounterReceivedDamage: ({attacks, encounterHpLeft}: EncounterDamageReceived) => void;
+    onEncounterReceivedDamage: ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => void;
     onDamageReceived: ({ damage, playerHpLeft }: EncounterHit) => void;
     onMonsterOffCd: (monsterId: number) => void;
     onEndSkillsReceived: (usage: SkillUsage) => void;
@@ -66,6 +66,8 @@ export type EncounterHit = {
 export type EncounterDamageReceived = {
     attacks: Attack[];
     encounterHpLeft: number;
+    monsterId: number;
+    skillId: number;
 }
 
 export type SkillUsage = {
@@ -82,22 +84,24 @@ export type SkillUsage = {
 export type BattlePageProps = {
     socket: Socket;
     address: string;
-    details: BattleDetails | undefined;
+    details?: BattleDetails;
     playerCurrentHp: number;
     encounterCurrentHp: number;
-    monsterIdOffCd: string | undefined;
+    monsterIdOffCd?: string;
+    encounterDamageReceived?: EncounterDamageReceived;
 }
 
 export type EncounterImageProps = { 
     encounter: MonsterStats;
-    attacks: Attack[][];
+    encounterDamageReceived?: EncounterDamageReceived;
+    playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
 }
 
 export type EncounterEffectProps = {
-    attacks: Attack[];
-    effect: string;
+    encounterDamageReceived?: EncounterDamageReceived;
+    skills: MonsterEquippedSkillById;
     attackIndex: number;
-    show: boolean;
+    monsterId: string;
 }
 
 export type PlayerHpBarProps = {
@@ -109,6 +113,7 @@ export type PlayerMonsterBarProps = {
     playerMonsters: {[monsterId: string]: MonsterStats};
     onPlayerMonsterClick: (monsterId: string) => void;
     monstersOnCd: string[];
+    activeMonsterId: string;
 }
 
 export type PlayerSkillBarProps = {

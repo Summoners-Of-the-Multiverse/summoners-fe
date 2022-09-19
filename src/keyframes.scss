@@ -14,7 +14,52 @@
 		box-shadow: 0 0 0 0 #feefe200;
 	}
 }
+
 @keyframes fadeIn {
     0% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+@keyframes moveUpAndFade {
+	0% {
+		opacity: 0;
+        transform: translateY(-50px);
+	}
+
+	30% {
+		opacity: 100;
+        transform: translateY(-80px);
+	}
+
+	90% {
+		opacity: 20;
+        transform: translateY(-100px);
+	}
+
+	100% {
+		opacity: 0;
+        transform: translateY(-100px);
+	}
+}
+
+@keyframes critMoveUpAndFade {
+	0% {
+		opacity: 0;
+        transform: translateY(-50px);
+	}
+
+	30% {
+		opacity: 100;
+        transform: translateY(-120px);
+	}
+
+	90% {
+		opacity: 20;
+        transform: translateY(-130px);
+	}
+
+	100% {
+		opacity: 0;
+        transform: translateY(-130px);
+	}
 }
