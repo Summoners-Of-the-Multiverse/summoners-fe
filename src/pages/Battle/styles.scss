@@ -22,7 +22,7 @@ $battleButtonCenterSize: 30px;
             margin-bottom: 10px;
             height: 20px;
             border-radius: 15px;
-            background-color: grey;
+            background-color: #00000022;
             font-size: 12px;
             display: flex;
             align-items: center;
@@ -52,8 +52,32 @@ $battleButtonCenterSize: 30px;
             margin-top: 5px;
         }
 
+        .player-monster-image-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 33%;
+            margin: auto;
+        }
+
         .player-monster-image {
             position: relative;
+            //border: none;
+            color: transparent;
+            background-color: transparent;
+
+            margin-top: 1%;
+            height: 50px;
+            width: 50px;
+
+            border-radius: 5px;
+
+            overflow: hidden;
+
+            > img {
+                margin: auto;
+            }
 
             &.on-cd::before {
                 content: '';
@@ -63,6 +87,10 @@ $battleButtonCenterSize: 30px;
                 width: 100%;
                 height: 100%;
                 background: #00000055;
+            }
+
+            &.active {
+                border: 2px solid red;
             }
         }
 
@@ -200,6 +228,21 @@ $battleButtonCenterSize: 30px;
 
             > img {
                 height: 30vh;
+            }
+
+            .effect-container {
+                position: absolute;
+                height: 30vh;
+                width: 60vw;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9;
+                top: 0;
+                
+                > img {
+                    height: 100%;
+                }
             }
 
             .attacks {
