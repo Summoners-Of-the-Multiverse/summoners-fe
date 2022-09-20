@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import './styles.scss'
 import { Socket } from 'socket.io-client';
 import { AddressContext, SocketContext } from '../../App';
-import { cloneObj, getRandomNumber } from '../../common/utils';
+import { cloneObj, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack } from './types';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
@@ -217,6 +217,7 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
 
     let previousMonstersOnCd = useRef<string[]>([]);
 
+    //init
     let playerMaxHp = useMemo(() => {
         if(!details) {
             return 0;
@@ -403,6 +404,8 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
 
 const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex, monsterId }: EncounterEffectProps) => {
     const [attacks, setAttacks] = useState<Attack[]>([]);
+    const [randomBottom, setRandomBottom] = useState("10%");
+    const [randomLeft, setRandomLeft] = useState("50%");
 
     useEffect(() => {
         //no damage dont do anything
@@ -422,6 +425,12 @@ const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex,
 
         setAttacks([]);
 
+        let randomBottom = getRandomNumberAsString(0, 30) + "%";
+        let randomLeft = getRandomNumberAsString(30, 60) + "%";
+
+        setRandomBottom(randomBottom);
+        setRandomLeft(randomLeft);
+
         setTimeout(() => {
             setAttacks(encounterDamageReceived.attacks);
         }, 10);
@@ -429,7 +438,7 @@ const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex,
     }, [encounterDamageReceived, skills, monsterId]);
 
     return (
-        <div className={`attacks attack-index-${attackIndex}`}>
+        <div className={`attacks`} style={{ bottom: randomBottom, left: randomLeft }}>
             {
                 attacks.map((x, index) => {
                     let damage = x.damage.toFixed(0);
