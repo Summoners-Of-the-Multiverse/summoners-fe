@@ -378,6 +378,7 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
 
     return (
         <div className='encounter-img-container'>
+            <span>{encounter.name}{encounter.is_shiny? '*' : ''}</span>
             <img className='encounter-img' src={getMonsterImage(encounter.img_file)} alt="encounter_img"></img>
             {
                 Object.entries(playerMonsterSkills).map(([monsterId, skills], index) => (
@@ -404,7 +405,7 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
 
 const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex, monsterId }: EncounterEffectProps) => {
     const [attacks, setAttacks] = useState<Attack[]>([]);
-    const [randomBottom, setRandomBottom] = useState("10%");
+    const [randomBottom, setRandomBottom] = useState("0%");
     const [randomLeft, setRandomLeft] = useState("50%");
 
     useEffect(() => {
