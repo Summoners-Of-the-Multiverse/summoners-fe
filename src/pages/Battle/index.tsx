@@ -4,6 +4,8 @@ import { Socket } from 'socket.io-client';
 import { AddressContext, SocketContext } from '../../App';
 import { cloneObj, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack } from './types';
+import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
@@ -121,6 +123,7 @@ const Battle = () => {
     const [ encounterCurrentHp, setEncounterCurrentHp ] = useState(-1);
     const [ monsterIdOffCd, setMonsterIdOffCd ] = useState<string | undefined>(undefined);
     const [ encounterDamageReceived, setEncounterDamageReceived ] = useState<EncounterDamageReceived | undefined>(undefined);
+    const navigate = useNavigate();
 
     const onLoad = (battleDetails: BattleDetails) => {
         setEncounterCurrentHp(-1);
@@ -129,7 +132,7 @@ const Battle = () => {
     }
 
     const onBattleEnd = (hasWon: boolean) => {
-        //30s timer
+        //3s timer
         if(hasWon) {
             setEncounterCurrentHp(0);
         }
@@ -138,7 +141,13 @@ const Battle = () => {
             setPlayerCurrentHp(0);
         }
         
-        // setTimeout(() => setIsInBattle(false), 3000);
+        toast.info('Redirecting to battle stats in 3 seconds', {
+            autoClose: 2000
+        });
+        setTimeout(() => {
+            setIsInBattle(false);
+            navigate('/battleEnd');
+        }, 3000);
     }
 
     const onEncounterReceivedDamage = ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {

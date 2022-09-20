@@ -6,7 +6,7 @@ import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes } from 'react-router';
-import { Battle, Home } from './pages';
+import { Battle, BattleEnd, Home } from './pages';
 import { io, Socket } from 'socket.io-client';
 
 const { BSC, POLYGON } = ChainConfigs;
@@ -151,6 +151,7 @@ function App() {
                 <Routes>
                     <Route path="/home" element={<Home />}></Route>
                     <Route path="/" element={<Battle />}/>
+                    <Route path="/battleEnd/:id" element={<BattleEnd />}/>
                 </Routes>
             </AddressContext.Provider>
             <ToastContainer 
