@@ -237,6 +237,7 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
         setMonstersOnCd(cloned);
     }, [monsterIdOffCd]);
 
+    //register current monsters on cd
     useEffect(() => {
         previousMonstersOnCd.current = cloneObj<string[]>(monstersOnCd);
     }, [monstersOnCd]);
@@ -246,6 +247,66 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
         cloned.push(monsterId);
         setMonstersOnCd(cloned);
     }, [monstersOnCd]);
+
+    // add hotkeys
+    useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            if(!details) {
+                return;
+            }
+
+            let { playerMonsterSkills } = details;
+            let nonEmptyActiveMonsterId = activeMonsterId === ""? Object.keys(playerMonsterSkills)[0] : activeMonsterId;
+
+            const getSkillId = (index: number) => {
+                return parseInt(Object.keys(playerMonsterSkills[nonEmptyActiveMonsterId])[index]);
+            }
+
+            const getMonsterId = (index: number) => {
+                let { playerMonsterSkills } = details;
+                return Object.keys(playerMonsterSkills)[index];
+            }
+
+            switch(e.key) {
+                case "ArrowUp":
+                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(0));
+                    onSkillClick(nonEmptyActiveMonsterId);
+                    break;
+                case "ArrowRight":
+                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(1));
+                    onSkillClick(nonEmptyActiveMonsterId);
+                    break;
+                case "ArrowLeft":
+                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(2));
+                    onSkillClick(nonEmptyActiveMonsterId);
+                    break;
+                case "ArrowDown":
+                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(3));
+                    onSkillClick(nonEmptyActiveMonsterId);
+                    break;
+                case "1":
+                    setActiveMonsterId(getMonsterId(0));
+                    break;
+                case "2":
+                    setActiveMonsterId(getMonsterId(1));
+                    break;
+                case "3":
+                    setActiveMonsterId(getMonsterId(2));
+                    break;
+                case "4":
+                    setActiveMonsterId(getMonsterId(3));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        document.addEventListener("keydown", listener);
+
+        return () => {
+            document.removeEventListener("keydown", listener);
+        };
+    }, [activeMonsterId, details, socket, address, onSkillClick]);
 
     if(!details) {
         return null;
