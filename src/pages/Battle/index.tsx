@@ -38,7 +38,7 @@ const listenToBattle = ({
     onBattleEnd,
 }: ListenBattleParams ) => {
     
-    socket.on('invalid_battle', () => { onBattleEnd(false) });
+    socket.on('invalid_battle', () => { onBattleEnd(false, true) });
     socket.on('battle_start', (battleDetails: BattleDetails) => {
         onLoad(battleDetails);
         playerMonsterSkills = battleDetails.playerMonsterSkills;
@@ -89,6 +89,7 @@ const listenToBattle = ({
     });
 
     return () => {
+        socket.off('invalid_battle');
         socket.off('battle_start');
         socket.off('encounter_hit');
         socket.off('player_monster_off_cd');
@@ -134,7 +135,7 @@ const Battle = () => {
         setBattleDetails(battleDetails);
     }
 
-    const onBattleEnd = useCallback((hasWon: boolean) => {
+    const onBattleEnd = useCallback((hasWon: boolean, isInvalid: boolean = false) => {
         //3s timer
         if(hasWon) {
             setEncounterCurrentHp(0);
@@ -143,6 +144,14 @@ const Battle = () => {
         else {
             setPlayerCurrentHp(0);
         }
+
+        if(isInvalid) {
+            toast.error('There is currently an ongoing battle!');
+            setIsInBattle(false);
+            return;
+        }
+
+        setEncounterDamageReceived(undefined);
         
         toast.info('Redirecting to battle stats in 3 seconds', {
             autoClose: 2000
