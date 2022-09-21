@@ -3,7 +3,7 @@ import './styles.scss'
 import { Socket } from 'socket.io-client';
 import { AddressContext, SocketContext } from '../../App';
 import { cloneObj, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
-import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack } from './types';
+import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack, ListenBattleParams } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
@@ -16,74 +16,77 @@ const startBattle = ({
     address,
     chainId,
     areaId,
+}: StartBattleParams ) => {
+    if(isInBattle) {
+        return;
+    }
+    
+    console.log('starting battle')
+    if(address) {
+        socket.emit('start_battle', {address, chainId, areaId});
+    }
+} 
+
+const listenToBattle = ({
+    socket,
+    address,
     onLoad,
     onEncounterReceivedDamage,
     onDamageReceived,
     onMonsterOffCd,
     onEndSkillsReceived,
     onBattleEnd,
-}: StartBattleParams ) => {
-    if(isInBattle) {
-        return;
-    }
-
-    isInBattle = true;
+}: ListenBattleParams ) => {
     
-    console.log('starting battle')
-    if(address) {
-        socket.emit('start_battle', {address, chainId, areaId});
-        socket.on('invalid_battle', () => { onBattleEnd(false) });
-        socket.on('battle_start', (battleDetails: BattleDetails) => {
-            onLoad(battleDetails);
-            playerMonsterSkills = battleDetails.playerMonsterSkills;
+    socket.on('invalid_battle', () => { onBattleEnd(false) });
+    socket.on('battle_start', (battleDetails: BattleDetails) => {
+        onLoad(battleDetails);
+        playerMonsterSkills = battleDetails.playerMonsterSkills;
 
-            if(AUTO_BATTLE) {
-                console.log('emitting attack');
-                Object.keys(playerMonsterSkills).forEach(id => {
-                    let skillIds = Object.keys(playerMonsterSkills[id]);
-                    let skillIndex = getRandomNumber(0, 3, true);
-                    let skillId = skillIds[skillIndex];
-                    attack(socket, address, parseInt(id), parseInt(skillId));
-                });
-            }
-        })
+        if(AUTO_BATTLE) {
+            console.log('emitting attack');
+            Object.keys(playerMonsterSkills).forEach(id => {
+                let skillIds = Object.keys(playerMonsterSkills[id]);
+                let skillIndex = getRandomNumber(0, 3, true);
+                let skillId = skillIds[skillIndex];
+                attack(socket, address, parseInt(id), parseInt(skillId));
+            });
+        }
+    })
 
-        socket.on('encounter_hit', ({ damage, playerHpLeft }: EncounterHit) => {
-            onDamageReceived({damage, playerHpLeft});
-        });
+    socket.on('encounter_hit', ({ damage, playerHpLeft }: EncounterHit) => {
+        onDamageReceived({damage, playerHpLeft});
+    });
 
-        socket.on('player_monster_off_cd', (monsterId: number) => {
-            onMonsterOffCd(monsterId);
+    socket.on('player_monster_off_cd', (monsterId: number) => {
+        onMonsterOffCd(monsterId);
 
-            if(AUTO_BATTLE) {
-                console.log('emitting attack');
-                Object.keys(playerMonsterSkills).forEach(id => {
-                    let skillIds = Object.keys(playerMonsterSkills[id]);
-                    let skillIndex = getRandomNumber(0, 3, true);
-                    let skillId = skillIds[skillIndex];
-                    attack(socket, address, parseInt(id), parseInt(skillId));
-                });
-            }
-        });
-        socket.on('encounter_damage_received', (dmg: EncounterDamageReceived) => {
-            onEncounterReceivedDamage(dmg);
-        });
-        socket.on('end_battle_skill_usage', (usage: SkillUsage) => {
-            onEndSkillsReceived(usage);
-        });
+        if(AUTO_BATTLE) {
+            console.log('emitting attack');
+            Object.keys(playerMonsterSkills).forEach(id => {
+                let skillIds = Object.keys(playerMonsterSkills[id]);
+                let skillIndex = getRandomNumber(0, 3, true);
+                let skillId = skillIds[skillIndex];
+                attack(socket, address, parseInt(id), parseInt(skillId));
+            });
+        }
+    });
+    socket.on('encounter_damage_received', (dmg: EncounterDamageReceived) => {
+        onEncounterReceivedDamage(dmg);
+    });
+    socket.on('end_battle_skill_usage', (usage: SkillUsage) => {
+        onEndSkillsReceived(usage);
+    });
 
-        socket.on('battle_lost', () => {
-            isInBattle = false;
-            onBattleEnd(false);
-            console.log('Battle Lost')
-        });
+    socket.on('battle_lost', () => {
+        onBattleEnd(false);
+        console.log('Battle Lost')
+    });
 
-        socket.on('battle_won', () => {
-            isInBattle = false;
-            onBattleEnd(true);
-            console.log('Battle Won')
-        });
-    }
+    socket.on('battle_won', () => {
+        onBattleEnd(true);
+        console.log('Battle Won')
+    });
 
     return () => {
         socket.off('battle_start');
@@ -94,7 +97,7 @@ const startBattle = ({
         socket.off('battle_lost');
         socket.off('battle_won');
     };
-} 
+}
 
 const attack = (socket: Socket, address: string, monsterId: number, skillId: number) => {
     socket.emit(`battle_${address}`, {
@@ -131,7 +134,7 @@ const Battle = () => {
         setBattleDetails(battleDetails);
     }
 
-    const onBattleEnd = (hasWon: boolean) => {
+    const onBattleEnd = useCallback((hasWon: boolean) => {
         //3s timer
         if(hasWon) {
             setEncounterCurrentHp(0);
@@ -146,47 +149,55 @@ const Battle = () => {
         });
         setTimeout(() => {
             setIsInBattle(false);
-            navigate('/battleEnd');
+            //navigate('/battleEnd');
         }, 3000);
-    }
+    }, []);
 
-    const onEncounterReceivedDamage = ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
+    const onEncounterReceivedDamage = useCallback(({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
         setEncounterCurrentHp(encounterHpLeft);
         setEncounterDamageReceived({attacks, encounterHpLeft, monsterId, skillId});
-    }
+    }, []);
 
-    const onDamageReceived = ({ damage, playerHpLeft }: EncounterHit) => {
+    const onDamageReceived = useCallback(({ damage, playerHpLeft }: EncounterHit) => {
         setPlayerCurrentHp(playerHpLeft);
-    }
+    }, []);
 
-    const onMonsterOffCd = (monsterId: number) => {
+    const onMonsterOffCd = useCallback((monsterId: number) => {
         setMonsterIdOffCd(monsterId.toString());
 
         setTimeout(() => {
             setMonsterIdOffCd(undefined);
         }, 10);
-    }
+    }, []);
 
     const onEndSkillsReceived = () => {
 
     }
 
-    const handleStartBattle = () => {
+    //constantly listen to events
+    useEffect(() => {
+        return listenToBattle({
+            socket,
+            address,
+            onLoad,
+            onBattleEnd,
+            onDamageReceived,
+            onEncounterReceivedDamage,
+            onEndSkillsReceived,
+            onMonsterOffCd
+        });
+    }, [socket, address, onBattleEnd, onDamageReceived, onEncounterReceivedDamage, onMonsterOffCd]);
+
+    const handleStartBattle = useCallback(() => {
         setIsInBattle(true);
-        startBattle({
+        return startBattle({
             socket, 
             isInBattle, 
             address, 
             chainId: chain, 
             areaId: 1, 
-            onLoad, 
-            onEncounterReceivedDamage,
-            onDamageReceived,
-            onMonsterOffCd,
-            onEndSkillsReceived,
-            onBattleEnd,
         });
-    }
+    }, [socket, isInBattle, address, chain]);
 
     return (
         <div className='battle-page'>

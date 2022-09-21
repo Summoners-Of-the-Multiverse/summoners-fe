@@ -50,6 +50,11 @@ export type StartBattleParams = {
     address: string; 
     chainId: string; 
     areaId: number; 
+}
+
+export type ListenBattleParams = {
+    socket: Socket; 
+    address: string; 
     onLoad: (battleDetails: BattleDetails) => void;
     onEncounterReceivedDamage: ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => void;
     onDamageReceived: ({ damage, playerHpLeft }: EncounterHit) => void;
