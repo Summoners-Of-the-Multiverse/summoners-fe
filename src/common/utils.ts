@@ -111,3 +111,15 @@ export const getUTCDatetime = () => {
 export const getUTCDate = () => {
     return getUTCMoment().format('YYYY-MM-DD');
 }
+
+export const getBaseUrl = () => {
+    return process.env.REACT_APP_BASE_URL;
+}
+
+export const getMonsterImage = (assetFile: string) => {
+    return `/assets/sprites/${assetFile}`;
+}
+
+export const getEffect = (assetFile: string) => {
+    return `/assets/effects/${assetFile}`;
+}

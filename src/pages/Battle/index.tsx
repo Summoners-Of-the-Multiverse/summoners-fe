@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import './styles.scss'
 import { Socket } from 'socket.io-client';
 import { AddressContext, SocketContext } from '../../App';
-import { cloneObj, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
+import { cloneObj, getEffect, getMonsterImage, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack, ListenBattleParams } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -108,14 +108,6 @@ const attack = (socket: Socket, address: string, monsterId: number, skillId: num
             skill_id: skillId,
         }
     });
-}
-
-const getMonsterImage = (assetFile: string) => {
-    return `/assets/sprites/${assetFile}`;
-}
-
-const getEffect = (assetFile: string) => {
-    return `/assets/effects/${assetFile}`;
 }
 
 const Battle = () => {

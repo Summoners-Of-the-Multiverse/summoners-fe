@@ -6,15 +6,13 @@ $battleButtonCenterSize: 30px;
     display: flex;
     justify-content: center;
     margin-top: 30px;
+    min-width: 100%;
 
     .battle-container {
-        width: 60vw;
+        width: 100vw;
+        max-width: 900px;
         display: flex;
         flex-direction: column;
-
-        @media screen and (max-width: 900px) {
-            width: 90vw;
-        }
 
         img.encounter-img {
             height: 30vh;
