@@ -158,9 +158,9 @@ const Battle = () => {
         });
         setTimeout(() => {
             setIsInBattle(false);
-            //navigate('/battleEnd');
+            navigate('/battleEnd');
         }, 3000);
-    }, []);
+    }, [navigate]);
 
     const onEncounterReceivedDamage = useCallback(({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
         setEncounterCurrentHp(encounterHpLeft);

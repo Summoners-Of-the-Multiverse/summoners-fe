@@ -21,6 +21,7 @@ export type BattleDetails = {
     playerMonsters: { [monsterId: string]: MonsterStats };
     playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById };
     encounter: MonsterStats;
+    battle_id: number;
 }
 
 export type MonsterStats = {
@@ -60,7 +61,7 @@ export type ListenBattleParams = {
     onDamageReceived: ({ damage, playerHpLeft }: EncounterHit) => void;
     onMonsterOffCd: (monsterId: number) => void;
     onEndSkillsReceived: (usage: SkillUsage) => void;
-    onBattleEnd: (hasWon: boolean) => void;
+    onBattleEnd: (hasWon: boolean, isInvalid: boolean = false) => void;
 }
 
 export type EncounterHit = { 
