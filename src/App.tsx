@@ -6,7 +6,7 @@ import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes } from 'react-router';
-import { Battle, BattleEnd, Home } from './pages';
+import { Battle, BattleEnd, Home, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
 
 const { BSC, POLYGON } = ChainConfigs;
@@ -81,7 +81,7 @@ function App() {
             {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
 
             {/** Connectors */}
-            <div className='d-flex vw-100 align-items-center justify-content-center'>
+            <div className='d-flex align-items-center justify-content-center'>
                 <div className='connector-container'>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
@@ -149,8 +149,9 @@ function App() {
                 chain,
             }}>
                 <Routes>
+                    <Route path="/" element={<Starter />}></Route>
                     <Route path="/home" element={<Home />}></Route>
-                    <Route path="/" element={<Battle />}/>
+                    <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleEnd/:id" element={<BattleEnd />}/>
                 </Routes>
             </AddressContext.Provider>

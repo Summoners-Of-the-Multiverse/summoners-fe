@@ -1,0 +1,92 @@
+.starter-page {
+    margin-top: 30px;
+    width: 100%;
+
+    .starter-monsters-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+
+        @media screen and (max-width: 900px) {
+            flex-direction: column;
+        }
+
+        .starter-monster-card {
+            position: relative;
+            border-radius: 10px;
+            padding: 10px;
+
+            -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
+            -moz-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
+            box-shadow: rgba( 0, 0, 0, 0.3 ) 5px 5px 10px; 
+
+            @media screen and (max-width: 900px) {
+                margin: 20px;
+            }
+
+            .monster-info {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                font-size: 12px;
+
+                > span:nth-child(1) {
+                    margin-right: 5px;
+                }
+
+                > span:nth-child(2) {
+                    font-weight: bold;
+                }
+            }
+
+            > img {
+                height: 40vh;
+
+                @media screen and (max-width: 900px) {
+                    height: unset;
+                    width: 50vw;
+                }
+            }
+
+            > .divider {
+                height: 1px;
+                background-color: #00000022;
+                width: 100%;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                margin-left: 5px;
+                margin-right: 5px;
+                border-radius: 50%;
+            }
+
+            > .stats {
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+
+                position: relative;
+
+                > span {
+                    position: relative;
+                    > div {
+                        position: absolute;
+                        inset: 0;
+                        left: 15%;
+                        font-size: 8px;
+                        display: flex;
+                        align-items: center;
+                    }
+                }
+            }
+
+            > button {
+                margin-top: 20px;
+                width: 80%; 
+                border: 1px solid #00000022;
+                border-radius: 5px;
+                background-color: transparent;
+            }
+        }
+    }
+}
