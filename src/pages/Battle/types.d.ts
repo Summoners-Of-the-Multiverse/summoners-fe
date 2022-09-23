@@ -50,7 +50,6 @@ export type StartBattleParams = {
     isInBattle: boolean;
     address: string; 
     chainId: string; 
-    areaId: number; 
 }
 
 export type ListenBattleParams = {

@@ -15,7 +15,6 @@ const startBattle = ({
     isInBattle,
     address,
     chainId,
-    areaId,
 }: StartBattleParams ) => {
     if(isInBattle) {
         return;
@@ -23,7 +22,7 @@ const startBattle = ({
     
     console.log('starting battle')
     if(address) {
-        socket.emit('start_battle', {address, chainId, areaId});
+        socket.emit('start_battle', {address, chainId});
     }
 } 
 
@@ -196,7 +195,6 @@ const Battle = () => {
             isInBattle, 
             address, 
             chainId: chain, 
-            areaId: 1, 
         });
     }, [socket, isInBattle, address, chain]);
 

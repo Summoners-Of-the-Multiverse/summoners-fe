@@ -63,3 +63,18 @@
         transform: translateY(-130px);
 	}
 }
+
+@keyframes jump {
+	0% {
+        transform: translateY(0px);
+	}
+
+	50% {
+		opacity: 0.75;
+        transform: translateY(-20px);
+	}
+
+	100% {
+        transform: translateY(0px);
+	}
+}
