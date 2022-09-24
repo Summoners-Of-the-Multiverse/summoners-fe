@@ -2,6 +2,34 @@ import { ChainConfig } from "./types";
 import { ethers } from 'ethers';
 
 // chains
+export const BSC_TEST: ChainConfig = {
+    name: 'Binance Smart Chain Mainnet',
+    shortName: 'BSC TEST',
+    id: ethers.utils.hexlify(97),
+    rpc: 'https://data-seed-prebsc-2-s1.binance.org:8545',
+    nativeCurrency: {
+        name: 'BNB',
+        decimals: 18,
+        symbol: 'BNB',
+    },
+    blockExplorerUrl: 'https://testnet.bscscan.com',
+    linkerContract: '0x2924228001f622f5efE36d2dFb4e8135D3aF77D9',
+    nftContract: '0x9625B7E8237a0b9cB2B594846d360C0FAEeed376'
+};
+export const POLYGON_TEST: ChainConfig = {
+    name: 'Polygon Testnet',
+    shortName: 'MUMBAI',
+    id: ethers.utils.hexlify(80001),
+    rpc: 'https://polygontestapi.terminet.io/rpc',
+    nativeCurrency: {
+        name: 'MATIC',
+        decimals: 18,
+        symbol: 'MATIC',
+    },
+    blockExplorerUrl: 'https://mumbai.polygonscan.com/',
+    linkerContract: '0x2924228001f622f5efE36d2dFb4e8135D3aF77D9',
+    nftContract: '0x4bc383e4736bFcE6dd787A868EF3Cf3325Fb9391'
+};
 export const ETH: ChainConfig = {
     name: 'Ethereum',
     shortName: 'ETH',
