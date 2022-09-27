@@ -9,6 +9,7 @@ export type MintPromptProps = {
 export type MonsterBaseMetadata = {
     id: number;
     name: string;
+    element_id: number;
     element_name: string;
     img_file: string;
     base_attack: number;
