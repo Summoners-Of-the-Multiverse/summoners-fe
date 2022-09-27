@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import './styles.scss'
 import { Socket } from 'socket.io-client';
 import { AddressContext, SocketContext } from '../../App';
-import { cloneObj, getEffect, getMonsterImage, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
+import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack, ListenBattleParams } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -398,7 +398,7 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
     return (
         <div className='encounter-img-container'>
             <span>{encounter.name}{encounter.is_shiny? '*' : ''}</span>
-            <img className='encounter-img' src={getMonsterImage(encounter.img_file)} alt="encounter_img"></img>
+            <img className='encounter-img' src={getMonsterBattleImage(encounter.img_file)} alt="encounter_img"></img>
             {
                 Object.entries(playerMonsterSkills).map(([monsterId, skills], index) => (
                     <EncounterDamagedNumbers
@@ -529,7 +529,7 @@ const PlayerMonsterBar = ({ playerMonsters, onPlayerMonsterClick, monstersOnCd, 
                         className={`player-monster-image ${monstersOnCd.includes(monsterId)? 'on-cd' : ''} ${currentActiveMonster === monsterId? 'active' : ''}`}
                         onClick={() => { onPlayerMonsterClick(monsterId) }}
                     >
-                        <img src={getMonsterImage(monster.img_file)} alt="monster_image"></img>
+                        <img src={getMonsterIcon(monster.img_file, monster.element_id)} alt="imageFile"></img>
                     </button>);
                 })
             }

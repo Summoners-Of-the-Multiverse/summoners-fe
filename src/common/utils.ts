@@ -1,5 +1,10 @@
 import moment from 'moment';
 
+const ELEMENT_GRASS = 1;
+const ELEMENT_FIRE = 2;
+const ELEMENT_WATER = 3;
+const ELEMENT_CHAOS = 4;
+
 export function sleep(ms: number) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -116,8 +121,46 @@ export const getBaseUrl = () => {
     return process.env.REACT_APP_BASE_URL;
 }
 
-export const getMonsterImage = (assetFile: string) => {
-    return `/assets/sprites/${assetFile}`;
+export const getMonsterBattleImage = (assetFile: string) => {
+    return `/assets/sprites/normal/${assetFile}`;
+}
+
+export const getMonsterImage = (assetFile: string, elementId: number) => {
+    switch(elementId) {
+        case ELEMENT_GRASS:
+            return `/assets/sprites/green/${assetFile}`;
+
+        case ELEMENT_FIRE:
+            return `/assets/sprites/red/${assetFile}`;
+
+        case ELEMENT_WATER:
+            return `/assets/sprites/blue/${assetFile}`;
+
+        case ELEMENT_CHAOS:
+            return `/assets/sprites/grey/${assetFile}`;
+
+        default:
+            return `/assets/sprites/normal/${assetFile}`;
+    }
+}
+
+export const getMonsterIcon = (assetFile: string, elementId: number) => {
+    switch(elementId) {
+        case ELEMENT_GRASS:
+            return `/assets/sprites/icon_green/${assetFile}`;
+
+        case ELEMENT_FIRE:
+            return `/assets/sprites/icon_red/${assetFile}`;
+
+        case ELEMENT_WATER:
+            return `/assets/sprites/icon_blue/${assetFile}`;
+
+        case ELEMENT_CHAOS:
+            return `/assets/sprites/icon_grey/${assetFile}`;
+
+        default:
+            return `/assets/sprites/normal/${assetFile}`;
+    }
 }
 
 export const getEffect = (assetFile: string) => {
