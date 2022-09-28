@@ -1,9 +1,5 @@
 import moment from 'moment';
-
-const ELEMENT_GRASS = 1;
-const ELEMENT_FIRE = 2;
-const ELEMENT_WATER = 3;
-const ELEMENT_CHAOS = 4;
+import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from './constants';
 
 export function sleep(ms: number) {
     return new Promise((resolve, reject) => {
@@ -119,6 +115,10 @@ export const getUTCDate = () => {
 
 export const getBaseUrl = () => {
     return process.env.REACT_APP_BASE_URL;
+}
+
+export const getSkillIcon = (assetFile: string) => {
+    return `/assets/skills/${assetFile}`;
 }
 
 export const getMonsterBattleImage = (assetFile: string) => {
