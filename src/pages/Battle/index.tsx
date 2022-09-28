@@ -529,7 +529,7 @@ const PlayerMonsterBar = ({ playerMonsters, onPlayerMonsterClick, monstersOnCd, 
                         className={`player-monster-image ${monstersOnCd.includes(monsterId)? 'on-cd' : ''} ${currentActiveMonster === monsterId? 'active' : ''}`}
                         onClick={() => { onPlayerMonsterClick(monsterId) }}
                     >
-                        <img src={getMonsterIcon(monster.img_file, monster.element_id)} alt="imageFile"></img>
+                        <img src={getMonsterIcon(monster.img_file, monster.element_id, monster.is_shiny)} alt="imageFile"></img>
                     </button>);
                 })
             }

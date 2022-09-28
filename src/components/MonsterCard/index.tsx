@@ -6,6 +6,7 @@ import { MonsterCardProps } from './types';
 const MonsterCard = ({
     imageFile,
     elementId,
+    isShiny,
 
     attack,
     defense,
@@ -33,7 +34,7 @@ const MonsterCard = ({
     return (
         <div className='monster-card'>
             <div className="monster-image-container">
-                <img src={getMonsterImage(imageFile, elementId)} alt="monster_img"></img>
+                <img src={getMonsterImage(imageFile, elementId, isShiny)} alt="monster_img"></img>
                 <div className="stats">
                     <span className='attack'>{attack}</span>
                     <span className='defense'>{defense}</span>

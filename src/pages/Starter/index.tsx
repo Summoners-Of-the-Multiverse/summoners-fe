@@ -131,6 +131,7 @@ const MintPrompt = ({ monsters, onMint, address }: MintPromptProps) => {
                                 hp={x.base_hp}
                                 crit={x.base_crit_chance}
                                 additionalInfo={"test"}
+                                isShiny={false}
                             >
                                 <button onClick={() => { onMintButtonClick(x.id, x.name) }}>Mint</button>
                             </MonsterCard>

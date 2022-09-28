@@ -1,6 +1,7 @@
 export type MonsterCardProps = {
     imageFile: string;
     elementId: number;
+    isShiny: boolean;
 
     attack: number | string;
     defense: number | string;

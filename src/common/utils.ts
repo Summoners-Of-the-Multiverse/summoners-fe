@@ -122,45 +122,61 @@ export const getBaseUrl = () => {
 }
 
 export const getMonsterBattleImage = (assetFile: string) => {
-    return `/assets/sprites/normal/${assetFile}`;
+    return `/assets/sprites/base/${assetFile}`;
 }
 
-export const getMonsterImage = (assetFile: string, elementId: number) => {
+export const getMonsterImage = (assetFile: string, elementId: number, isShiny: boolean) => {
+    let file = "";
     switch(elementId) {
         case ELEMENT_GRASS:
-            return `/assets/sprites/green/${assetFile}`;
+            file = "green";
+            break
 
         case ELEMENT_FIRE:
-            return `/assets/sprites/red/${assetFile}`;
+            file = "red";
+            break
 
         case ELEMENT_WATER:
-            return `/assets/sprites/blue/${assetFile}`;
+            file = "blue";
+            break
 
         case ELEMENT_CHAOS:
-            return `/assets/sprites/grey/${assetFile}`;
+            file = "grey";
+            break
 
         default:
-            return `/assets/sprites/normal/${assetFile}`;
+            file = "base";
+            break
     }
+    file += isShiny? "_shiny" : "";
+    return `/assets/sprites/${file}/${assetFile}`;
 }
 
-export const getMonsterIcon = (assetFile: string, elementId: number) => {
+export const getMonsterIcon = (assetFile: string, elementId: number, isShiny: boolean) => {
+    let file = "";
     switch(elementId) {
         case ELEMENT_GRASS:
-            return `/assets/sprites/icon_green/${assetFile}`;
+            file = "green";
+            break
 
         case ELEMENT_FIRE:
-            return `/assets/sprites/icon_red/${assetFile}`;
+            file = "red";
+            break
 
         case ELEMENT_WATER:
-            return `/assets/sprites/icon_blue/${assetFile}`;
+            file = "blue";
+            break
 
         case ELEMENT_CHAOS:
-            return `/assets/sprites/icon_grey/${assetFile}`;
+            file = "grey";
+            break
 
         default:
-            return `/assets/sprites/normal/${assetFile}`;
+            file = "base";
+            break
     }
+    file = "icon_" + file + (isShiny? "_shiny" : "");
+    return `/assets/sprites/${file}/${assetFile}`;
 }
 
 export const getEffect = (assetFile: string) => {
