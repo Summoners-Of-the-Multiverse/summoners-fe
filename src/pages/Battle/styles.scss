@@ -54,55 +54,68 @@ $battleButtonCenterSize: 30px;
             margin-top: 5px;
         }
 
-        .player-monster-image-container {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            width: 100%;
+        .player-monster-bar {
+            position: relative;
+            width: 50vw;
+            height: 300px;
             margin: auto;
 
-            @media screen and (max-width: 900px) {
-                width: 205px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .player-monster-container {
+                position: relative;
+    
+                .player-monster {
+                    position: relative;
+                    height: 200px;
+        
+                    border-radius: 5px;
+        
+                    overflow: hidden;
+        
+                    padding: 0;
+                    border: none;
+        
+                    > img {
+                        margin: auto;
+                        height: 100%;
+                        aspect-ratio: 1;
+                    }
+        
+                    &.on-cd::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        background: #00000055;
+                    }
+        
+                    &.active {
+                        border: 2px solid red;
+                    }
+        
+                    &:nth-child(2),
+                    &:nth-child(3),
+                    &:nth-child(4) {
+                        position: absolute;
+                        height: 62px;
+                        width: 62px;
+                        
+                        bottom: -58px;
+                        left: 0px;
+                    }
+
+                    &:nth-child(3) {
+                        left: 68px;
+                    }
+                    
+                    &:nth-child(4) {
+                        left: 136px;
+                    }
+                }
             }
-        }
 
-        .player-monster-image {
-            position: relative;
-            //border: none;
-            color: transparent;
-            background-color: transparent;
-
-            margin-top: 1%;
-            height: 100px;
-            aspect-ratio: 1;
-
-            border-radius: 5px;
-
-            overflow: hidden;
-
-            padding: 0;
-            border: none;
-
-            > img {
-                margin: auto;
-                width: 100%;
-                aspect-ratio: 1;
-            }
-
-            &.on-cd::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: #00000055;
-            }
-
-            &.active {
-                border: 2px solid red;
-            }
         }
 
         .battle-button-big-container {
@@ -242,8 +255,9 @@ $battleButtonCenterSize: 30px;
             justify-content: center;
 
             > span {
-                font-weight: bold;
                 margin-bottom: 2%;
+                font-size: 25px;
+                font-family: 'Starguard', sans-serif;
             }
 
             > img {
@@ -268,6 +282,7 @@ $battleButtonCenterSize: 30px;
 
             .attacks {
                 position: absolute;
+                inset: 0;
 
                 &.attack-index-0 {
                     bottom: 25%;
@@ -290,12 +305,41 @@ $battleButtonCenterSize: 30px;
                 }
 
                 .attack {
+                    font-size: 12px;
+                }
+
+                .attack-total {
+                    font-size: 25px;
+
+                    @media screen and (max-width: 900px) {
+                        font-size: 20px;
+                    }
+
+                    &.attack-index-0 {
+                        bottom: 0%;
+                        left: 10%;
+                    }
+
+                    &.attack-index-1 {
+                        bottom: 0%;
+                        left: 30%;
+                    }
+
+                    &.attack-index-2 {
+                        bottom: 0%;
+                        right: 30%;
+                    }
+
+                    &.attack-index-3 {
+                        bottom: 0%;
+                        right: 10%;
+                    }
+                }
+
+                .attack,
+                .attack-total {
                     position: absolute;
-                    top: 0;
                     opacity: 0;
-                    left: 0;
-                    transform: translateY(-50px);
-                    animation: moveUpAndFade 1.25s linear;
                     font-weight: bold;
                     font-family: 'Ultra', serif;
                     width: 50px;
@@ -303,31 +347,62 @@ $battleButtonCenterSize: 30px;
 
                     text-transform: uppercase;
 
+                    z-index: 99999;
+
                     -webkit-text-stroke-width: 1px;
-                    -webkit-text-stroke-color: black;
 
                     &.crit {
-                        font-size: 1.5rem;
-                        -webkit-text-fill-color: red; /* Will override color (regardless of order) */
-                        animation: critMoveUpAndFade 1.25s linear;
+                        // font-size: 1.5rem;
+                        // -webkit-text-fill-color: red; /* Will override color (regardless of order) */
+                        animation: critShrinkAndFade 0.75s linear;
+
+                        &:last-child {
+                            animation: lastCritShrinkAndFade 0.75s linear;
+                            animation: inherit;
+                        }
                     }
 
                     &.immune {
-                        -webkit-text-fill-color: grey; /* Will override color (regardless of order) */
+                        // -webkit-text-fill-color: grey; /* Will override color (regardless of order) */
+                        animation: missShrinkAndFade 0.25s linear;
                     }
 
                     &.miss {
-                        -webkit-text-fill-color: white; /* Will override color (regardless of order) */
+                        -webkit-text-fill-color: white !important; /* Will override color (regardless of order) */
+                        -webkit-text-stroke-color: black !important;
+                        animation: missShrinkAndFade 0.25s linear;
                     }
 
                     &.normal {
-                        -webkit-text-fill-color: gold; /* Will override color (regardless of order) */
+                        // -webkit-text-fill-color: gold; /* Will override color (regardless of order) */
+                        animation: shrinkAndFade 1s linear;
+                    }
+
+                    &.fire {
+                        -webkit-text-fill-color: rgb(255,186,186);
+                        -webkit-text-stroke-color: red; /* Will override color (regardless of order) */
+                    }
+
+                    &.water {
+                        -webkit-text-fill-color: rgb(26, 103, 246); /* Will override color (regardless of order) */
+                        -webkit-text-stroke-color: blue;
+                    }
+
+                    &.grass {
+                        -webkit-text-fill-color: rgb(110, 242, 110); /* Will override color (regardless of order) */
+                        -webkit-text-stroke-color: green;
+                    }
+
+                    &.chaos {
+                        -webkit-text-fill-color: rgb(179, 179, 179); /* Will override color (regardless of order) */
+                        -webkit-text-stroke-color: rgb(77, 70, 70);
                     }
                 }
 
                 /* for damage numbers */
                 @for $i from 1 through 99 {
-                    .attack:nth-child(#{$i}n) {
+                    .attack:nth-of-type(#{$i}n),
+                    .attack-total:nth-of-type(#{$i}n) {
                         animation-delay: #{$i * 0.125}s;
                     }
                 }

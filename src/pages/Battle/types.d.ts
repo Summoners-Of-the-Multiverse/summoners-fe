@@ -43,6 +43,7 @@ export type MonsterStats = {
 export type Attack = {
     damage: number;
     type: "normal" | "crit" | "immune" | "miss";
+    element_id: number;
 }
 
 export type StartBattleParams = {
