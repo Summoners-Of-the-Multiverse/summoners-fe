@@ -10,19 +10,91 @@
 
         @media screen and (max-width: 900px) {
             flex-direction: column;
+            align-items: center;
+            justify-content: unset;
         }
 
         .starter-monster-card {
             position: relative;
-            border-radius: 10px;
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            @media screen and (max-width: 900px) {
+                height: unset;
+                width: 50vw;
+                margin: 20px;
+            }
+
+            /* border-radius: 10px;
             padding: 10px;
 
             -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
             -moz-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
-            box-shadow: rgba( 0, 0, 0, 0.3 ) 5px 5px 10px; 
+            box-shadow: rgba( 0, 0, 0, 0.3 ) 5px 5px 10px; */
+            
+            .starter-image-container {
+                height: 60vh;
+                position: relative;
+                color: white;
 
-            @media screen and (max-width: 900px) {
-                margin: 20px;
+                @media screen and (max-width: 900px) {
+                    height: unset;
+                    width: 50vw;
+                }
+
+                > img {
+                    height: 100%;
+                    width: 100%;
+                }
+
+                > .stats {
+                    font-family: 'Starguard', sans-serif;
+                    display: flex;
+                    flex-direction: column;
+
+                    position: absolute;
+                    inset: 0;
+
+                    font-size: 18px;
+
+                    > span {
+                        position: absolute;
+                        
+                        &.attack {
+                            bottom: 22.5%;
+                            left: 37.5%;
+                        }
+                        
+                        &.defense {
+                            bottom: 22.5%;
+                            left: 71.5%;
+                        }
+                        
+                        &.hp {
+                            bottom: 12%;
+                            left: 37.5%;
+                        }
+                        
+                        &.crit {
+                            bottom: 12%;
+                            left: 71.5%;
+                        }
+                    }
+                }
+            }
+
+
+            > .divider {
+                height: 1px;
+                background-color: #00000022;
+                width: 100%;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                margin-left: 5px;
+                margin-right: 5px;
+                border-radius: 50%;
             }
 
             .monster-info {
@@ -40,48 +112,7 @@
                 }
             }
 
-            > img {
-                height: 40vh;
-
-                @media screen and (max-width: 900px) {
-                    height: unset;
-                    width: 50vw;
-                }
-            }
-
-            > .divider {
-                height: 1px;
-                background-color: #00000022;
-                width: 100%;
-                margin-top: 5px;
-                margin-bottom: 5px;
-                margin-left: 5px;
-                margin-right: 5px;
-                border-radius: 50%;
-            }
-
-            > .stats {
-                margin-top: 20px;
-                display: flex;
-                flex-direction: column;
-
-                position: relative;
-
-                > span {
-                    position: relative;
-                    > div {
-                        position: absolute;
-                        inset: 0;
-                        left: 15%;
-                        font-size: 8px;
-                        display: flex;
-                        align-items: center;
-                    }
-                }
-            }
-
             > button {
-                margin-top: 20px;
                 width: 80%; 
                 border: 1px solid #00000022;
                 border-radius: 5px;

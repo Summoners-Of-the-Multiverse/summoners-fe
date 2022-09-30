@@ -6,11 +6,16 @@ import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes } from 'react-router';
-import { Battle, BattleEnd, Home, Starter } from './pages';
+import { Battle, BattleEnd, Home, Map, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
-import { IMintType } from './components/EVM/ContractCall/types';
 const { Mint } = ContractCall;
 const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
+import { AddressAreaResponse } from './types';
+import instance from './pages/Axios';
+import { AxiosResponse } from 'axios';
+
+const { BSC, POLYGON } = ChainConfigs;
+
 const allowedChains =[
     BSC_TEST,
     POLYGON_TEST,
@@ -19,6 +24,7 @@ const allowedChains =[
 export const AddressContext = createContext({
     address: "",
     chain: "",
+    areaId: 0,
 });
 
 const socket = io('ws://localhost:8081');
@@ -30,7 +36,8 @@ function App() {
     const [showLoader, setShowLoader] = useState(true);
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(false)
+    const [areaId, setAreaId] = useState(0);;
 
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
@@ -51,6 +58,26 @@ function App() {
         setIsMobile(isMobile);
     }
     window.addEventListener('resize', updateWindowDimensions);
+
+    useEffect(() => {
+        if(!address) {
+            return;
+        }
+
+        const getAddressCurrentArea = async() => {
+            try {
+                let areaRes = await instance.get<any, AxiosResponse<AddressAreaResponse>>(`/area/${address}`);
+                setAreaId(areaRes.data.area_id);
+            }
+
+            catch {
+                setAreaId(0);
+                toast.error('Unable to get current area');
+            }
+        }
+
+        getAddressCurrentArea();
+    }, [address]);
 
     const handleNewAccount = useCallback((address: string) => {
         setAddress(address);
@@ -148,9 +175,11 @@ function App() {
             <AddressContext.Provider value={{
                 address,
                 chain,
+                areaId,
             }}>
                 <Routes>
-                    <Route path="/" element={<Starter />}></Route>
+                    <Route path="/" element={<Map onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/starter" element={<Starter />}></Route>
                     <Route path="/home" element={<Home />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleEnd/:id" element={<BattleEnd />}/>

@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from './constants';
 
 export function sleep(ms: number) {
     return new Promise((resolve, reject) => {
@@ -116,8 +117,66 @@ export const getBaseUrl = () => {
     return process.env.REACT_APP_BASE_URL;
 }
 
-export const getMonsterImage = (assetFile: string) => {
-    return `/assets/sprites/${assetFile}`;
+export const getSkillIcon = (assetFile: string) => {
+    return `/assets/skills/${assetFile}`;
+}
+
+export const getMonsterBattleImage = (assetFile: string) => {
+    return `/assets/sprites/base/${assetFile}`;
+}
+
+export const getMonsterImage = (assetFile: string, elementId: number, isShiny: boolean) => {
+    let file = "";
+    switch(elementId) {
+        case ELEMENT_GRASS:
+            file = "green";
+            break
+
+        case ELEMENT_FIRE:
+            file = "red";
+            break
+
+        case ELEMENT_WATER:
+            file = "blue";
+            break
+
+        case ELEMENT_CHAOS:
+            file = "grey";
+            break
+
+        default:
+            file = "base";
+            break
+    }
+    file += isShiny? "_shiny" : "";
+    return `/assets/sprites/${file}/${assetFile}`;
+}
+
+export const getMonsterIcon = (assetFile: string, elementId: number, isShiny: boolean) => {
+    let file = "";
+    switch(elementId) {
+        case ELEMENT_GRASS:
+            file = "green";
+            break
+
+        case ELEMENT_FIRE:
+            file = "red";
+            break
+
+        case ELEMENT_WATER:
+            file = "blue";
+            break
+
+        case ELEMENT_CHAOS:
+            file = "grey";
+            break
+
+        default:
+            file = "base";
+            break
+    }
+    file = "icon_" + file + (isShiny? "_shiny" : "");
+    return `/assets/sprites/${file}/${assetFile}`;
 }
 
 export const getEffect = (assetFile: string) => {

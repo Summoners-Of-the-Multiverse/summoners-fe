@@ -4,9 +4,9 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import { MintPromptProps, MonsterBaseMetadata, StarterStatusResponse } from './types';
 import './styles.scss';
-import { getMonsterImage } from '../../common/utils';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import MonsterCard from '../../components/MonsterCard';
 
 const mint = async(address: string, metadataId: number) => {
     try {
@@ -30,6 +30,10 @@ const Starter = () => {
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const navigate = useNavigate();
 
+    const onMint = useCallback(() => {
+        navigate('/home');
+    }, [navigate]);
+
     //get if address has minted free mon
     useEffect(() => {
         const getStarterStatus = async() => {
@@ -39,6 +43,9 @@ const Starter = () => {
                 }
                 let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
                 setHasMinted(res.data.hasMinted);
+                if(res.data.hasMinted) {
+                    onMint();
+                }
             }
 
             catch {
@@ -48,7 +55,7 @@ const Starter = () => {
         }
 
         getStarterStatus();
-    }, [address]);
+    }, [address, onMint]);
 
     useEffect(() => {
         const getStarterMonsters = async() => {
@@ -67,10 +74,6 @@ const Starter = () => {
 
         getStarterMonsters();
     }, [address, chain]);
-
-    const onMint = useCallback(() => {
-        navigate('/home');
-    }, [navigate]);
 
     return (
         <div className='starter-page'>
@@ -102,40 +105,36 @@ const MintPrompt = ({ monsters, onMint, address }: MintPromptProps) => {
 
     return (
         <>
-            <h1 className='mb-3'>Choose Your Companion</h1>
+            <h1 className='mb-3'>Choose Your Guardian</h1>
             <div className='starter-monsters-container'>
                 {
                     monsters.map((x, index) => {
-                        let baseAttack = x.base_attack.toFixed(0);
-                        let maxAttack = x.max_attack.toFixed(0);
-                        let baseDefense = x.base_defense.toFixed(0);
-                        let maxDefense = x.max_defense.toFixed(0);
-                        let baseHp = x.base_hp.toFixed(0);
-                        let maxHp = x.max_hp.toFixed(0);
-                        let baseCritChance = x.base_crit_chance.toFixed(0);
-                        let maxCritChance = x.max_crit_chance.toFixed(0);
-                        let baseCritMultiplier = x.base_crit_multiplier.toFixed(0);
-                        let maxCritMultiplier = x.max_crit_multiplier.toFixed(0);
-                        let shinyChance = x.shiny_chance.toFixed(0);
+                        //let baseAttack = x.base_attack.toFixed(0);
+                        //let maxAttack = x.max_attack.toFixed(0);
+                        //let baseDefense = x.base_defense.toFixed(0);
+                        //let maxDefense = x.max_defense.toFixed(0);
+                        //let baseHp = x.base_hp.toFixed(0);
+                        //let maxHp = x.max_hp.toFixed(0);
+                        //let baseCritChance = x.base_crit_chance.toFixed(0);
+                        //let maxCritChance = x.max_crit_chance.toFixed(0);
+                        //let baseCritMultiplier = x.base_crit_multiplier.toFixed(0);
+                        //let maxCritMultiplier = x.max_crit_multiplier.toFixed(0);
+                        //let shinyChance = x.shiny_chance.toFixed(0);
+                        //let elementId = x.element_id;
 
                         return (
-                            <div className='starter-monster-card' key={`starter-monster-${index}`}>
-                                <div className="monster-info">
-                                    <span>{x.element_name}</span>
-                                    <span>{x.name}</span>
-                                </div>
-                                <img src={getMonsterImage(x.img_file)} alt="monster_img"></img>
-                                <div className="divider"></div>
-                                <div className="stats">
-                                    <span><div><span>Atk</span></div>{baseAttack} - {maxAttack}</span>
-                                    <span><div><span>Def</span></div>{baseDefense} - {maxDefense}</span>
-                                    <span><div><span>Hp</span></div>{baseHp} - {maxHp}</span>
-                                    <span><div><span>Crit(%)</span></div>{baseCritChance} - {maxCritChance}</span>
-                                    <span><div><span>CritX</span></div>{baseCritMultiplier}x - {maxCritMultiplier}x</span>
-                                    <span><div><span>Shiny(%)</span></div>{shinyChance} %</span>
-                                </div>
+                            <MonsterCard
+                                imageFile={x.img_file}
+                                elementId={x.element_id}
+                                attack={x.base_attack}
+                                defense={x.base_defense}
+                                hp={x.base_hp}
+                                crit={x.base_crit_chance}
+                                additionalInfo={"test"}
+                                isShiny={false}
+                            >
                                 <button onClick={() => { onMintButtonClick(x.id, x.name) }}>Mint</button>
-                            </div>
+                            </MonsterCard>
                         )
                     })
                 }
