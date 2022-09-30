@@ -15,6 +15,7 @@ export type MonsterSkill = {
     cooldown: number;
     multiplier: number;
     effect_file: string;
+    icon_file: string;
 }
 
 export type BattleDetails = {
@@ -66,6 +67,7 @@ export type ListenBattleParams = {
 
 export type EncounterHit = { 
     damage: number; 
+    cd: number;
     playerHpLeft: number;
 }
 
@@ -95,6 +97,8 @@ export type BattlePageProps = {
     encounterCurrentHp: number;
     monsterIdOffCd?: string;
     encounterDamageReceived?: EncounterDamageReceived;
+    encounterCd: number;
+    encounterMaxCd: number;
 }
 
 export type EncounterImageProps = { 
@@ -110,16 +114,32 @@ export type EncounterEffectProps = {
     monsterId: string;
 }
 
-export type PlayerHpBarProps = {
+export type BaseHpBarProps = {
     maxHp: number;
     currentHp: number;
+    name?: string;
+    cd?: number;
+    maxCd?: number;
+}
+export interface EncounterHpBarProps extends BaseHpBarProps {
+    cd?: number;
+    maxCd?: number;
+}
+
+export interface PlayerHpBarProps extends BaseHpBarProps {
+    cd?: number;
+    maxCd?: number;
 }
 
 export type PlayerMonsterBarProps = {
     playerMonsters: {[monsterId: string]: MonsterStats};
     onPlayerMonsterClick: (monsterId: string) => void;
-    monstersOnCd: string[];
+    monstersOnCd: {[monsterId: string] : number};
     activeMonsterId: string;
+    playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
+    onSkillClick: (mosnterId: string, endTime: number) => void;
+    socket: Socket;
+    address: string;
 }
 
 export type PlayerSkillBarProps = {
@@ -129,4 +149,9 @@ export type PlayerSkillBarProps = {
     activeMonsterId: string;
     isOnCd: boolean;
     onSkillClick: (mosnterId: string) => void;
+}
+
+export type PlayerMonsterImageProps = {
+    monster: MonsterStats;
+    endTime?: number;
 }
