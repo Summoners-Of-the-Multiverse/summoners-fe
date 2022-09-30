@@ -301,7 +301,7 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
         let monsterIdsOnCd = Object.keys(monstersOnCd);
 
         // there are other active monsters
-        if(details && monsterIdsOnCd.includes(activeMonsterId)) {
+        if(details && (monsterIdsOnCd.includes(activeMonsterId) || !activeMonsterId)) {
             let nextActiveIds = Object.keys(details.playerMonsters).filter(x => !monsterIdsOnCd.includes(x));
 
             // set next active id if there are
