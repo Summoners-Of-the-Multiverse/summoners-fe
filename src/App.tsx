@@ -5,7 +5,7 @@ import { ellipsizeThis } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router';
 import { Battle, BattleEnd, Home, Map, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
@@ -35,6 +35,7 @@ function App() {
     const [chainName, setChainName] = useState('');
     const [isMobile, setIsMobile] = useState(false)
     const [areaId, setAreaId] = useState(0);;
+    const navigate = useNavigate();
 
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
@@ -62,6 +63,10 @@ function App() {
         }
 
         const getAddressCurrentArea = async() => {
+            if(!address) {
+                return;
+            }
+            
             try {
                 let areaRes = await instance.get<any, AxiosResponse<AddressAreaResponse>>(`/area/${address}`);
                 setAreaId(areaRes.data.area_id);
@@ -69,12 +74,13 @@ function App() {
 
             catch {
                 setAreaId(0);
-                toast.error('Unable to get current area');
+                navigate('/starter');
+                // toast.error('Unable to get current area');
             }
         }
 
         getAddressCurrentArea();
-    }, [address]);
+    }, [address, navigate]);
 
     const handleNewAccount = useCallback((address: string) => {
         setAddress(address);
