@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from '../../common/constants';
 import moment from 'moment';
+import ElementIcon from '../../components/ElementIcon';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
@@ -16,19 +17,13 @@ const CD_ANIMATION_DURATION = 100; // in ms
 
 const startBattle = ({
     socket,
-    isInBattle,
     address,
     chainId,
 }: StartBattleParams ) => {
-    if(isInBattle) {
-        return;
-    }
-    
-    console.log('starting battle')
-    if(address) {
+    if(socket && address && chainId) {
         socket.emit('start_battle', {address, chainId});
     }
-} 
+}
 
 const listenToBattle = ({
     socket,
@@ -113,11 +108,19 @@ const attack = (socket: Socket, address: string, monsterId: number, skillId: num
     });
 }
 
+const surrender = (socket: Socket, address: string) => {
+    if(window.confirm('Surrender?')) {
+        socket.emit(`battle_${address}`, {
+            type: "flee",
+            value: { address }
+        });
+    }
+}
+
 const Battle = () => {
     const socket = useContext(SocketContext);
     const { address, chain, } = useContext(AddressContext);
     const [ battleDetails, setBattleDetails ] = useState<BattleDetails | undefined>(undefined);
-    const [ isInBattle, setIsInBattle ] = useState(false);
     const [ playerCurrentHp, setPlayerCurrentHp ] = useState(-1);
     const [ encounterCurrentHp, setEncounterCurrentHp ] = useState(-1);
     const [ monsterIdOffCd, setMonsterIdOffCd ] = useState<string | undefined>(undefined);
@@ -127,6 +130,7 @@ const Battle = () => {
     const [ encounterMaxCd, setEncounterMaxCd ] = useState(ENCOUNTER_INITIAL_DELAY);
 
     const navigate = useNavigate();
+    const isInBattle = useRef<boolean>(false);
 
     const setCdTimers = useCallback((cd: number) => {
         let iterationsNeeded = Math.ceil(cd / CD_ANIMATION_DURATION);
@@ -150,7 +154,6 @@ const Battle = () => {
 
         if(isInvalid) {
             toast.error('There is currently an ongoing battle!');
-            setIsInBattle(false);
             return;
         }
 
@@ -161,7 +164,6 @@ const Battle = () => {
         });
 
         setTimeout(() => {
-            setIsInBattle(false);
             navigate('/battleEnd');
         }, 3000);
     }, [navigate]);
@@ -216,47 +218,51 @@ const Battle = () => {
         });
     }, [socket, address, onBattleEnd, onDamageReceived, onEncounterReceivedDamage, onMonsterOffCd, setCdTimers]);
 
-    const handleStartBattle = useCallback(() => {
-        setIsInBattle(true);
-        return startBattle({
+
+    useEffect(() => {
+        console.log({isInBattle: isInBattle.current})
+
+        if(isInBattle.current) {
+            return;
+        }
+
+        if(!address) {
+            return;
+        }
+
+        if(!chain) {
+            return;
+        }
+
+        if(!socket) {
+            return;
+        }
+
+        isInBattle.current = true;
+
+        console.log('starting battle');
+        startBattle({
             socket, 
-            isInBattle, 
             address, 
             chainId: chain, 
         });
-    }, [socket, isInBattle, address, chain]);
+
+    }, [socket, address, chain]);
 
     return (
         <div className='battle-page'>
-            <div className='d-flex flex-column'>
-                {
-                    !isInBattle &&
-                    address &&
-                    chain &&
-                    <button 
-                        className='btn btn-sm btn-success'
-                        onClick={handleStartBattle}
-                    >
-                        Start Battle
-                    </button>
-                }
+            <BattlePage 
+                socket={socket}
+                address={address}
+                details={battleDetails}
+                playerCurrentHp={playerCurrentHp}
+                encounterCurrentHp={encounterCurrentHp}
+                monsterIdOffCd={monsterIdOffCd}
+                encounterDamageReceived={encounterDamageReceived}
+                encounterCd={encounterCd}
+                encounterMaxCd={encounterMaxCd}
 
-                {
-                    isInBattle &&
-                    <BattlePage 
-                        socket={socket}
-                        address={address}
-                        details={battleDetails}
-                        playerCurrentHp={playerCurrentHp}
-                        encounterCurrentHp={encounterCurrentHp}
-                        monsterIdOffCd={monsterIdOffCd}
-                        encounterDamageReceived={encounterDamageReceived}
-                        encounterCd={encounterCd}
-                        encounterMaxCd={encounterMaxCd}
-
-                    />
-                }
-            </div>
+            />
         </div>
     )
 }
@@ -395,6 +401,10 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
         monsterCount.current = Object.keys(details.playerMonsters).length;
     }, [details]);
 
+    const onSurrender = useCallback(() => {
+        surrender(socket, address);
+    }, [socket, address]);
+
     if(!details) {
         return null;
     }
@@ -405,11 +415,12 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
     return (
         <div className="battle-container">
             <EncounterHpBar
-                name={`${encounter.element_name} ${encounter.name}${encounter.is_shiny? '*' : ''}`}
+                name={`${encounter.name}${encounter.is_shiny? '*' : ''}`}
                 currentHp={encounterCurrentHp === -1? monsterMaxHp : encounterCurrentHp}
                 maxHp={monsterMaxHp}
                 cd={encounterCd}
                 maxCd={encounterMaxCd}
+                elementId={encounter.element_id}
             />
             <EncounterImage 
                 encounter={encounter}
@@ -439,6 +450,10 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
                 onSkillClick={onSkillClick}
                 isOnCd={monstersOnCd.includes(activeMonsterId)}
             /> */}
+            <button className="flee-button" onClick={onSurrender}>
+                <span>Surrender</span>
+                <i className="mdi mdi-flag-outline"></i>
+            </button>
         </div>
     );
 }
@@ -628,7 +643,7 @@ const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex,
     );
 }
 
-const EncounterHpBar = ({ currentHp, maxHp, name, maxCd, cd }: EncounterHpBarProps) => {
+const EncounterHpBar = ({ currentHp, maxHp, name, maxCd, cd, elementId }: EncounterHpBarProps) => {
     currentHp = currentHp < 0? 0 : currentHp;
     let pct = Math.ceil((currentHp * 100/ maxHp));
     pct = pct > 100? 100: pct;
@@ -648,6 +663,9 @@ const EncounterHpBar = ({ currentHp, maxHp, name, maxCd, cd }: EncounterHpBarPro
             {
                 name &&
                 <div className='hp-name'>
+                    <ElementIcon
+                        elementId={elementId}
+                    />
                     <span>{name}</span>
                 </div>
             }
@@ -741,6 +759,12 @@ const PlayerMonsterBar = ({ playerMonsters, playerMonsterSkills, onPlayerMonster
                                         onClick={() => { onInternalSkillClick(currentSkills[0].id) }}
                                     >
                                         <span>Q</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[0].element_id}
+                                                size={10}
+                                            />
+                                        </div>
                                         <img src={getSkillIcon(currentSkills[0].icon_file)} alt="skill_icon" />
                                     </button>
                                     <button 
@@ -748,6 +772,12 @@ const PlayerMonsterBar = ({ playerMonsters, playerMonsterSkills, onPlayerMonster
                                         onClick={() => { onInternalSkillClick(currentSkills[1].id) }}
                                     >
                                         <span>W</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[1].element_id}
+                                                size={10}
+                                            />
+                                        </div>
                                         <img src={getSkillIcon(currentSkills[1].icon_file)} alt="skill_icon" />
                                     </button>
                                     <button 
@@ -755,6 +785,12 @@ const PlayerMonsterBar = ({ playerMonsters, playerMonsterSkills, onPlayerMonster
                                         onClick={() => { onInternalSkillClick(currentSkills[2].id) }}
                                     >
                                         <span>E</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[2].element_id}
+                                                size={10}
+                                            />
+                                        </div>
                                         <img src={getSkillIcon(currentSkills[2].icon_file)} alt="skill_icon" />
                                     </button>
                                     <button 
@@ -762,6 +798,12 @@ const PlayerMonsterBar = ({ playerMonsters, playerMonsterSkills, onPlayerMonster
                                         onClick={() => { onInternalSkillClick(currentSkills[3].id) }}
                                     >
                                         <span>R</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[3].element_id}
+                                                size={10}
+                                            />
+                                        </div>
                                         <img src={getSkillIcon(currentSkills[3].icon_file)} alt="skill_icon" />
                                     </button>
                                 </>

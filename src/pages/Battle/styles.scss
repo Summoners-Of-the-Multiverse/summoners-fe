@@ -5,10 +5,13 @@ $battleButtonCenterSize: 30px;
 
     display: flex;
     justify-content: center;
+
     margin-top: 30px;
     min-width: 100%;
+    min-height: calc(100vh - 30px);
 
     .battle-container {
+        position: relative;
         width: 100vw;
         max-width: 900px;
         display: flex;
@@ -78,6 +81,10 @@ $battleButtonCenterSize: 30px;
                 -webkit-text-stroke-color: rgba(0,0,0,0.5) !important;
 
                 color: whitesmoke;
+
+                > span {
+                    margin-left: 5px;
+                }
             }
         }
 
@@ -219,6 +226,25 @@ $battleButtonCenterSize: 30px;
                     left: 1%;
 
                     font-size: 10px;
+                }
+
+                > div.element-icon-container {
+                    position: absolute;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    -webkit-text-stroke-width: 1.5px;
+                    -webkit-text-stroke-color: rgba(0,0,0,0.5) !important;
+
+                    top: calc(2% + 18px);
+                    left: 1%;
+
+                    border: 1px solid black;
+                    background-color: white;
+                    height: 18px;
+                    width: 18px;
+                    border-radius: 50%;
                 }
 
                 > img {
@@ -524,6 +550,37 @@ $battleButtonCenterSize: 30px;
                         animation-delay: #{$i * 0.15}s !important;
                     }
                 }
+            }
+        }
+
+        .flee-button {
+            position: absolute;
+
+            display: flex;
+            flex-direction: row;
+
+            align-items: center;
+
+            background-color: transparent;
+            border: none;
+
+            bottom: 5px;
+            right: 5px;
+
+            font-size: 15px;
+            color: crimson;
+
+            text-transform: uppercase;
+
+            @media screen and (max-width: 900px) {
+                > span {
+                    display: none;
+                }
+            }
+
+            > i {
+                font-size: 25px;
+                margin-left: 5px;
             }
         }
     }

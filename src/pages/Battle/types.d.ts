@@ -49,7 +49,6 @@ export type Attack = {
 
 export type StartBattleParams = {
     socket: Socket; 
-    isInBattle: boolean;
     address: string; 
     chainId: string; 
 }
@@ -122,6 +121,7 @@ export type BaseHpBarProps = {
     maxCd?: number;
 }
 export interface EncounterHpBarProps extends BaseHpBarProps {
+    elementId: number;
     cd?: number;
     maxCd?: number;
 }
