@@ -13,22 +13,23 @@ export const BSC_TEST: ChainConfig = {
         symbol: 'BNB',
     },
     blockExplorerUrl: 'https://testnet.bscscan.com',
-    linkerContract: '0x2924228001f622f5efE36d2dFb4e8135D3aF77D9',
-    nftContract: '0x9625B7E8237a0b9cB2B594846d360C0FAEeed376'
+    linkerContract: '0x57CbA50D4c4455E64829287FEAb366B9f1A56c4c',
+    nftContract: '0x797DA68eFCc022df34a634a74F2a4AcB2210c24C'
 };
 export const POLYGON_TEST: ChainConfig = {
     name: 'Polygon Testnet',
     shortName: 'MUMBAI',
-    id: ethers.utils.hexlify(80001),
+    // id: ethers.utils.hexlify(80001),
+    id: '0x13881',
     rpc: 'https://polygontestapi.terminet.io/rpc',
     nativeCurrency: {
         name: 'MATIC',
         decimals: 18,
         symbol: 'MATIC',
     },
-    blockExplorerUrl: 'https://mumbai.polygonscan.com/',
-    linkerContract: '0x2924228001f622f5efE36d2dFb4e8135D3aF77D9',
-    nftContract: '0x4bc383e4736bFcE6dd787A868EF3Cf3325Fb9391'
+    blockExplorerUrl: 'https://mumbai.polygonscan.com',
+    linkerContract: '0x57CbA50D4c4455E64829287FEAb366B9f1A56c4c',
+    nftContract: '0x5C503EDc04dAa0E7E8E60069C710BdDB1681036f'
 };
 export const ETH: ChainConfig = {
     name: 'Ethereum',

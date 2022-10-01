@@ -9,6 +9,6 @@ export type ChainConfig = {
         symbol: string;
     };
     blockExplorerUrl?: string;
-    linkerContract?: string,
-    nftContract?: string
+    linkerContract?: string;
+    nftContract?: string;
 }

@@ -8,11 +8,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes } from 'react-router';
 import { Battle, BattleEnd, Home, Map, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
-const { Mint } = ContractCall;
-const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
+const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
 const { BSC, POLYGON } = ChainConfigs;
 
@@ -170,7 +169,6 @@ function App() {
                     }
                 </div>
             </div>
-            <Mint type={"capture"} ></Mint>
             {/** Main Pages */}
             <AddressContext.Provider value={{
                 address,

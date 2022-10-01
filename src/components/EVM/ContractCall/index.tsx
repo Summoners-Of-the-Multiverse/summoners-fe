@@ -1,71 +1,52 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Socket } from 'socket.io-client';
-import { SocketContext } from '../../../App';
-import { toast } from 'react-toastify';
 import { ethers, Contract } from 'ethers';
 import { ChainConfigs } from '../../../components/EVM';
 import ERC721 from '../../../abi/Sotm721.json';
 import NftLinker from '../../../abi/SotmNftLinker.json';
 import _ from 'lodash';
-import { IMintType } from './types';
+import { getBaseUrl } from '../../../common/utils';
+import { ChainConfig } from '../ChainConfigs/types';
+
 const chains = ChainConfigs;
+export default class ContractCall {
+    provider: ethers.providers.JsonRpcProvider;
+    chainConfig: ChainConfig;
+    signer: ethers.providers.JsonRpcSigner;
+    erc721: Contract;
+    ntfLinker: Contract;
 
-export const Mint = ({type}: IMintType) => {
-    // const socket = useContext(SocketContext);
-    // const { address, chain } = useContext(AddressContext);
-    const label = type == 'capture' ? 'Capture' : 'Obtain';
+    constructor(chainId: string) {
+        // get chain nft contract address
+        const chain: any = _.find(chains, { id: chainId });
 
-    const mintNft = async(tokenId: number, hash: string, metadata: string) => {
+        this.chainConfig = chain;
+        this.provider = new ethers.providers.Web3Provider(window.ethereum as any);
+        this.signer = this.provider.getSigner();
+        this.erc721 = new ethers.Contract(chain.nftContract, ERC721.abi, this.signer);
+        this.ntfLinker = new ethers.Contract(chain.linkerContract, NftLinker.abi, this.signer);
+    }
+
+    checkNftClaimed = async(tokenId: number) => {
+        return await this.erc721.isClaimed(tokenId);
+    }
+
+    mintNft = async(nextTokenData: any) => {
         if (typeof window.ethereum == "undefined") {
             throw new Error(("Please install MetaMask"));
         }
         // const accounts = await provider.send("eth_requestAccounts", []);
 
         try {
-            const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+            if (_.has(this.chainConfig, 'nftContract')) {
+                const tokenId: Number = nextTokenData.data.id;
+                const hash: string = nextTokenData.data.hash
+                const metadata: string = `${getBaseUrl}/${nextTokenData.data.hash}`;
 
-            const chainId: number = (await provider.getNetwork()).chainId;
-
-            const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
-            // const address = signer.getAddress();
-
-            let nftContract: string | undefined = '';
-            _.map(chains, (c, index) => {
-                if (c.id == ethers.utils.hexlify(chainId) && !_.isNil(c.nftContract)) {
-                    console.log(c);
-                    nftContract = c.nftContract;
-                }
-            });
-
-            if (!_.isEmpty(nftContract)) {
-                const erc721 = new ethers.Contract(nftContract, ERC721.abi, signer);
-
-                // const nftTokenId = 66;
-                // const hash = '7a8a7902a4ee5625dec4'
-                // const metadata = `https://api.npoint.io/7a8a7902a4ee5625dec4`;
-
-                console.log(erc721);
-
-                const tx = await (await erc721.mintWithMetadata(tokenId, hash, metadata)).wait(1);
-
-                console.log(tx);
+                const tx = await (await this.erc721.mintWithMetadata(tokenId, hash, metadata)).wait(1);
+                return tx;
             }
 
         } catch(err: any) {
             throw new Error(err.message);
         }
     }
-
-    return (
-        <div className='mint-button'>
-            <div className='d-flex'>
-                <button
-                    className='btn btn-sm btn-warning'
-                    onClick={() => mintNft(6, `7a8a7902a4ee5625dec4`, `https://api.npoint.io/7a8a7902a4ee5625dec4`)}
-                >
-                    {label}
-                </button>
-            </div>
-        </div>
-    )
 }
