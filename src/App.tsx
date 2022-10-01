@@ -11,11 +11,17 @@ import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
+import { useLocation } from 'react-router';
 
 const { BSC, POLYGON } = ChainConfigs;
 const allowedChains =[
     BSC,
     POLYGON,
+];
+
+const pagesWithoutHeader = [
+    '/map',
+    '/battle',
 ];
 
 export const AddressContext = createContext({
@@ -33,9 +39,11 @@ function App() {
     const [showLoader, setShowLoader] = useState(true);
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
-    const [isMobile, setIsMobile] = useState(false)
-    const [areaId, setAreaId] = useState(0);;
+    const [isMobile, setIsMobile] = useState(false);
+    const [areaId, setAreaId] = useState(0);
+    const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
 
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
@@ -55,6 +63,7 @@ function App() {
 
         setIsMobile(isMobile);
     }
+
     window.addEventListener('resize', updateWindowDimensions);
 
     useEffect(() => {
@@ -81,6 +90,10 @@ function App() {
 
         getAddressCurrentArea();
     }, [address, navigate]);
+
+    useEffect(() => {
+        setShouldRenderHeader(pagesWithoutHeader.includes(location.pathname));
+    }, [location]);
 
     const handleNewAccount = useCallback((address: string) => {
         setAddress(address);
@@ -112,7 +125,7 @@ function App() {
             {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
 
             {/** Connectors */}
-            <div className='d-flex align-items-center justify-content-center'>
+            <div className={`${shouldRenderHeader? 'd-none' : 'd-flex'} align-items-center justify-content-center`}>
                 <div className='connector-container'>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
@@ -181,9 +194,9 @@ function App() {
                 areaId,
             }}>
                 <Routes>
-                    <Route path="/" element={<Map onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/" element={<Home />}></Route>
+                    <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
                     <Route path="/starter" element={<Starter />}></Route>
-                    <Route path="/home" element={<Home />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleEnd/:id" element={<BattleEnd />}/>
                 </Routes>
