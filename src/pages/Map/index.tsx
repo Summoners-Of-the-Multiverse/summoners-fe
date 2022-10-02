@@ -38,7 +38,7 @@ const Map = ({ onAreaChange }: MapProps) => {
     }, [address, onAreaChange]);
 
     const onCloseClick = useCallback(() => {
-        navigate(-1);
+        navigate("/");
     }, [navigate]);
 
     return (

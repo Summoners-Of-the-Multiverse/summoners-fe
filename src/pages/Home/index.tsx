@@ -1,17 +1,28 @@
 import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
+import { useNavigate } from 'react-router';
 import { AddressContext } from '../../App';
-
+import './styles.scss';
 
 const Home = () => {
-    const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-Key': 'Uz4nx8socOf6C6o0qyZ4ELGUm0SKdzODYS6yrhmnRCmF9vKMObZ0Qfc9tyG2XhdX'}};
     const { address, chain, } = useContext(AddressContext);
+	const navigate = useNavigate();
 
-    /* fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=polygon&format=decimal`, options)
-      .then(response => response.json())
-      .then(response => console.log(response))
-      .catch(err => console.error(err)); */
-
-    return (<div>Home: {chain}</div>)
+    return (
+		<div className='home-page'>
+			<button 
+				className='navigate-button'
+				onClick={() => navigate('/map')}
+			>
+				Travel
+			</button>
+			<button 
+				className='navigate-button'
+				onClick={() => navigate('/battle')}
+			>
+				Hunt!
+			</button>
+		</div>
+	)
 }
 
 export default Home;
