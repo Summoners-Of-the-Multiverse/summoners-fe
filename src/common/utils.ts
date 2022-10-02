@@ -24,8 +24,8 @@ export function sleep(ms: number) {
 
 /**
  * Runs the function if it's a function, returns the result or undefined
- * @param fn 
- * @param args 
+ * @param fn
+ * @param args
  */
 export const runIfFunction = (fn: any, ...args: any): any | undefined => {
     if(typeof(fn) == 'function'){
@@ -57,7 +57,7 @@ export function ellipsizeThis(x: string, leftCharLength: number, rightCharLength
 
 /**
  * Returns the new object that has no reference to the old object to avoid mutations.
- * @param obj 
+ * @param obj
  */
 export const cloneObj = <T = any>(obj: {[key: string]: any}) => {
     return JSON.parse(JSON.stringify(obj)) as T;
@@ -181,4 +181,17 @@ export const getMonsterIcon = (assetFile: string, elementId: number, isShiny: bo
 
 export const getEffect = (assetFile: string) => {
     return `/assets/effects/${assetFile}`;
+}
+
+export const truncateStr = (fullStr: string, strLen: number, separator='..') => {
+    if (fullStr.length <= strLen) return fullStr;
+
+    var sepLen = separator.length,
+        charsToShow = strLen - sepLen,
+        frontChars = Math.ceil(charsToShow/2),
+        backChars = Math.floor(charsToShow/2);
+
+    return fullStr.substr(0, frontChars) +
+           separator +
+           fullStr.substr(fullStr.length - backChars);
 }

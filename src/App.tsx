@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { EVMConnector, ChainConfigs, EVMSwitcher } from './components/EVM';
+import { EVMConnector, ChainConfigs, EVMSwitcher, ContractCall } from './components/EVM';
 import { ellipsizeThis } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
@@ -13,10 +13,11 @@ import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useLocation } from 'react-router';
 
-const { BSC, POLYGON } = ChainConfigs;
+const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
+
 const allowedChains =[
-    BSC,
-    POLYGON,
+    BSC_TEST,
+    POLYGON_TEST,
 ];
 
 const pagesWithoutHeader = [
@@ -55,7 +56,7 @@ function App() {
 
         setIsMobile(isMobile);
     }, []);
-    
+
     //updates it to mobile or desktop version
     const updateWindowDimensions = () => {
         var width = window.innerWidth;
@@ -140,16 +141,16 @@ function App() {
                             <span>{address? ellipsizeThis(address, 9, 9) : 'Your Jouney Starts Here'}</span>
                         </div>
                     </EVMConnector>
-            
+
                     {
                         address &&
                         <div className={`switcher-container ${isMobile? 'mobile' : ''}`}>
                             <EVMSwitcher
-                                targetChain={BSC}
+                                targetChain={BSC_TEST}
                                 handleChainChange={handleChainChange}
                                 handleUserRejection={handleUserRejection}
                                 handleUnknownError={handleUnknownError}
-                                className={chain === BSC.id? 'active' : ''}
+                                className={chain === BSC_TEST.id? 'active' : ''}
                                 currentChainId={chain}
                             >
                                 <>
@@ -164,11 +165,11 @@ function App() {
                                 </>
                             </EVMSwitcher>
                             <EVMSwitcher
-                                targetChain={POLYGON}
+                                targetChain={POLYGON_TEST}
                                 handleChainChange={handleChainChange}
                                 handleUserRejection={handleUserRejection}
                                 handleUnknownError={handleUnknownError}
-                                className={chain === POLYGON.id? 'active' : ''}
+                                className={chain === POLYGON_TEST.id? 'active' : ''}
                                 currentChainId={chain}
                             >
                                 <>
@@ -186,7 +187,6 @@ function App() {
                     }
                 </div>
             </div>
-            
             {/** Main Pages */}
             <AddressContext.Provider value={{
                 address,
@@ -201,7 +201,7 @@ function App() {
                     <Route path="/battleEnd/:id" element={<BattleEnd />}/>
                 </Routes>
             </AddressContext.Provider>
-            <ToastContainer 
+            <ToastContainer
                 position="bottom-left"
                 autoClose={3000}
                 hideProgressBar={false}
