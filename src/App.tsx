@@ -12,6 +12,7 @@ import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useLocation } from 'react-router';
+import Portal from './pages/Portal';
 
 const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
@@ -22,6 +23,7 @@ const allowedChains =[
 
 const pagesWithoutHeader = [
     '/map',
+    '/portal',
     '/battle',
 ];
 
@@ -113,14 +115,6 @@ function App() {
         setShowLoader(false);
     }
 
-    const handleUserRejection = () => {
-        toast.error('User Rejected');
-    }
-
-    const handleUnknownError = () => {
-        toast.error('Unknown Error');
-    }
-
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
@@ -141,50 +135,6 @@ function App() {
                             <span>{address? ellipsizeThis(address, 9, 9) : 'Your Jouney Starts Here'}</span>
                         </div>
                     </EVMConnector>
-
-                    {
-                        address &&
-                        <div className={`switcher-container ${isMobile? 'mobile' : ''}`}>
-                            <EVMSwitcher
-                                targetChain={BSC_TEST}
-                                handleChainChange={handleChainChange}
-                                handleUserRejection={handleUserRejection}
-                                handleUnknownError={handleUnknownError}
-                                className={chain === BSC_TEST.id? 'active' : ''}
-                                currentChainId={chain}
-                            >
-                                <>
-                                    {
-                                        !isMobile &&
-                                        <span>Forest</span>
-                                    }
-                                    {
-                                        isMobile &&
-                                        <i className='fa fa-tree' style={{ color: 'green' }}></i>
-                                    }
-                                </>
-                            </EVMSwitcher>
-                            <EVMSwitcher
-                                targetChain={POLYGON_TEST}
-                                handleChainChange={handleChainChange}
-                                handleUserRejection={handleUserRejection}
-                                handleUnknownError={handleUnknownError}
-                                className={chain === POLYGON_TEST.id? 'active' : ''}
-                                currentChainId={chain}
-                            >
-                                <>
-                                    {
-                                        !isMobile &&
-                                        <span>Volcano</span>
-                                    }
-                                    {
-                                        isMobile &&
-                                        <i className='fa fa-fire' style={{ color: 'red' }}></i>
-                                    }
-                                </>
-                            </EVMSwitcher>
-                        </div>
-                    }
                 </div>
             </div>
             {/** Main Pages */}
@@ -196,6 +146,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />}></Route>
                     <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/portal" element={<Portal onChainChange={handleChainChange}/>}></Route>
                     <Route path="/starter" element={<Starter />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleEnd/:id" element={<BattleEnd />}/>

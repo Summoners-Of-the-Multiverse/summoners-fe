@@ -1,0 +1,58 @@
+.portal-page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-width: 100%;
+    min-height: calc(100vh - 89px);
+
+    .back-button {
+        background-color: transparent;
+        border: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        padding: 10px;
+
+        font-size: 30px;
+
+        > span {
+            margin-left: 10px;
+            text-transform: uppercase;
+            font-family: 'Starguard';
+            letter-spacing: 3px;
+        }
+
+        @media screen and (max-width: 900px) {
+            > span {
+                display: none;
+            }
+        }
+    }
+
+    .navigate-button {
+
+        background-color: transparent;
+
+        text-transform: uppercase;
+        font-family: 'Starguard';
+        letter-spacing: 3px;
+        font-size: 50px;
+        width: 250px;
+
+        padding: 20px;
+        margin-bottom: 50px;
+        border: 5px solid black;
+        border-radius: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &.active {
+            border: 5px solid #00000033
+        }
+    }
+}

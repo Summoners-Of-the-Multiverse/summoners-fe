@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router';
-import { AddressContext } from '../../App';
 import './styles.scss';
 
 const Home = () => {
-    const { address, chain, } = useContext(AddressContext);
 	const navigate = useNavigate();
 
     return (
@@ -14,6 +12,12 @@ const Home = () => {
 				onClick={() => navigate('/map')}
 			>
 				Travel
+			</button>
+			<button 
+				className='navigate-button'
+				onClick={() => navigate('/portal')}
+			>
+				Portal
 			</button>
 			<button 
 				className='navigate-button'
