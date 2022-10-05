@@ -41,11 +41,11 @@ const MonsterCard = ({
                     <span className='hp'>{hp}</span>
                     <span className='crit'>{crit}</span>
                 </div>
+                {
+                    additionalInfo &&
+                    <div className={`info-button ${showInfo? 'active' : ''}`} onMouseEnter={displayInfo} onMouseLeave={hideInfo}>{ showInfo && additionalInfo}</div>
+                }
             </div>
-            {
-                additionalInfo &&
-                <div className={`info-button ${showInfo? 'active' : ''}`} onMouseEnter={displayInfo} onMouseLeave={hideInfo}>{ showInfo && additionalInfo}</div>
-            }
             {children}
         </div>
     )
