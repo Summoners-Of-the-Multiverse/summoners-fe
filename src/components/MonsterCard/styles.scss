@@ -43,27 +43,32 @@
 
             font-size: 18px;
 
-            > span {
+            > div {
                 position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 16%;
+                height: 6%;
                 
                 &.attack {
-                    bottom: 22.5%;
-                    left: 37.5%;
+                    bottom: 22.2%;
+                    left: 30.5%;
                 }
                 
                 &.defense {
-                    bottom: 22.5%;
-                    left: 71.5%;
+                    bottom: 22.2%;
+                    left: 64.5%;
                 }
                 
                 &.hp {
-                    bottom: 12%;
-                    left: 37.5%;
+                    bottom: 12.3%;
+                    left: 30.5%;
                 }
                 
                 &.crit {
-                    bottom: 12%;
-                    left: 71.5%;
+                    bottom: 12.3%;
+                    left: 64.5%;
                 }
             }
         }

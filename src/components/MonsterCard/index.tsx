@@ -36,10 +36,18 @@ const MonsterCard = ({
             <div className="monster-image-container">
                 <img src={getMonsterImage(imageFile, elementId, isShiny)} alt="monster_img"></img>
                 <div className="stats">
-                    <span className='attack'>{attack}</span>
-                    <span className='defense'>{defense}</span>
-                    <span className='hp'>{hp}</span>
-                    <span className='crit'>{crit}</span>
+                    <div className="attack">
+                        <span>{attack}</span>
+                    </div>
+                    <div className="defense">
+                        <span>{defense}</span>
+                    </div>
+                    <div className="hp">
+                        <span>{hp}</span>
+                    </div>
+                    <div className="crit">
+                        <span>{crit}</span>
+                    </div>
                 </div>
                 {
                     additionalInfo &&
