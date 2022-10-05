@@ -164,9 +164,9 @@ const Battle = () => {
         });
 
         setTimeout(() => {
-            navigate('/battleEnd');
+            navigate(`/battleResult/${battleDetails!.battle_id}`);
         }, 3000);
-    }, [navigate]);
+    }, [navigate, battleDetails]);
 
     const onEncounterReceivedDamage = useCallback(({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
         setEncounterCurrentHp(encounterHpLeft);
@@ -194,7 +194,7 @@ const Battle = () => {
 
     //display end battle screen
     const onEndSkillsReceived = () => {
-
+        //currently not used
     }
 
     //constantly listen to events

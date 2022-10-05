@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import { EVMConnector, ChainConfigs, EVMSwitcher, ContractCall } from './components/EVM';
+import { ToastContainer } from 'react-toastify';
+import { EVMConnector, ChainConfigs } from './components/EVM';
 import { ellipsizeThis } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
-import { Battle, BattleEnd, Home, Map, Starter } from './pages';
+import { Battle, BattleResult, Home, Map, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
@@ -149,7 +149,7 @@ function App() {
                     <Route path="/portal" element={<Portal onChainChange={handleChainChange}/>}></Route>
                     <Route path="/starter" element={<Starter />}></Route>
                     <Route path="/battle" element={<Battle />}/>
-                    <Route path="/battleEnd/:id" element={<BattleEnd />}/>
+                    <Route path="/battleResult/:id" element={<BattleResult />}/>
                 </Routes>
             </AddressContext.Provider>
             <ToastContainer

@@ -72,7 +72,7 @@ const Starter = () => {
     }
 
     const onMint = useCallback(() => {
-        navigate('/home');
+        navigate('/');
     }, [navigate]);
 
     //get if address has minted free mon
