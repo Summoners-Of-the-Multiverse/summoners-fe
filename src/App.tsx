@@ -13,7 +13,7 @@ import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useLocation } from 'react-router';
 import Portal from './pages/Portal';
-
+import Inventory from './pages/Inventory';
 const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
 const allowedChains =[
@@ -78,7 +78,7 @@ function App() {
             if(!address) {
                 return;
             }
-            
+
             try {
                 let areaRes = await instance.get<any, AxiosResponse<AddressAreaResponse>>(`/area/${address}`);
                 setAreaId(areaRes.data.area_id);
@@ -148,6 +148,8 @@ function App() {
                     <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
                     <Route path="/portal" element={<Portal onChainChange={handleChainChange}/>}></Route>
                     <Route path="/starter" element={<Starter />}></Route>
+                    <Route path="/inventory" element={<Inventory />}></Route>
+                    <Route path="/home" element={<Home />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleResult/:id" element={<BattleResult />}/>
                 </Routes>
