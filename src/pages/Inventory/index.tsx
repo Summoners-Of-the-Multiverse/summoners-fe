@@ -8,6 +8,8 @@ import LoadingIndicator from '../../components/Spinner';
 
 const Inventory = () => {
     const { address, chain, } = useContext(AddressContext);
+    // store previous selected mob
+    const [selected, setSelected] = useState<any>(null);
     // set loading state
     const [isLoading, setIsLoading] = useState(false);
     // store all monster
@@ -57,7 +59,7 @@ const Inventory = () => {
 
             if (m) {
                 component.push(
-                    <div key={`mob-${index}`} className="mob-slot">
+                    <div key={`mob-${index}`} className="mob-slot" onClick={(e) => handleClick(e, m)}>
                         <div className="slotLabel">{index+1}</div>
                         <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} />
                     </div>
@@ -73,6 +75,21 @@ const Inventory = () => {
         return component;
     }
 
+    const handleClick = (event: any, m: any) => {
+        if (selected) {
+            selected.classList.toggle('selected');
+        }
+        // 👇️ toggle class on click
+        event.currentTarget.classList.toggle('selected');
+        setSelected(event.currentTarget);
+
+        // 👇️ add class on click
+        // event.currentTarget.classList.add('bg-salmon');
+
+        // 👇️ remove class on click
+        // event.currentTarget.classList.remove('bg-salmon');
+    };
+
     const MonsterListing = () => {
         let component: JSX.Element[] = [];
         for (let index = 0; index < take; index++) {
@@ -80,7 +97,7 @@ const Inventory = () => {
             if (m) {
                 const isEquipped = m.equipped === 1 ? 'slot equipped' : 'slot';
                 component.push(
-                    <div key={`mob-${index}`} className={isEquipped}>
+                    <div key={`mob-${index}`} className={isEquipped} onClick={(e) => handleClick(e, m)}>
                         <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} />
                     </div>
                 )
@@ -104,8 +121,10 @@ const Inventory = () => {
                 {/* equipped */}
                 <div className="equipment groovy">
                     <div className="label-slot">
-                        <span className="equipped">In-Use</span>
-                        <i className="label-icon fa fa-optin-monster" aria-hidden="true"></i>
+                        <div className="label-placeholder">
+                            <span className="equipped">In-Use</span>
+                            <i className="label-icon fa fa-optin-monster" aria-hidden="true"></i>
+                        </div>
                     </div>
                     { EquippedMonster() }
                 </div>
@@ -157,7 +176,6 @@ const Inventory = () => {
                         </a>
                     </li>
                 </ul>
-
             </div>
 
             <LoadingIndicator

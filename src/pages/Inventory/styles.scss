@@ -95,27 +95,29 @@ No images, no background filters, no javascript, simple CSS and HTML
 
     .bag {
         width: 90%;
-        height: 400px;
+        // height: 400px;
+        overflow: auto;
         border-radius: 10px;
         margin-top: 10px;
 
         .top-part {
             width: 100%;
-            height: 50%;
+            // height: 50%;
             padding: 2%;
+            overflow: auto;
         }
 
         .divider {
-            margin: 2%;
+            margin: 0 2%;
             width: 96%;
             height: 6%;
-            padding: 2% 0;
+            // padding: 2% 0;
         }
 
         .description {
             float: left;
             width: 70%;
-            height: 40%;
+            height: 30%;
             padding: 2%;
         }
 
@@ -131,16 +133,22 @@ No images, no background filters, no javascript, simple CSS and HTML
 
     .equipment {
         width: 90%;
-        height: 100px;
+        // height: 100px;
         border-radius: 10px;
         margin-top: 10px;
         padding: 2%;
+        padding-top: 17%;
+
+        .label-slot, .mob-slot {
+            margin-top: -18%;
+        }
     }
 
     .tabs {
         position: absolute;
         right: 0;
-        top: 200px;
+        // top: 200px;
+        top: 36%;
         list-style: none;
         padding: 0;
         margin: 0;
@@ -165,16 +173,37 @@ No images, no background filters, no javascript, simple CSS and HTML
     }
 
     .label-slot {
-        width: 18%;
-        height: 57px;
-        float: left;
-        margin: 1%;
-        border-radius: 10px 0 10px 0;
-        color: #ffffff;
+        // height: 57px;
+        // border-radius: 10px 0 10px 0;
+        // color: #ffffff;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        color: #c7c7c7;
+        font-weight: 1000;
+        width: 18%;
+        float: left;
+        margin: 1%;
+        position: relative;
+        padding-top: 16%;
+        border-radius: 10px 0 10px 0;
+        border-top: 3px solid transparent;
+        border-left: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+        border-right: 3px solid transparent;
+
+        .label-placeholder {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            right: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
         .equipped {
             font-weight: bold;
@@ -186,11 +215,19 @@ No images, no background filters, no javascript, simple CSS and HTML
         font-size: 30px;
     }
 
+    @keyframes frameBlink { 50% { border-color: transparent; }  }
+    @keyframes imgBlink {
+        0% { filter: brightness(1.4); }
+        50% { filter: brightness(1); }
+        100% { filter: brightness(1.4); }
+    }
+
     .mob-slot {
         color: #757575;
         font-weight: 1000;
         width: 18%;
-        height: 57px;
+        // height: 57px;
+        padding-top: 16%;
         float: left;
         margin: 1%;
         border-radius: 10px 0 10px 0;
@@ -200,11 +237,17 @@ No images, no background filters, no javascript, simple CSS and HTML
         border-right: 3px solid #757161;
         overflow: hidden;
         position: relative;
+        cursor: pointer;
 
         img {
-            height: 55px;
-            left: 50%;
-            margin-left: -50%;
+            // height: 52px;
+            // left: 50%;
+            // margin-left: -50%;
+            // width: 100%;
+            // position: absolute;
+            height: 100%;
+            right: 0;
+            top: 0;
             width: 100%;
             position: absolute;
         }
@@ -219,15 +262,21 @@ No images, no background filters, no javascript, simple CSS and HTML
         }
 
         &.selected {
-            background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
-            background-size: 10px 10px;
-            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            border: 3px dashed #ff5100cd;
+            animation: frameBlink 1s linear infinite;
+            img {
+                animation: imgBlink 1s linear infinite;
+            }
+            // background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
+            // background-size: 10px 10px;
+            // background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
         }
     }
 
     .slot {
         width: 18%;
-        height: 57px;
+        // height: 57px;
+        padding-top: 16%;
         float: left;
         margin: 1%;
         border-radius: 10px 0 10px 0;
@@ -237,20 +286,27 @@ No images, no background filters, no javascript, simple CSS and HTML
         border-right: 3px solid #757161;
         overflow: hidden;
         position: relative;
+        cursor: pointer;
 
         img {
-            height: 55px;
-            left: 50%;
-            margin-left: -50%;
+            // height: 52px;
+            // left: 50%;
+            // margin-left: -50%;
+            // width: 100%;
+            // position: absolute;
+            height: 100%;
+            right: 0;
+            top: 0;
             width: 100%;
             position: absolute;
         }
 
-        @keyframes blink { 50% { border-color: transparent; }  }
-
         &.selected {
             border: 3px dashed #ff5100cd;
-            animation: blink 1s linear infinite;
+            animation: frameBlink 1s linear infinite;
+            img {
+                animation: imgBlink 1s linear infinite;
+            }
             // background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
             // background-size: 10px 10px;
             // background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
@@ -263,7 +319,7 @@ No images, no background filters, no javascript, simple CSS and HTML
         border-left: 3px solid #442434;
         border-bottom: 3px solid #757161;
         border-right: 3px solid #757161;
-        height: 100%;
+        height: 150px;
         padding: 10px;
         color: #e2e2e2;
         font-size: 25px;
@@ -284,8 +340,9 @@ No images, no background filters, no javascript, simple CSS and HTML
         color: black;
         letter-spacing: 2px;
         font-size: 1.2em;
-        max-width: 70px;
-        min-width: 70px;
+        // max-width: 70px;
+        max-width: 150px;
+        min-width: 80px;
         border: 3px solid #171717;
         margin: 5px auto;
         display: block;
