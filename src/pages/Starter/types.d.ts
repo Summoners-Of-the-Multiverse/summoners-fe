@@ -4,6 +4,9 @@ export type MintPromptProps = {
     monsters: MonsterBaseMetadata[];
     onMint: () => void;
     address: string;
+    chain: string;
+    startMinting: () => void;
+    endMinting: () => void;
 }
 
 export type MonsterBaseMetadata = {

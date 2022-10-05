@@ -7,18 +7,49 @@ import './styles.scss';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import MonsterCard from '../../components/MonsterCard';
+import ContractCall from '../../components/EVM/ContractCall';
+import { truncateStr } from '../../common/utils';
+import _ from 'lodash';
+import { ChainConfigs } from '../../components/EVM';
+import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
+import LoadingIndicator from '../../components/Spinner';
 
-const mint = async(address: string, metadataId: number) => {
+const chains = ChainConfigs;
+
+const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
+    <div>
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Mint success
+    </div>
+);
+
+const mint = async(chain: string, address: string, metadataId: number) => {
     try {
-        await instance.post('/mint', {
-            address,
-            metadataId
-        });
+        const contract = new ContractCall(chain);
+        const mintData: { [ key:string]: any} = await instance.post(`/premint/${chain}`);
+        const tx = await contract.mintNft(mintData);
 
-        return true;
+        if (tx.status === 1) {
+            const chainConfig: ChainConfig|undefined = _.find(chains, { id: chain,  })
+
+            const tokenId: number = mintData.data.id;
+            const tokenHash: number = mintData.data.hash;
+
+            const result: any = await instance.post(`/mint`, {
+                address: address,
+                metadataId: metadataId,
+                tokenId: tokenId,
+                tokenHash: tokenHash
+            });
+
+            if (result.data.success) {
+                toast.success(SuccessMintToast(chainConfig, tx));
+                return true;
+            }
+        }
+        return false;
     }
-
-    catch {
+    catch(e) {
+        console.log(e);
         return false;
     }
 }
@@ -28,7 +59,17 @@ const Starter = () => {
     const { address, chain, } = useContext(AddressContext);
     const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
+    const [minting, setMinting] = useState(false);
+
     const navigate = useNavigate();
+
+    const startMinting = () => {
+        setMinting(true);
+    }
+
+    const endMinting = () => {
+        setMinting(false);
+    }
 
     const onMint = useCallback(() => {
         navigate('/home');
@@ -83,25 +124,36 @@ const Starter = () => {
                     monsters={starterMonsters}
                     onMint={onMint}
                     address={address}
+                    chain={chain}
+                    startMinting={startMinting}
+                    endMinting={endMinting}
                 />
             }
+            <LoadingIndicator
+                show={minting}
+                type={"pulse"}
+                mode={"white"}
+                text={"Minting"}
+            ></LoadingIndicator>
         </div>
     )
 }
 
-const MintPrompt = ({ monsters, onMint, address }: MintPromptProps) => {
+const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting }: MintPromptProps) => {
 
-    const onMintButtonClick = useCallback(async(id: number, name: string) => {
+    const onMintButtonClick = useCallback(async(chain:string, id: number, name: string) => {
         if(window.confirm(`Mint ${name}?`)) {
-            let res = await mint(address, id);
+            startMinting();
+            let res = await mint(chain, address, id);
             if(!res) {
                 toast.error('Unable to mint!');
+                endMinting();
                 return;
             }
 
             onMint();
         }
-    }, [onMint, address]);
+    }, [onMint, address, startMinting, endMinting]);
 
     return (
         <>
@@ -124,6 +176,7 @@ const MintPrompt = ({ monsters, onMint, address }: MintPromptProps) => {
 
                         return (
                             <MonsterCard
+                                key={`mob-${x.id}`}
                                 imageFile={x.img_file}
                                 elementId={x.element_id}
                                 attack={x.base_attack}
@@ -133,7 +186,7 @@ const MintPrompt = ({ monsters, onMint, address }: MintPromptProps) => {
                                 additionalInfo={"test"}
                                 isShiny={false}
                             >
-                                <button onClick={() => { onMintButtonClick(x.id, x.name) }}>Mint</button>
+                                <button onClick={() => { onMintButtonClick(chain, x.id, x.name) }}>Mint</button>
                             </MonsterCard>
                         )
                     })
