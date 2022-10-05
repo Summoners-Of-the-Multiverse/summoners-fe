@@ -51,14 +51,6 @@ function App() {
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
 
-    //first update for mobile or desktop version
-    useEffect(() => {
-        var width = window.innerWidth;
-        var isMobile = width <= 900;
-
-        setIsMobile(isMobile);
-    }, []);
-
     //updates it to mobile or desktop version
     const updateWindowDimensions = () => {
         var width = window.innerWidth;
@@ -67,7 +59,15 @@ function App() {
         setIsMobile(isMobile);
     }
 
-    window.addEventListener('resize', updateWindowDimensions);
+    //first update for mobile or desktop version
+    useEffect(() => {
+        var width = window.innerWidth;
+        var isMobile = width <= 900;
+
+        setIsMobile(isMobile);
+        window.addEventListener('resize', updateWindowDimensions);
+    }, []);
+
 
     useEffect(() => {
         if(!address) {
