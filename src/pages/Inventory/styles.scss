@@ -262,7 +262,7 @@ No images, no background filters, no javascript, simple CSS and HTML
         }
 
         &.selected {
-            border: 3px dashed #ff5100cd;
+            border: 3px dashed #fbff00cd;
             animation: frameBlink 1s linear infinite;
             img {
                 animation: imgBlink 1s linear infinite;
@@ -302,7 +302,7 @@ No images, no background filters, no javascript, simple CSS and HTML
         }
 
         &.selected {
-            border: 3px dashed #ff5100cd;
+            border: 3px dashed #fbff00cd;
             animation: frameBlink 1s linear infinite;
             img {
                 animation: imgBlink 1s linear infinite;

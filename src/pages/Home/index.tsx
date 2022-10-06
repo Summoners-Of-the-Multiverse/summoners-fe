@@ -7,23 +7,29 @@ const Home = () => {
 
     return (
 		<div className='home-page'>
-			<button 
+			<button
 				className='navigate-button'
 				onClick={() => navigate('/map')}
 			>
 				Travel
 			</button>
-			<button 
+			<button
 				className='navigate-button'
 				onClick={() => navigate('/portal')}
 			>
 				Portal
 			</button>
-			<button 
+			<button
 				className='navigate-button'
 				onClick={() => navigate('/battle')}
 			>
 				Hunt!
+			</button>
+			<button
+				className='navigate-button'
+				onClick={() => navigate('/inventory')}
+			>
+				Inventory
 			</button>
 		</div>
 	)
