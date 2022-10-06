@@ -6,6 +6,7 @@ import { BSC_TEST, POLYGON_TEST } from '../../components/EVM/ChainConfigs';
 import { toast } from 'react-toastify'
 import './styles.scss';
 import { PortalProps } from './types';
+import BackButton from '../../components/BackButton';
 
 const Portal = ({onChainChange}: PortalProps) => {
     const { chain, } = useContext(AddressContext);
@@ -29,14 +30,9 @@ const Portal = ({onChainChange}: PortalProps) => {
 
     return (
 		<div className='portal-page'>
-
-			<button 
-				className='back-button'
-				onClick={() => navigate('/')}
-			>
-				<i className="fa fa-chevron-left"></i>
-                <span>Back</span>
-			</button>
+            <BackButton
+                onButtonClick={() => navigate('/')}
+            />
             <EVMSwitcher
                 targetChain={BSC_TEST}
                 handleChainChange={handleChainChange}

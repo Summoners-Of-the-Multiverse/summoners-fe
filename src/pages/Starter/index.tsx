@@ -12,7 +12,7 @@ import { truncateStr } from '../../common/utils';
 import _ from 'lodash';
 import { ChainConfigs } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
-import LoadingIndicator from '../../components/Spinner';
+import Spinner from '../../components/Spinner';
 
 const chains = ChainConfigs;
 
@@ -129,12 +129,12 @@ const Starter = () => {
                     endMinting={endMinting}
                 />
             }
-            <LoadingIndicator
+            <Spinner
                 show={minting}
                 type={"pulse"}
                 mode={"white"}
                 text={"Minting"}
-            ></LoadingIndicator>
+            ></Spinner>
         </div>
     )
 }

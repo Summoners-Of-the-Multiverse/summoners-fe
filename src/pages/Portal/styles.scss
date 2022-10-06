@@ -5,32 +5,7 @@
     align-items: center;
     flex-direction: column;
     min-width: 100%;
-    min-height: calc(100vh - 89px);
-
-    .back-button {
-        background-color: transparent;
-        border: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        padding: 10px;
-
-        font-size: 30px;
-
-        > span {
-            margin-left: 10px;
-            text-transform: uppercase;
-            font-family: 'Starguard';
-            letter-spacing: 3px;
-        }
-
-        @media screen and (max-width: 900px) {
-            > span {
-                display: none;
-            }
-        }
-    }
+    min-height: 100vh;
 
     .navigate-button {
 
