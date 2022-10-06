@@ -21,7 +21,7 @@ export default class LoadingIndicator extends React.Component<P,S> {
     }
 
     COLOR = this.props.mode === 'dark'? "rgb( 12, 255, 0 )" : "rgb( 57, 196, 51 )"
-    BG_COLOR = this.props.mode === 'dark'? "rgba( 0, 0, 0, 0.08 )" : "rgba( 255, 255, 255, 0.08 )"
+    BG_COLOR = this.props.mode === 'dark'? "rgba( 0, 0, 0, 0.5 )" : "rgba( 255, 255, 255, 0.2 )"
 
     render() {
         if ( this.props.show ){
@@ -31,14 +31,13 @@ export default class LoadingIndicator extends React.Component<P,S> {
                     style={{
                         position: 'absolute',
                         display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
                         height: '100%',
                         width: '100%',
                         top: 0,
                         left: 0,
                         backgroundColor: this.BG_COLOR,
                         borderRadius: "inherit",
+                        zIndex: 99999999
                     }}
                 >
                     { this._renderLoader() }
@@ -81,15 +80,18 @@ export default class LoadingIndicator extends React.Component<P,S> {
         return (
             <div
                 style={{
-                    position: 'relative',
+                    position: 'sticky',
                     borderRadius: '10px',
-                    width: '140px',
+                    width: '150px',
                     height: '100px',
+                    aspectRatio: '1',
                     background: '#efefef',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexFlow: 'column'
+                    flexFlow: 'column',
+                    top: 'calc(50% - 50px)',
+                    left: 'calc(50% - 75px)',
                 }}
             >
                 <div style={{display: 'block', position: 'relative'}}>{text}</div>
