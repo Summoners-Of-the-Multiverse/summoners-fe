@@ -148,7 +148,7 @@ const Inventory = () => {
     const InfoSlot = useCallback(() => {
         let mobSkils: JSX.Element[] = [];
         let mobName = '';
-        let mobStats: JSX.Element = (<div className="bottom-slot"></div>);
+        let mobStats: JSX.Element = (<div className="mob-stats-slot"></div>);
         let elementId = null;
 
         if (selectedMob) {
@@ -157,18 +157,24 @@ const Inventory = () => {
             _.map(selectedMob.skills, (sm, smIndex) => {
                 const popover = (
                     <Popover id="popover-basic">
-                        <Popover.Header as="h3">{sm.name}</Popover.Header>
+                        <Popover.Header as="h3">
+                            <div className="mob-skill-stats">
+                                <ElementIcon
+                                    elementId={sm.element_id}
+                                />{sm.name}
+                            </div>
+                        </Popover.Header>
                         <Popover.Body>
                             Hits: {sm.hits}<br/>
-                            Cooldown: {sm.cooldown}<br />
-                            Accuracy: {sm.accuracy}<br />
                             Damage: {sm.damage}%<br/>
+                            Accuracy: {sm.accuracy}<br />
+                            Cooldown: {sm.cooldown}s<br />
                         </Popover.Body>
                     </Popover>
                 );
 
                 mobSkils.push(
-                    <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 100, hide: 100 }}>
+                    <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
                         <button className="mob-skill-icon">
                             <img className={sm.element} alt={sm.name} src={getSkillIcon(sm.icon_file)} />
                         </button>
@@ -179,12 +185,24 @@ const Inventory = () => {
             mobStats = (
                 <div className="mob-stats-slot">
                     <div>
-                        <div className="mob-stats">ATT {selectedMob.attack}</div>
-                        <div className="mob-stats">LIFE {selectedMob.hp}</div>
+                        <div className="mob-stats">
+                            <span>ATT</span>
+                            <span>{selectedMob.attack}</span>
+                        </div>
+                        <div className="mob-stats">
+                            <span>LIFE</span>
+                            <span>{selectedMob.hp}</span>
+                        </div>
                     </div>
                     <div>
-                        <div className="mob-stats">DEF {selectedMob.defense}</div>
-                        <div className="mob-stats">CRIT {selectedMob.crit_chance}</div>
+                        <div className="mob-stats">
+                            <span>DEF</span>
+                            <span>{selectedMob.defense}</span>
+                        </div>
+                        <div className="mob-stats">
+                            <span>CRIT</span>
+                            <span>{selectedMob.crit_chance}</span>
+                        </div>
                     </div>
                 </div>
             )

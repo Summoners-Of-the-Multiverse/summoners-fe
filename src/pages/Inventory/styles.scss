@@ -1,6 +1,17 @@
 /*
 No images, no background filters, no javascript, simple CSS and HTML
 */
+
+.mob-skill-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+i.element-icon {
+    margin: 0;
+}
+
 .inventory-page {
     max-width: 500px;
     position: relative;
@@ -404,19 +415,26 @@ No images, no background filters, no javascript, simple CSS and HTML
             .mob-name {
                 display: flex;
                 justify-content: center;
-                font-size: 10px;
+                h5 {
+                    font-size: 18px;
+                }
             }
 
             .mob-stats-slot {
                 display: flex;
                 flex-direction: row;
-
                 justify-content: space-around;
                 width: 100%;
-                font-size: 16px;
+                font-size: 14px;
                 .mob-stats {
+                    span {
+                        padding: 0px 5px;
+                    }
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: row;
                     background-color: #5a201745;
-                    padding: 0px 3px;
+                    // padding: 0px 1px;
                     border: 5px groove #7e534c2b;
                     border-radius: 3px;
                 }
