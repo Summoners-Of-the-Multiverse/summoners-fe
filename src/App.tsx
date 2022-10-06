@@ -21,10 +21,8 @@ const allowedChains =[
     POLYGON_TEST,
 ];
 
-const pagesWithoutHeader = [
-    '/map',
-    '/portal',
-    '/battle',
+const pagesWithHeader = [
+    '/',
 ];
 
 export const AddressContext = createContext({
@@ -95,7 +93,7 @@ function App() {
     }, [address, navigate]);
 
     useEffect(() => {
-        setShouldRenderHeader(pagesWithoutHeader.includes(location.pathname));
+        setShouldRenderHeader(pagesWithHeader.includes(location.pathname));
     }, [location]);
 
     const handleNewAccount = useCallback((address: string) => {
@@ -120,7 +118,7 @@ function App() {
             {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
 
             {/** Connectors */}
-            <div className={`${shouldRenderHeader? 'd-none' : 'd-flex'} align-items-center justify-content-center`}>
+            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container`}>
                 <div className='connector-container'>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
