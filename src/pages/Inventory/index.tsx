@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useState, useContext, useMemo } from 'react';
 import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
@@ -15,39 +15,17 @@ const Inventory = () => {
     const [isLoading, setIsLoading] = useState(false);
     // store all monster
     const [mob, setMob] = useState<any[]>([]);
-    // store current monster pagination set data
-    const [subMob, setSubMob] = useState<any[]>([]);
+
     // store selected monster (onclick)
     const [selectedMob, setSelectedMob] = useState<any>();
-    // equipped mob
-    const [equipped, setEquipped] = useState<any []>([]);
+
     // for pagination purpose
     const [skip, setSkip] = useState(0);
+
     const skipStep = 5;
     // limit monster display per pagination
     const take = 15;
     const maxEquipped = 4;
-
-    const pagination = useCallback((m:any) => {
-        const newSkip = 0;
-        setSkip(newSkip);
-        setSubMob(_.slice(m, newSkip, newSkip + take));
-    }, [skip, subMob])
-
-    const navigateUp = useCallback(() => {
-        const newSkip = skip - skipStep >= 0 ? skip - skipStep : skip;
-        setSkip(newSkip)
-        setSubMob(_.slice(mob, newSkip, newSkip + take));
-    }, [subMob])
-
-    const navigateDown = useCallback(() => {
-        // if item less than 15, do not let it scroll down
-        if (_.size(mob) > take) {
-            const newSkip = skip + skipStep < mob.length ? skip + skipStep : skip;
-            setSkip(newSkip)
-            setSubMob(_.slice(mob, newSkip, newSkip + take));
-        }
-    }, [subMob])
 
     useEffect(() => {
         const getInventory = async(chain: string, address: string) => {
@@ -58,10 +36,8 @@ const Inventory = () => {
                         address: address,
                         chainId: chain
                     });
-                    setEquipped(_.filter(res.data, { equipped: 1 }));
-                    const unequippedMob = _.filter(res.data, { equipped: 0 });
-                    setMob(unequippedMob);
-                    pagination(unequippedMob);
+
+                    setMob(res.data);
                     setIsLoading(false);
                 } catch(e) {
                     console.log(e);
@@ -71,18 +47,50 @@ const Inventory = () => {
         }
 
         getInventory(chain, address);
-    }, [chain, address])
+    }, [chain, address]);
 
-    const EquippedMonster = () => {
+    const equippedMonster = useMemo(() => {
+        return _.filter(mob, { equipped: 1 });
+    }, [mob]);
+
+    const unequippedMonsterPaginated = useMemo(() => {
+        let unequippedMobs = _.filter(mob, { equipped: 0 });
+        return _.slice(unequippedMobs, skip, skip + take);
+    }, [mob, skip]);
+
+    const selectMob = useCallback((event: any, m: any) => {
+        if (selected) {
+            selected.classList.toggle('selected');
+        }
+        setSelectedMob(m);
+        // 👇️ toggle class on click
+        event.currentTarget.classList.toggle('selected');
+        setSelected(event.currentTarget);
+    }, [selected]);
+
+    const navigateUp = useCallback(() => {
+        const newSkip = skip - skipStep >= 0 ? skip - skipStep : skip;
+        setSkip(newSkip)
+    }, [skip])
+
+    const navigateDown = useCallback(() => {
+        // if item less than 15, do not let it scroll down
+        if (_.size(mob) > take) {
+            const newSkip = skip + skipStep < mob.length ? skip + skipStep : skip;
+            setSkip(newSkip)
+        }
+    }, [skip, mob])
+
+    const EquippedMonster = useCallback(() => {
         let component: JSX.Element[] = [];
         for (let index = 0; index < maxEquipped; index++) {
-            const m = equipped[index];
+            const m = equippedMonster[index];
 
             if (m) {
                 component.push(
                     <div key={`mob-${index}`} className="mob-slot" onClick={(e) => selectMob(e, m)}>
                         <div className="slotLabel">{index+1}</div>
-                        <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} />
+                        <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} alt="monster_icon"/>
                     </div>
                 )
             } else {
@@ -94,7 +102,7 @@ const Inventory = () => {
             }
         }
         return component;
-    }
+    }, [equippedMonster, selectMob]);
 
     const ActionButton = () => {
         let component: JSX.Element;
@@ -147,7 +155,7 @@ const Inventory = () => {
                 setSelectedMob(null);
 
                 // refresh subMob list & equipped list
-                pagination(currMob);
+                setSkip(0);
                 toast.success(<div>Added <b>{selectedMob.name}</b> from party</div>);
             } else {
                 toast.error(<div>Failed to equip <b>{selectedMob.name}</b></div>);
@@ -178,7 +186,7 @@ const Inventory = () => {
                 // set unequipped in state
                 const currMob = cloneObj(mob);
                 _.map(currMob, (m, mIndex) => {
-                    if (m.id == selectedMob.id) {
+                    if (m.id === selectedMob.id) {
                         currMob[mIndex].equipped = 0;
                     }
                 });
@@ -190,7 +198,7 @@ const Inventory = () => {
                 setSelectedMob(null);
 
                 // refresh subMob list & equipped list
-                pagination(currMob);
+                setSkip(0);
                 toast.success(<div>Removed <b>{selectedMob.name}</b> from party</div>);
             } else {
                 toast.error(<div>Failed to unequip <b>{selectedMob.name}</b></div>);
@@ -211,25 +219,15 @@ const Inventory = () => {
 
     }
 
-    const selectMob = (event: any, m: any) => {
-        if (selected) {
-            selected.classList.toggle('selected');
-        }
-        setSelectedMob(m);
-        // 👇️ toggle class on click
-        event.currentTarget.classList.toggle('selected');
-        setSelected(event.currentTarget);
-    };
-
-    const MonsterListing = () => {
+    const MonsterListing = useCallback(() => {
         let component: JSX.Element[] = [];
         for (let index = 0; index < take; index++) {
-            const m = subMob[index];
+            const m = unequippedMonsterPaginated[index];
             if (m) {
                 const isEquipped = m.equipped === 1 ? 'slot equipped' : 'slot';
                 component.push(
                     <div key={`mob-${index}`} className={isEquipped} onClick={(e) => selectMob(e, m)}>
-                        <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} />
+                        <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} alt="monster_icon"/>
                     </div>
                 )
             } else {
@@ -240,7 +238,7 @@ const Inventory = () => {
             }
         }
         return component;
-    }
+    }, [unequippedMonsterPaginated, selectMob]);
 
     return (
         <div className="inventory-page container">
@@ -280,30 +278,27 @@ const Inventory = () => {
                 </div>
                 <ul className="tabs">
                     <li>
-                        <a
-                            href="#"
+                        <button
                             className="navigation"
                             onClick={navigateUp}
                         >
                             <i className="fa fa-arrow-up" aria-hidden="true"></i>
-                        </a>
+                        </button>
                     </li>
                     <li>
-                        <a
-                            href="#"
+                        <button
                             className="navigation"
                             onClick={navigateDown}
                         >
                             <i className="fa fa-arrow-down" aria-hidden="true"></i>
-                        </a>
+                        </button>
                     </li>
                     <li>
-                        <a
-                            href="#"
+                        <button
                             className="navigation"
                         >
                             <i className="fa fa-sort-alpha-asc" aria-hidden="true"></i>
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </div>
