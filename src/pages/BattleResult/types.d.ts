@@ -17,9 +17,11 @@ export type BattleResult = {
 	crit_chance: number;
 	crit_multiplier: number;
 	is_shiny: boolean;
+    is_captured: boolean;
 }
 
 export type BattleSkillsUsed = {
+    monster_id: number;
     monster_name: string;
     monster_img: string;
     monster_element_id: number;
@@ -37,5 +39,12 @@ export type BattleSkillsUsed = {
 
 export type SkillsUsageTableProps = { 
     skills: BattleSkillsUsed[];
-    duration: number;
+}
+
+export type MVP = {
+    damage: number;
+    imgFile: string;
+    monsterElement: number;
+    isShiny: boolean;
+    name: string;
 }

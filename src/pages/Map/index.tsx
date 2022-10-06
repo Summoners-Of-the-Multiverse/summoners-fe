@@ -2,6 +2,7 @@ import React, { useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
+import CloseButton from '../../components/CloseButton';
 import instance from '../Axios';
 import './styles.scss';
 import { MapProps } from './types';
@@ -66,7 +67,9 @@ const Map = ({ onAreaChange }: MapProps) => {
                 <button className={`map-button ${areaId === 7? 'active' : ''}`} style={{ bottom: '80%', left: '16%' }} onClick={() => { onTravelClick(7) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className='close-button' onClick={onCloseClick}><i className="fa fa-times"></i></button>
+                <CloseButton
+                    onButtonClick={onCloseClick}
+                />
             </div>
 		</div>
 	)

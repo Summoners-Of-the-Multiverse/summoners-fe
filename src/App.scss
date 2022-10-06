@@ -1,4 +1,9 @@
+body {
+    background-image: radial-gradient(#b7c9bc, #3d3c3c);
+}
+
 .App {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,6 +49,15 @@
         width: 100vw;
         object-fit: cover;
         z-index: -1;
+    }
+
+    .header-container {
+        align-items: center;
+        justify-content: center;
+
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
     .connector-container {

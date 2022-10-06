@@ -21,10 +21,8 @@ const allowedChains =[
     POLYGON_TEST,
 ];
 
-const pagesWithoutHeader = [
-    '/map',
-    '/portal',
-    '/battle',
+const pagesWithHeader = [
+    '/',
 ];
 
 export const AddressContext = createContext({
@@ -51,14 +49,6 @@ function App() {
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
 
-    //first update for mobile or desktop version
-    useEffect(() => {
-        var width = window.innerWidth;
-        var isMobile = width <= 900;
-
-        setIsMobile(isMobile);
-    }, []);
-
     //updates it to mobile or desktop version
     const updateWindowDimensions = () => {
         var width = window.innerWidth;
@@ -67,7 +57,15 @@ function App() {
         setIsMobile(isMobile);
     }
 
-    window.addEventListener('resize', updateWindowDimensions);
+    //first update for mobile or desktop version
+    useEffect(() => {
+        var width = window.innerWidth;
+        var isMobile = width <= 900;
+
+        setIsMobile(isMobile);
+        window.addEventListener('resize', updateWindowDimensions);
+    }, []);
+
 
     useEffect(() => {
         if(!address) {
@@ -95,7 +93,7 @@ function App() {
     }, [address, navigate]);
 
     useEffect(() => {
-        setShouldRenderHeader(pagesWithoutHeader.includes(location.pathname));
+        setShouldRenderHeader(pagesWithHeader.includes(location.pathname));
     }, [location]);
 
     const handleNewAccount = useCallback((address: string) => {
@@ -120,7 +118,7 @@ function App() {
             {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
 
             {/** Connectors */}
-            <div className={`${shouldRenderHeader? 'd-none' : 'd-flex'} align-items-center justify-content-center`}>
+            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container`}>
                 <div className='connector-container'>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
