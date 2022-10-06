@@ -3,13 +3,20 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
 import _ from 'lodash';
-import { getMonsterIcon, cloneObj } from '../../common/utils';
+import { getMonsterIcon, cloneObj, getSkillIcon } from '../../common/utils';
 import LoadingIndicator from '../../components/Spinner';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router';
+import BackButton from '../../components/BackButton';
+import ElementIcon from '../../components/ElementIcon';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 const Inventory = () => {
+    const navigate = useNavigate();
+
     const { address, chain, } = useContext(AddressContext);
-    // store previous selected mob
+    // store previous selected mob (for untoggle mob highlight purpose)
     const [selected, setSelected] = useState<any>(null);
     // set loading state
     const [isLoading, setIsLoading] = useState(false);
@@ -22,10 +29,25 @@ const Inventory = () => {
     // for pagination purpose
     const [skip, setSkip] = useState(0);
 
+    // each page up/page down will reload 1 row (5mobs)
     const skipStep = 5;
     // limit monster display per pagination
     const take = 15;
     const maxEquipped = 4;
+
+    // load popover
+    useEffect(() => {
+        const script = document.createElement('script');
+
+        script.src = "https://use.typekit.net/foobar.js";
+        script.async = true;
+
+        document.body.appendChild(script);
+
+        return () => {
+          document.body.removeChild(script);
+        }
+    }, []);
 
     useEffect(() => {
         const getInventory = async(chain: string, address: string) => {
@@ -123,13 +145,79 @@ const Inventory = () => {
         return component;
     }
 
+    const InfoSlot = useCallback(() => {
+        let mobSkils: JSX.Element[] = [];
+        let mobName = '';
+        let mobStats: JSX.Element = (<div className="bottom-slot"></div>);
+        let elementId = null;
+
+        if (selectedMob) {
+            mobName = selectedMob.name;
+            elementId = selectedMob.element_id;
+            _.map(selectedMob.skills, (sm, smIndex) => {
+                const popover = (
+                    <Popover id="popover-basic">
+                        <Popover.Header as="h3">{sm.name}</Popover.Header>
+                        <Popover.Body>
+                            Hits: {sm.hits}<br/>
+                            Cooldown: {sm.cooldown}<br />
+                            Accuracy: {sm.accuracy}<br />
+                            Damage: {sm.damage}%<br/>
+                        </Popover.Body>
+                    </Popover>
+                );
+
+                mobSkils.push(
+                    <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 100, hide: 100 }}>
+                        <button className="mob-skill-icon">
+                            <img className={sm.element} alt={sm.name} src={getSkillIcon(sm.icon_file)} />
+                        </button>
+                    </OverlayTrigger>
+                )
+            })
+
+            mobStats = (
+                <div className="mob-stats-slot">
+                    <div>
+                        <div className="mob-stats">ATT {selectedMob.attack}</div>
+                        <div className="mob-stats">LIFE {selectedMob.hp}</div>
+                    </div>
+                    <div>
+                        <div className="mob-stats">DEF {selectedMob.defense}</div>
+                        <div className="mob-stats">CRIT {selectedMob.crit_chance}</div>
+                    </div>
+                </div>
+            )
+        }
+
+        return (
+            <div className="big-slot">
+                <div className="mob-skills">
+                    {mobSkils}
+                </div>
+                <div className="mob-info">
+                    <div className="mob-name">
+                        <h5>
+                            {elementId && <ElementIcon
+                                elementId={elementId}
+                            />}
+
+                            {mobName}
+                        </h5>
+                    </div>
+                    {mobStats}
+                </div>
+            </div>
+        )
+    }, [selectedMob]);
+
     /**
      * Use mob in battle
      * @date 2022-10-06
      */
     const equipMob = async () => {
         try {
-            setIsLoading(true);
+            // setIsLoading(true);
             let res = await instance.post(`/equipMob`, {
                 address: address,
                 chainId: chain,
@@ -138,17 +226,16 @@ const Inventory = () => {
 
             if (res.data) {
                 // set unequipped in state
-                console.log(mob);
                 const currMob = cloneObj(mob);
                 _.map(currMob, (m, mIndex) => {
-                    console.log(`m.id: ${m.id} | selectedMob.id: ${selectedMob.id}`);
+                    // console.log(`m.id: ${m.id} | selectedMob.id: ${selectedMob.id}`);
                     if (m.id === selectedMob.id) {
-                        console.log(`set equip to 1`);
+                        // console.log(`set equip to 1`);
                         currMob[mIndex].equipped = 1;
                     }
                 });
                 setMob(currMob);
-                // update all update
+
                 // unselect target mob
                 selected.classList.toggle('selected');
                 setSelected(null);
@@ -161,10 +248,10 @@ const Inventory = () => {
                 toast.error(<div>Failed to equip <b>{selectedMob.name}</b></div>);
             }
 
-            setIsLoading(false);
+            // setIsLoading(false);
         } catch(e) {
             console.log(e);
-            setIsLoading(false);
+            // setIsLoading(false);
         }
     }
 
@@ -174,8 +261,7 @@ const Inventory = () => {
      */
      const unEquipMob = async () => {
         try {
-            console.log(`unequipping`);
-            setIsLoading(true);
+            // setIsLoading(true);
             let res = await instance.post(`/unequipMob`, {
                 address: address,
                 chainId: chain,
@@ -192,6 +278,7 @@ const Inventory = () => {
                 });
                 // update all mob
                 setMob(currMob);
+
                 // unselect target mob
                 selected.classList.toggle('selected');
                 setSelected(null);
@@ -204,10 +291,10 @@ const Inventory = () => {
                 toast.error(<div>Failed to unequip <b>{selectedMob.name}</b></div>);
             }
 
-            setIsLoading(false);
+            // setIsLoading(false);
         } catch(e) {
             console.log(e);
-            setIsLoading(false);
+            // setIsLoading(false);
         }
     }
 
@@ -241,7 +328,12 @@ const Inventory = () => {
     }, [unequippedMonsterPaginated, selectMob]);
 
     return (
+
         <div className="inventory-page container">
+            <BackButton
+                onButtonClick={() => navigate('/')}
+            />
+
             <div className="inventory">
                 <div className="title groovy">
                     <div className="text">INVENTORY</div>
@@ -270,9 +362,7 @@ const Inventory = () => {
 
                     {/* description box */}
                     <div className="description">
-                        <div className="big-slot">
-                            RESTORE 60HP
-                        </div>
+                        <InfoSlot></InfoSlot>
                     </div>
                     <ActionButton></ActionButton>
                 </div>
@@ -293,13 +383,13 @@ const Inventory = () => {
                             <i className="fa fa-arrow-down" aria-hidden="true"></i>
                         </button>
                     </li>
-                    <li>
+                    {/* <li>
                         <button
                             className="navigation"
                         >
                             <i className="fa fa-sort-alpha-asc" aria-hidden="true"></i>
                         </button>
-                    </li>
+                    </li> */}
                 </ul>
             </div>
 
