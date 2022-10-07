@@ -99,6 +99,7 @@ export type EncounterImageProps = {
     encounter: MonsterStats;
     encounterDamageReceived?: EncounterDamageReceived;
     playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
+    battleWon: boolean;
 }
 
 export type EncounterEffectProps = {

@@ -379,6 +379,15 @@ $battleButtonCenterSize: 30px;
             > img {
                 height: 40vh;
                 margin-bottom: 2%;
+                transition: opacity 2s;
+
+                &.dead {
+                    opacity: 0;
+                }
+
+                &.shake {
+                    animation: monsterDead 0.08s linear infinite;
+                }
             }
 
             .effect-container {

@@ -158,3 +158,12 @@
         transform: scale(0);
 	}
 }
+
+@keyframes monsterDead {
+	0% {
+		transform: translateX(-2px);
+	}
+	100% {
+		transform: translateX(2px);
+	}
+}
