@@ -268,3 +268,18 @@ export const truncateStr = (fullStr: string, strLen: number, separator='..') => 
            separator +
            fullStr.substr(fullStr.length - backChars);
 }
+
+export const getElementTooltip = (elementId: number) => {
+    switch(elementId) {
+        case ELEMENT_CHAOS:
+            return `\n\nWeakness\tNone\tStrength\t\tNone\nResistant\t\tNone`;
+        case ELEMENT_FIRE:
+            return `\n\nWeakness\tWater\nStrength\t\tGrass\nResistant\t\tFire`;
+        case ELEMENT_GRASS:
+            return `\n\nWeakness\tFire\nStrength\t\tWater\nResistant\t\tGrass`;
+        case ELEMENT_WATER:
+            return `\n\nWeakness\tGrass\nStrength\t\tFire\nResistant\t\tWater`;
+        default:
+            return ``;
+    }
+}

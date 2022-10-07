@@ -1,10 +1,10 @@
 import { AxiosResponse } from 'axios';
 // import moment from 'moment';
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
-import { getMonsterIcon, getSkillIcon, toLocaleDecimal, truncateStr } from '../../common/utils';
+import { getElementTooltip, getMonsterIcon, getSkillIcon, toLocaleDecimal, truncateStr } from '../../common/utils';
 import BackButton from '../../components/BackButton';
 import ElementIcon from '../../components/ElementIcon';
 import ContractCall from '../../components/EVM/ContractCall';
@@ -176,6 +176,35 @@ const BattleResultPage = () => {
 		}
 	}, [address, id, chain]);
 
+	const encounterTooltip = useMemo(() => {
+		if(!result) return "";
+
+		let { attack, defense, hp, crit_chance, crit_multiplier, is_shiny, is_captured, element_id } = result;
+		let tooltip = `Attack\t\t${attack}\n`;
+		tooltip += `Defense\t\t${defense}\n`;
+		tooltip += `HP\t\t\t${hp}\n`;
+		tooltip += `Crit Chance\t${crit_chance}\n`;
+		tooltip += `Crit Multiplier\t${crit_multiplier}x\n`;
+		tooltip += `Shiny\t\t${is_shiny? 'Yes' : 'No'}\n`;
+		tooltip += `Captured\t\t${is_captured? 'Yes' : 'No'}\n`;
+		tooltip += getElementTooltip(element_id);
+		return tooltip;
+	}, [result]);
+
+	const mvpTooltip = useMemo(() => {
+		if(!mvp) return "";
+
+		let { attack, defense, hp, crit_chance, crit_multiplier, isShiny, monsterElement } = mvp;
+		let tooltip = `Attack\t\t${attack.toFixed(0)}\n`;
+		tooltip += `Defense\t\t${defense.toFixed(0)}\n`;
+		tooltip += `HP\t\t\t${hp.toFixed(0)}\n`;
+		tooltip += `Crit Chance\t${crit_chance.toFixed(0)}\n`;
+		tooltip += `Crit Multiplier\t${crit_multiplier.toFixed(0)}x\n`;
+		tooltip += `Shiny\t\t${isShiny? 'Yes' : 'No'}\n`;
+		tooltip += getElementTooltip(monsterElement);
+		return tooltip;
+	}, [mvp]);
+
     return (
 		<div className='battle-result-page'>
 			<Spinner
@@ -212,7 +241,7 @@ const BattleResultPage = () => {
 									defense={result.defense}
 									hp={result.hp}
 									crit={result.crit_chance}
-									additionalInfo={"test"}
+									additionalInfo={encounterTooltip}
 									isShiny={result.is_shiny}
 
 									showMintButton={result.hp_left < 0}
@@ -234,7 +263,7 @@ const BattleResultPage = () => {
 									defense={mvp.defense}
 									hp={mvp.hp}
 									crit={mvp.crit_chance}
-									additionalInfo={"test"}
+									additionalInfo={mvpTooltip}
 									isShiny={mvp.isShiny}
 								>
 									<span className='mvp-damage'>Damage: {toLocaleDecimal(mvp.damage, 0, 0)}</span>
@@ -272,42 +301,40 @@ const SkillsUsageTable = ({ skills }: SkillsUsageTableProps ) => {
 	skills = skills.sort((a,b) => (a.total_damage_dealt / a.total_cooldown) > (b.total_damage_dealt / b.total_cooldown)? -1 : 1);
 	
 	return (
-		<div className="card mb-3 mt-3 skills-usage-container">
-			<div className="card-body">
-				<div className="result-table-container">
-					<table className='table result-table'>
-						<thead>
-							<tr>
-								<th>Guardian</th>
-								<th>Skill</th>
-								<th>Element</th>
-								<th>Total Damage</th>
-								<th>Total Crit Damage</th>
-								<th>Hits</th>
-								<th>Crits</th>
-								<th>Misses</th>
-								<th>DPS</th>
-							</tr>
-						</thead>
-						<tbody>
-							{
-								skills.map((x, index) => (
-									<tr key={`battle-skills-${index}`}>
-										<td><img src={getMonsterIcon(x.monster_img, x.monster_element_id, x.is_shiny)} alt="monster_icon" /></td>
-										<td><img src={getSkillIcon(x.skill_icon)} alt="skill_icon" /></td>
-										<td><ElementIcon elementId={x.element_id} size={30}/></td>
-										<td><div>{toLocaleDecimal(x.total_damage_dealt, 0, 0)}</div></td>
-										<td><div>{toLocaleDecimal(x.crit_damage_dealt, 0, 0)}</div></td>
-										<td><div>{toLocaleDecimal(x.hits, 0, 0)}</div></td>
-										<td><div>{toLocaleDecimal(x.crits, 0, 0)}</div></td>
-										<td><div>{toLocaleDecimal(x.misses, 0, 0)}</div></td>
-										<td><div>{toLocaleDecimal(x.total_damage_dealt / (x.total_cooldown / 1000), 2, 2)}</div></td>
-									</tr>
-								))
-							}
-						</tbody>
-					</table>
-				</div>
+		<div className="skills-usage-container">
+			<div className="result-table-container">
+				<table className='table result-table'>
+					<thead>
+						<tr>
+							<th>Guardian</th>
+							<th>Skill</th>
+							<th>Element</th>
+							<th>Total Damage</th>
+							<th>Crit Damage</th>
+							<th>Hits</th>
+							<th>Crits</th>
+							<th>Misses</th>
+							<th>DPS</th>
+						</tr>
+					</thead>
+					<tbody>
+						{
+							skills.map((x, index) => (
+								<tr key={`battle-skills-${index}`}>
+									<td><img src={getMonsterIcon(x.monster_img, x.monster_element_id, x.is_shiny)} alt="monster_icon" /></td>
+									<td><img src={getSkillIcon(x.skill_icon)} alt="skill_icon" /></td>
+									<td><ElementIcon elementId={x.element_id} size={30}/></td>
+									<td><div>{toLocaleDecimal(x.total_damage_dealt, 0, 0)}</div></td>
+									<td><div>{toLocaleDecimal(x.crit_damage_dealt, 0, 0)}</div></td>
+									<td><div>{toLocaleDecimal(x.hits, 0, 0)}</div></td>
+									<td><div>{toLocaleDecimal(x.crits, 0, 0)}</div></td>
+									<td><div>{toLocaleDecimal(x.misses, 0, 0)}</div></td>
+									<td><div>{toLocaleDecimal(x.total_damage_dealt / (x.total_cooldown / 1000), 2, 2)}</div></td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
 			</div>
 		</div>
 	)

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import MonsterCard from '../../components/MonsterCard';
 import ContractCall from '../../components/EVM/ContractCall';
-import { truncateStr } from '../../common/utils';
+import { getElementTooltip, truncateStr } from '../../common/utils';
 import _ from 'lodash';
 import { ChainConfigs } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
@@ -173,18 +173,25 @@ const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting
             <div className='starter-monsters-container'>
                 {
                     monsters.map((x, index) => {
-                        //let baseAttack = x.base_attack.toFixed(0);
-                        //let maxAttack = x.max_attack.toFixed(0);
-                        //let baseDefense = x.base_defense.toFixed(0);
-                        //let maxDefense = x.max_defense.toFixed(0);
-                        //let baseHp = x.base_hp.toFixed(0);
-                        //let maxHp = x.max_hp.toFixed(0);
-                        //let baseCritChance = x.base_crit_chance.toFixed(0);
-                        //let maxCritChance = x.max_crit_chance.toFixed(0);
-                        //let baseCritMultiplier = x.base_crit_multiplier.toFixed(0);
-                        //let maxCritMultiplier = x.max_crit_multiplier.toFixed(0);
-                        //let shinyChance = x.shiny_chance.toFixed(0);
-                        //let elementId = x.element_id;
+                        let baseAttack = x.base_attack.toFixed(0);
+                        let maxAttack = x.max_attack.toFixed(0);
+                        let baseDefense = x.base_defense.toFixed(0);
+                        let maxDefense = x.max_defense.toFixed(0);
+                        let baseHp = x.base_hp.toFixed(0);
+                        let maxHp = x.max_hp.toFixed(0);
+                        let baseCritChance = x.base_crit_chance.toFixed(0);
+                        let maxCritChance = x.max_crit_chance.toFixed(0);
+                        let baseCritMultiplier = x.base_crit_multiplier.toFixed(0);
+                        let maxCritMultiplier = x.max_crit_multiplier.toFixed(0);
+                        let shinyChance = x.shiny_chance.toFixed(0);
+
+                        let tooltip = `Attack\t\t${baseAttack} - ${maxAttack}\n`;
+                        tooltip += `Defense\t\t${baseDefense} - ${maxDefense}\n`;
+                        tooltip += `HP\t\t\t${baseHp} - ${maxHp}\n`;
+                        tooltip += `Crit Chance\t${baseCritChance} - ${maxCritChance}\n`;
+                        tooltip += `Crit Multiplier\t${baseCritMultiplier}x - ${maxCritMultiplier}x\n`;
+                        tooltip += `Shiny Chance\t${shinyChance}%`;
+                        tooltip += getElementTooltip(x.element_id);
 
                         return (
                             <MonsterCard
@@ -195,14 +202,16 @@ const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting
                                 defense={x.base_defense}
                                 hp={x.base_hp}
                                 crit={x.base_crit_chance}
-                                additionalInfo={"test"}
+                                additionalInfo={tooltip}
                                 isShiny={false}
 
                                 showMintButton={true}
                                 mintButtonText={'Choose'}
                                 onMintButtonClick={() => onMintButtonClick(chain, x.id, x.name)}
                                 disableMintButton={false}
-                            />
+                            >
+                                <div className='mobile-divider'></div>
+                            </MonsterCard>
                         )
                     })
                 }
