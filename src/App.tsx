@@ -165,7 +165,7 @@ function App() {
                     </EVMConnector>
                     
                     {/* <h1 className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoners of the Multiverse</h1> */}
-                    <img src="/summoner.png" alt="logo" className='logo'/>
+                    <img src="/summoner.png" alt="logo" className={`logo ${address? 'd-block' : 'd-none'}`}/>
                     <span className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoner: {ellipsizeThis(address, 5, 5)}</span>
                 </div>
             </div>
