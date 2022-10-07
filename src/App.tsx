@@ -11,8 +11,8 @@ import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
-import { useLocation } from 'react-router';
 import Portal from './pages/Portal';
+import { useCurrentPath } from './hooks/useCurrentPath';
 
 const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
@@ -25,9 +25,12 @@ const pagesWithHeader = [
     '/',
 ];
 
-const pagesWithoutMask = [
-    '/',
+const pagesWithoutMask: string[] = [];
+
+const pagesWithBlur = [
     '/portal',
+    '/battle',
+    '/battleResult/:id',
 ];
 
 export const AddressContext = createContext({
@@ -39,25 +42,35 @@ export const AddressContext = createContext({
 const socket = io('ws://localhost:8081');
 export const SocketContext = createContext<Socket>(socket);
 
+// for useCurrentPath
+const routes = [
+    { path: '/' },
+    { path: '/portal' },
+    { path: '/map' },
+    { path: '/starter' },
+    { path: '/battle' },
+    { path: '/battleResult/:id' },
+];
 
 function App() {
     const [address, setAddress] = useState('');
     const [showLoader, setShowLoader] = useState(true);
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
-    const [isMobile, setIsMobile] = useState(false);
+    // const [isMobile, setIsMobile] = useState(false);
     const [areaId, setAreaId] = useState(0);
     const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
     const [shouldMask, setShouldMask] = useState(false);
+    const [shouldBlur, setShouldBlur] = useState(false);
 
     const navigate = useNavigate();
-    const location = useLocation();
+    const currentPath = useCurrentPath(routes);
 
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
 
     //updates it to mobile or desktop version
-    const updateWindowDimensions = () => {
+    /* const updateWindowDimensions = () => {
         var width = window.innerWidth;
         var isMobile = width <= 900;
 
@@ -71,7 +84,7 @@ function App() {
 
         setIsMobile(isMobile);
         window.addEventListener('resize', updateWindowDimensions);
-    }, []);
+    }, []); */
 
 
     useEffect(() => {
@@ -100,9 +113,10 @@ function App() {
     }, [address, navigate]);
 
     useEffect(() => {
-        setShouldRenderHeader(pagesWithHeader.includes(location.pathname));
-        setShouldMask(!pagesWithoutMask.includes(location.pathname));
-    }, [location]);
+        setShouldRenderHeader(pagesWithHeader.includes(currentPath));
+        setShouldMask(!pagesWithoutMask.includes(currentPath));
+        setShouldBlur(pagesWithBlur.includes(currentPath));
+    }, [currentPath]);
 
     const handleNewAccount = useCallback((address: string) => {
         setAddress(address);
@@ -124,7 +138,7 @@ function App() {
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             <div className="bg-container">
-                <img className='bg' src={getBg(areaId)} alt="background_image" />
+                <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
                 <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
             </div>
 
@@ -152,6 +166,7 @@ function App() {
                 chain,
                 areaId,
             }}>
+                {/** Please update routes constant if there's a new page */}
                 <Routes>
                     <Route path="/" element={<Home />}></Route>
                     <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
