@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import './styles.scss'
-import { getMonsterImage } from '../../common/utils';
+import { getMonsterImage, runIfFunction } from '../../common/utils';
 import { MonsterCardProps } from './types';
 
 const MonsterCard = ({
@@ -14,7 +14,12 @@ const MonsterCard = ({
     crit,
 
     additionalInfo,
-    children
+    children,
+
+    showMintButton,
+    mintButtonText,
+    onMintButtonClick,
+    disableMintButton,
 }: MonsterCardProps) => {
     const [showInfo, setShowInfo] = useState(false);
 
@@ -55,6 +60,17 @@ const MonsterCard = ({
                 }
             </div>
             {children}
+            
+            {
+                showMintButton &&
+                <button 
+                    className={`mint-button ${disableMintButton? 'disabled' : ''}`} 
+                    disabled={disableMintButton}
+                    onClick={() => {runIfFunction(onMintButtonClick)}}
+                >
+                    {mintButtonText}
+                </button>
+            }
         </div>
     )
 }
