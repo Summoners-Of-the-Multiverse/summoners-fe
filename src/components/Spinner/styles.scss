@@ -20,6 +20,10 @@
         background-color: transparent;
     }
 
+    &.fullscreen {
+        min-width: 100vw;
+    }
+
     .spinner {
         position: sticky;
         border-radius: 10px;

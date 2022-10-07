@@ -142,12 +142,14 @@ const BattleResultPage = () => {
 				show={isLoading}
 				type="pulse"
 				mode='light'
+				fullScreen
 			/>
 			<Spinner
-				text='Minting'
+				text='Capturing'
 				show={isMinting}
 				type="pulse"
 				mode='dark'
+				fullScreen
 			/>
 			{
 				!isLoading &&

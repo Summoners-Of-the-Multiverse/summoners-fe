@@ -6,7 +6,8 @@ interface P{
     show: boolean,
     mode: "light" | "dark",
     type: "pulse" | "rotate" | "propagate" | "scale" | "clip",
-    text: string
+    text: string,
+    fullScreen?: boolean;
 }
 interface S{}
 
@@ -23,7 +24,7 @@ export default class LoadingIndicator extends React.Component<P,S> {
     render() {
         if ( this.props.show ){
             return (
-                <div className={`spinner-container ${this.props.mode}`}>
+                <div className={`spinner-container ${this.props.mode} ${this.props.fullScreen? 'fullscreen' : ''}`}>
                     { this._renderLoader() }
                 </div>
             )
