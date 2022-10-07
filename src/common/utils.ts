@@ -221,7 +221,6 @@ export const getBg = (areaId: number, blur = false) => {
 }
 
 export const getAreaName = (areaId: number, blur = false) => {
-    let folder = blur? "bg_blur" : "bg";
     let name = "grasslands";
     switch(areaId) {
         case 1:
