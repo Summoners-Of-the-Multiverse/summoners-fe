@@ -13,4 +13,8 @@
     font-size: 30px;
 
     color: red;
+
+    @media screen and (max-width: 900px) {
+        position: fixed;
+    }
 }

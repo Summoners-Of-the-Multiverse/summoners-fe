@@ -1,12 +1,12 @@
 .back-button {
-    background-color: transparent;
-    border: none;
     position: absolute;
     top: 0;
     left: 0;
 
-    padding: 10px;
+    background-color: transparent;
+    border: none;
 
+    padding: 10px;
     font-size: 30px;
 
     > span {
@@ -17,6 +17,8 @@
     }
 
     @media screen and (max-width: 900px) {
+        position: fixed;
+        
         > span {
             display: none;
         }
