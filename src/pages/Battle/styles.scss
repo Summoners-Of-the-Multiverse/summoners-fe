@@ -425,28 +425,48 @@ $battleButtonCenterSize: 30px;
                 .attack-total {
                     font-size: 25px;
 
-                    @media screen and (max-width: 900px) {
-                        font-size: 20px;
-                    }
-
                     &.attack-index-0 {
-                        bottom: 0%;
-                        left: 10%;
+                        top: 10%;
+                        left: 30%;
                     }
 
                     &.attack-index-1 {
-                        bottom: 0%;
+                        bottom: 10%;
                         left: 30%;
                     }
 
                     &.attack-index-2 {
-                        bottom: 0%;
+                        bottom: 10%;
                         right: 30%;
                     }
 
                     &.attack-index-3 {
-                        bottom: 0%;
-                        right: 10%;
+                        top: 10%;
+                        right: 30%;
+                    }
+
+                    @media screen and (max-width: 900px) {
+                        font-size: 20px;
+
+                        &.attack-index-0 {
+                            top: 10%;
+                            left: 10%;
+                        }
+    
+                        &.attack-index-1 {
+                            bottom: 10%;
+                            left: 10%;
+                        }
+    
+                        &.attack-index-2 {
+                            bottom: 10%;
+                            right: 10%;
+                        }
+    
+                        &.attack-index-3 {
+                            top: 10%;
+                            right: 10%;
+                        }
                     }
                 }
 

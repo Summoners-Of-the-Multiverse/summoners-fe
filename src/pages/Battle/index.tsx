@@ -22,13 +22,11 @@ const startBattle = async({
     address,
     chainId,
 }: StartBattleParams ) => {
-    socket.connect();
     while(socket.disconnected) {
         // wait for socket to connect
         await sleep(100);
     }
 
-    console.log(address, chainId);
     if(address && chainId) {
         socket.emit('start_battle', {address, chainId});
     }
@@ -139,22 +137,25 @@ const Battle = () => {
 
     const navigate = useNavigate();
     const isInBattle = useRef<boolean>(false);
-    const isNavigateOut = useRef<boolean>(false);
     const isNaturalBattleEnd = useRef<boolean>(false);
+    const isMounted = useRef<boolean>(false);
+
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        }
+    }, []);
 
     //handle socket connections and clean up
     useEffect(() => {
-        if(!socket.connected) {
-            socket.connect();
-        }
+        socket.connect();
 
         return () => {
-            if(!isInBattle.current && isNaturalBattleEnd.current) {
+            if(!isInBattle.current || isNaturalBattleEnd.current) {
                 return;
             }
 
-            //set is not on page
-            isNavigateOut.current = true;
             surrender(address, true);
             socket.disconnect();
         }
@@ -186,17 +187,20 @@ const Battle = () => {
             return;
         }
 
-        isNaturalBattleEnd.current = !isNavigateOut.current;
+        isNaturalBattleEnd.current = true;
         setEncounterDamageReceived(undefined);
 
-        //is not refresh / back button / not on page anymore
-        if(!isNavigateOut.current) {
+        //only show toast if is mounted
+        if(isMounted.current) {
             toast.info('Redirecting to battle stats in 3 seconds', {
                 autoClose: 2000
             });
 
             setTimeout(() => {
-                navigate(`/battleResult/${battleDetails!.battle_id}`);
+                //only redirect if is mount
+                if(isMounted.current) {
+                    navigate(`/battleResult/${battleDetails!.battle_id}`);
+                }
             }, 3000);
         }
     }, [navigate, battleDetails]);
@@ -348,6 +352,7 @@ const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, mons
         }
     }, [monstersOnCd, activeMonsterId, details]);
 
+    // set skill click effects
     const onSkillClick = useCallback((monsterId: string, endTime: number) => {
         if(Object.keys(monstersOnCd).includes(monsterId)) {
             // toast.error('Guardians need rest!');
@@ -424,6 +429,7 @@ const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, mons
         };
     }, [activeMonsterId, details, address, onSkillClick]);
 
+    // set monster count
     useEffect(() => {
         if(!details) {
             return;
@@ -432,6 +438,7 @@ const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, mons
         monsterCount.current = Object.keys(details.playerMonsters).length;
     }, [details]);
 
+    // surrender
     const onSurrender = useCallback(() => {
         surrender(address);
     }, [address]);
