@@ -183,6 +183,43 @@ export const getEffect = (assetFile: string) => {
     return `/assets/effects/${assetFile}`;
 }
 
+export const getBg = (areaId: number, blur = false) => {
+    let folder = blur? "bg_blur" : "bg";
+    let name = "grasslands";
+    switch(areaId) {
+        case 1:
+            name = "town";
+            break;
+        case 2:
+            name = "forest";
+            break;
+        case 3:
+            name = "grasslands";
+            break;
+        case 4:
+            name = "beach";
+            break;
+        case 5:
+            name = "volcano";
+            break;
+        case 6:
+            name = "underground";
+            break;
+        case 7:
+            name = "sunken";
+            break;
+        case 8:
+            name = "funfair";
+            break;
+        case 9:
+            name = "sky";
+            break;
+        default:
+            break;
+    }
+    return `/assets/${folder}/${name}_bg.png`;
+}
+
 export const truncateStr = (fullStr: string, strLen: number, separator='..') => {
     if (fullStr.length <= strLen) return fullStr;
 

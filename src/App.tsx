@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { EVMConnector, ChainConfigs } from './components/EVM';
-import { ellipsizeThis } from './common/utils';
+import { ellipsizeThis, getBg } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,6 +25,11 @@ const pagesWithHeader = [
     '/',
 ];
 
+const pagesWithoutMask = [
+    '/',
+    '/portal',
+];
+
 export const AddressContext = createContext({
     address: "",
     chain: "",
@@ -43,6 +48,8 @@ function App() {
     const [isMobile, setIsMobile] = useState(false);
     const [areaId, setAreaId] = useState(0);
     const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
+    const [shouldMask, setShouldMask] = useState(false);
+
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -94,6 +101,7 @@ function App() {
 
     useEffect(() => {
         setShouldRenderHeader(pagesWithHeader.includes(location.pathname));
+        setShouldMask(!pagesWithoutMask.includes(location.pathname));
     }, [location]);
 
     const handleNewAccount = useCallback((address: string) => {
@@ -115,7 +123,10 @@ function App() {
 
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
-            {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
+            <div className="bg-container">
+                <img className='bg' src={getBg(areaId)} alt="background_image" />
+                <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
+            </div>
 
             {/** Connectors */}
             <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container`}>
