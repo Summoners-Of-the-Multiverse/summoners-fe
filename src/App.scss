@@ -42,9 +42,8 @@ body {
     .bg-container {
         position: fixed;
         inset: 0;
-        height: 100vh;
+        height: 100%;
         width: 100vw;
-        object-fit: cover;
         z-index: -1;
 
         > img.bg {
