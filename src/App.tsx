@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { EVMConnector, ChainConfigs } from './components/EVM';
-import { ellipsizeThis, getBg } from './common/utils';
+import { ellipsizeThis, getBg, getRandomNumber } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
@@ -58,10 +58,11 @@ function App() {
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
     // const [isMobile, setIsMobile] = useState(false);
-    const [areaId, setAreaId] = useState(0);
+    const [areaId, setAreaId] = useState(getRandomNumber(1, 9, true));
     const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
     const [shouldMask, setShouldMask] = useState(false);
     const [shouldBlur, setShouldBlur] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
     const currentPath = useCurrentPath(routes);
@@ -119,6 +120,7 @@ function App() {
     }, [currentPath]);
 
     const handleNewAccount = useCallback((address: string) => {
+        setIsLoading(false);
         setAddress(address);
     }, []);
 
@@ -139,17 +141,19 @@ function App() {
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             <div className="bg-container">
                 <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
+
+                {/** mask only when address is present cause it'll be the login page then */}
                 <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
             </div>
 
             {/** Connectors */}
-            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container`}>
-                <div className='connector-container'>
+            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container ${address? '' : 'disconnected'}`}>
+                <div className={`connector-container`}>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
                         handleChainChange={handleChainChange}
                         onFinishLoading={onFinishLoading}
-                        className={`metamask-connector ${address? 'logged-in' : ''}`}
+                        className={`${isLoading? 'loading' : ''} metamask-connector ${address? 'logged-in' : ''}`}
                     >
                         <div className={`metamask-btn ${address? 'disabled' : ''}`}>
                             <img src="/metamask-logo.png" alt="metamask-logo"></img>
@@ -158,6 +162,9 @@ function App() {
                             <span>{address? ellipsizeThis(address, 9, 9) : 'Your Jouney Starts Here'}</span>
                         </div>
                     </EVMConnector>
+                    
+                    <h1 className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoners of the Multiverse</h1>
+                    <span className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoner: {ellipsizeThis(address, 5, 5)}</span>
                 </div>
             </div>
             {/** Main Pages */}
