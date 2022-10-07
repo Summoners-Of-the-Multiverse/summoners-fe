@@ -59,7 +59,6 @@ const MonsterCard = ({
                     <div className={`info-button ${showInfo? 'active' : ''}`} onMouseEnter={displayInfo} onMouseLeave={hideInfo}>{ showInfo && additionalInfo}</div>
                 }
             </div>
-            {children}
             
             {
                 showMintButton &&
@@ -71,6 +70,8 @@ const MonsterCard = ({
                     {mintButtonText}
                 </button>
             }
+            
+            {children}
         </div>
     )
 }
