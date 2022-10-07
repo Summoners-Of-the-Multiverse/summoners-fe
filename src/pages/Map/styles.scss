@@ -1,7 +1,7 @@
 .map-page {
     width: 100%;
     max-width: 900px;
-    padding: 5%;
+    padding: 2%;
 
     @media screen and (max-width: 900px) {
         padding: 0;
@@ -22,6 +22,7 @@
             @media screen and (max-width: 900px) {
                 border: none;
                 border-radius: 0;
+                height: 100vh;
             }
         }
 
