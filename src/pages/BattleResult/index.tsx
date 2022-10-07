@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
-import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
+// import moment from 'moment';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
@@ -34,7 +34,7 @@ const BattleResultPage = () => {
 	const [ isCaptured, setIsCaptured ] = useState(false);
 	const [ result, setResult ] = useState<BattleResult | undefined>();
 	const [ skillsUsed, setSkillsUsed ] = useState<BattleSkillsUsed[]>([]);
-	const [ duration, setDuration ] = useState(0);
+	// const [ duration, setDuration ] = useState(0);
 	const [ mvp, setMvp ] = useState<MVP | undefined>();
 
 	useEffect(() => {
@@ -54,8 +54,8 @@ const BattleResultPage = () => {
 				setSkillsUsed(skillsUsed);
 				
 				// in seconds
-				let duration = (moment(result.time_end).unix() - moment(result.time_start).unix());
-				setDuration(duration);
+				// let duration = (moment(result.time_end).unix() - moment(result.time_start).unix());
+				// setDuration(duration);
 
 				//set mvp
 				let monsterTotalDamage: {[monster_id: number]: number } = {};
@@ -138,13 +138,13 @@ const BattleResultPage = () => {
     return (
 		<div className='battle-result-page'>
 			<Spinner
-				text='Loading..'
+				text='Loading'
 				show={isLoading}
 				type="pulse"
 				mode='light'
 			/>
 			<Spinner
-				text='Minting..'
+				text='Minting'
 				show={isMinting}
 				type="pulse"
 				mode='dark'
@@ -152,7 +152,7 @@ const BattleResultPage = () => {
 			{
 				!isLoading &&
 				result &&
-				<>
+				<div className='battle-result-container'>
 					<BackButton
 						onButtonClick={() => navigate('/')}
 					/>
@@ -180,22 +180,29 @@ const BattleResultPage = () => {
 							{result.is_captured || isCaptured? 'Captured' : 'Capture'}
 						</button>
 					}
-
-					<h2>MVP</h2>
+					
 					{
-						mvp?.damage &&
-						<div className='mvp-container'>
-							<span>{mvp.name}</span>
-							<img src={getMonsterIcon(mvp.imgFile, mvp.monsterElement, mvp.isShiny)} alt="monster_icon" />
-							<span>Damage: {toLocaleDecimal(mvp.damage, 0, 0)}</span>
-						</div>
+						mvp && mvp.damage > 0 &&
+						<>
+							<h2>MVP</h2>
+							<div className='mvp-container'>
+								<span>{mvp.name}</span>
+								<img src={getMonsterIcon(mvp.imgFile, mvp.monsterElement, mvp.isShiny)} alt="monster_icon" />
+								<span>Damage: {toLocaleDecimal(mvp.damage, 0, 0)}</span>
+							</div>
+						</>
 					}
 
-					<h2>Skills Used</h2>
-					<SkillsUsageTable
-						skills={skillsUsed}
-					/>
-				</>
+					{
+						skillsUsed.length > 0 &&
+						<>
+							<h2>Skills Used</h2>
+							<SkillsUsageTable
+								skills={skillsUsed}
+							/>
+						</>
+					}
+				</div>
 			}
 			{
 				!isLoading &&

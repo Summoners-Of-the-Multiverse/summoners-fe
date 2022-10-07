@@ -10,7 +10,7 @@ import { MapProps } from './types';
 const travel = async(address: string, areaId: number) => {
     try {
 
-        window.confirm('Travel to this location?');
+        if(!window.confirm('Travel to this location?')) return;
 
         await instance.post('/travel', {
             address,

@@ -7,10 +7,33 @@
     min-width: 100%;
     min-height: 100vh;
 
+    padding: 5%;
+
+    @media screen and (max-width: 900px) {
+        padding: 0;
+    }
+
     h1,
     h2 {
         font-family: 'Starguard';
         margin: 5vh 0 2vh 0;
+    }
+
+    .battle-result-container {
+        position: relative;
+        border-radius: 10px;
+        border: 5px solid black;
+        background-color: rgba(255,255,255,0.7);
+        padding: 2%;
+        min-width: 80vw;
+
+        @media screen and (max-width: 900px) {
+            min-width: 100vw;
+            min-height: 100vh;
+            border: none;
+            border-radius: 0;
+            background-color: rgba(255,255,255,0.3);
+        }
     }
 
     .monster-card-container {
@@ -20,7 +43,7 @@
     }
 
     .skills-usage-container {
-        background-color: rgba(255,255,255,0.2);
+        background-color: rgba(255,255,255,0.9);
         max-width: 95vw;
         overflow: auto;
         margin: auto;
@@ -68,7 +91,7 @@
     button.mint-button {
         border: 3px solid black;
         border-radius: 10px;
-        background-color: transparent;
+        background-color: white;
         font-family: 'Starguard';
 
         padding: 10px;

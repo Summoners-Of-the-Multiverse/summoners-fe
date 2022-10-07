@@ -30,29 +30,31 @@ const Portal = ({onChainChange}: PortalProps) => {
 
     return (
 		<div className='portal-page'>
-            <BackButton
-                onButtonClick={() => navigate('/')}
-            />
-            <EVMSwitcher
-                targetChain={BSC_TEST}
-                handleChainChange={handleChainChange}
-                handleUserRejection={handleUserRejection}
-                handleUnknownError={handleUnknownError}
-                className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
-                currentChainId={chain}
-            >
-                <span>BSC</span>
-            </EVMSwitcher>
-            <EVMSwitcher
-                targetChain={POLYGON_TEST}
-                handleChainChange={handleChainChange}
-                handleUserRejection={handleUserRejection}
-                handleUnknownError={handleUnknownError}
-                className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
-                currentChainId={chain}
-            >
-                <span>Polygon</span>
-            </EVMSwitcher>
+            <div className="navigate-container">
+                <BackButton
+                    onButtonClick={() => navigate('/')}
+                />
+                <EVMSwitcher
+                    targetChain={BSC_TEST}
+                    handleChainChange={handleChainChange}
+                    handleUserRejection={handleUserRejection}
+                    handleUnknownError={handleUnknownError}
+                    className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
+                    currentChainId={chain}
+                >
+                    <span>BSC</span>
+                </EVMSwitcher>
+                <EVMSwitcher
+                    targetChain={POLYGON_TEST}
+                    handleChainChange={handleChainChange}
+                    handleUserRejection={handleUserRejection}
+                    handleUnknownError={handleUnknownError}
+                    className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
+                    currentChainId={chain}
+                >
+                    <span>Polygon</span>
+                </EVMSwitcher>
+            </div>
 		</div>
 	)
 }

@@ -132,7 +132,7 @@ const Starter = () => {
             <Spinner
                 show={minting}
                 type={"pulse"}
-                mode={"white"}
+                mode={"light"}
                 text={"Minting"}
             ></Spinner>
         </div>
