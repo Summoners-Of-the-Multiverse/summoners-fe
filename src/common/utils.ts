@@ -220,6 +220,43 @@ export const getBg = (areaId: number, blur = false) => {
     return `/assets/${folder}/${name}_bg.png`;
 }
 
+export const getAreaName = (areaId: number, blur = false) => {
+    let folder = blur? "bg_blur" : "bg";
+    let name = "grasslands";
+    switch(areaId) {
+        case 1:
+            name = "Town";
+            break;
+        case 2:
+            name = "Forest";
+            break;
+        case 3:
+            name = "Grasslands";
+            break;
+        case 4:
+            name = "Beach";
+            break;
+        case 5:
+            name = "Volcano";
+            break;
+        case 6:
+            name = "Underground";
+            break;
+        case 7:
+            name = "Sunken City";
+            break;
+        case 8:
+            name = "Fun Fair";
+            break;
+        case 9:
+            name = "Sky City";
+            break;
+        default:
+            break;
+    }
+    return name;
+}
+
 export const truncateStr = (fullStr: string, strLen: number, separator='..') => {
     if (fullStr.length <= strLen) return fullStr;
 

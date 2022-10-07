@@ -36,6 +36,7 @@ const pagesWithBlur = [
 export const AddressContext = createContext({
     address: "",
     chain: "",
+    chainName: "",
     areaId: 0,
 });
 
@@ -156,14 +157,15 @@ function App() {
                         className={`${isLoading? 'loading' : ''} metamask-connector ${address? 'logged-in' : ''}`}
                     >
                         <div className={`metamask-btn ${address? 'disabled' : ''}`}>
-                            <img src="/metamask-logo.png" alt="metamask-logo"></img>
+                            <img src="/logo192.png" alt="metamask-logo"></img>
                         </div>
                         <div className='metamask-text'>
-                            <span>{address? ellipsizeThis(address, 9, 9) : 'Your Jouney Starts Here'}</span>
+                            <span>{address? ellipsizeThis(address, 9, 9) : 'Your Journey Starts Here'}</span>
                         </div>
                     </EVMConnector>
                     
-                    <h1 className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoners of the Multiverse</h1>
+                    {/* <h1 className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoners of the Multiverse</h1> */}
+                    <img src="/summoner.png" alt="logo" className='logo'/>
                     <span className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoner: {ellipsizeThis(address, 5, 5)}</span>
                 </div>
             </div>
@@ -172,6 +174,7 @@ function App() {
                 address,
                 chain,
                 areaId,
+                chainName,
             }}>
                 {/** Please update routes constant if there's a new page */}
                 <Routes>

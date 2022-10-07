@@ -130,7 +130,7 @@ body {
         }
 
         > img {
-            height: 40%;
+            height: 60%;
         }
     }
 
@@ -146,6 +146,10 @@ body {
 
         -webkit-text-stroke-width: 0.5px;
         -webkit-text-stroke-color: rgba(0,0,0,0.5) !important;
+    }
+
+    img.logo {
+        width: 250px;
     }
 
     .logo-text {
