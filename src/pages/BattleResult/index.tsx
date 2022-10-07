@@ -17,6 +17,8 @@ import { BattleResult, BattleResultResponse, BattleSkillsUsed, MVP, SkillsUsageT
 import { ChainConfigs } from '../../components/EVM';
 import _ from 'lodash';
 
+const PREPARING_TEXT = "Preparing Nets";
+const CAPTURING_TEXT = "Capturing";
 
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div>
@@ -32,6 +34,8 @@ const BattleResultPage = () => {
 	const [ isLoading, setIsLoading ] = useState(true);
 	const [ isMinting, setIsMinting ] = useState(false);
 	const [ isCaptured, setIsCaptured ] = useState(false);
+	const [ mintText, setMintText ] = useState(PREPARING_TEXT);
+
 	const [ result, setResult ] = useState<BattleResult | undefined>();
 	const [ skillsUsed, setSkillsUsed ] = useState<BattleSkillsUsed[]>([]);
 	// const [ duration, setDuration ] = useState(0);
@@ -65,6 +69,11 @@ const BattleResultPage = () => {
 					monsterElement: 0,
 					isShiny: false,
 					name: "",
+					attack: 0,
+					defense: 0,
+					hp: 0,
+					crit_chance: 0,
+					crit_multiplier: 0,
 				};
 				
 				let mvpDamageDealt = 0;
@@ -82,6 +91,11 @@ const BattleResultPage = () => {
 						mvp.monsterElement = skill.monster_element_id;
 						mvp.isShiny = skill.is_shiny;
 						mvp.name = skill.monster_name;
+						mvp.attack = skill.monster_attack;
+						mvp.defense = skill.monster_defense;
+						mvp.hp = skill.monster_hp;
+						mvp.crit_chance = skill.monster_crit_chance;
+						mvp.crit_multiplier = skill.monster_crit_multiplier;
 					}
 				}
 				
@@ -99,17 +113,22 @@ const BattleResultPage = () => {
 	}, [address, id]);
 
 	const capture = useCallback(async() => {
+		let tokenId: number = 0;
+		let tokenHash: number = 0;
+
 		try {
 			setIsMinting(true);
 			const contract = new ContractCall(chain);
 			const mintData: { [ key:string]: any} = await instance.post(`/premint/${chain}`);
+
+			setMintText(CAPTURING_TEXT);
 			const tx = await contract.mintNft(mintData);
 	
 			if (tx.status === 1) {
 				const chainConfig: ChainConfig|undefined = _.find(ChainConfigs, { id: chain,  })
 	
-				const tokenId: number = mintData.data.id;
-				const tokenHash: number = mintData.data.hash;
+				tokenId = mintData.data.id;
+				tokenHash = mintData.data.hash;
 	
 				const result: any = await instance.post(`/capture`, {
 					address: address,
@@ -122,14 +141,36 @@ const BattleResultPage = () => {
 					toast.success(SuccessMintToast(chainConfig, tx));
 					setIsCaptured(true);
 					setIsMinting(false);
+					setMintText(PREPARING_TEXT);
 					return true;
 				}
 			}
+			setMintText(PREPARING_TEXT);
 			setIsMinting(false);
 			return false;
 		}
-		catch(e) {
-			console.log(e);
+		catch(e: any) {
+			if(e.toString().includes('user rejected transaction')) {
+				toast.error("You've gone soft!")
+	
+				//temporarily ignore
+				/* if(tokenId !== 0 && tokenHash !== 0) {
+					try {
+						//cleanup
+						await instance.post(`/unmint`, {
+							address: address,
+							battleId: id,
+							tokenId: tokenId,
+							tokenHash: tokenHash
+						});
+					}
+	
+					catch {
+						// do nothing
+					}
+				} */
+			}
+			setMintText(PREPARING_TEXT);
 			setIsMinting(false);
 			return false;
 		}
@@ -145,7 +186,7 @@ const BattleResultPage = () => {
 				fullScreen
 			/>
 			<Spinner
-				text='Capturing'
+				text={mintText}
 				show={isMinting}
 				type="pulse"
 				mode='dark'
@@ -159,41 +200,48 @@ const BattleResultPage = () => {
 						onButtonClick={() => navigate('/')}
 					/>
 					<h1>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
-					<h2>Encountered</h2>
-					<div className="monster-card-container">
-						<MonsterCard
-							imageFile={result.img_file}
-							elementId={result.element_id}
-							attack={result.attack}
-							defense={result.defense}
-							hp={result.hp}
-							crit={result.crit_chance}
-							additionalInfo={"test"}
-							isShiny={result.is_shiny}
-						/>
-					</div>
-					{
-						result.hp_left < 0 &&
-						<button 
-							className={`mint-button ${result.is_captured || isCaptured? 'disabled' : ''}`} 
-							disabled={result.is_captured || isCaptured}
-							onClick={capture}
-						>
-							{result.is_captured || isCaptured? 'Captured' : 'Capture'}
-						</button>
-					}
-					
-					{
-						mvp && mvp.damage > 0 &&
-						<>
-							<h2>MVP</h2>
-							<div className='mvp-container'>
-								<span>{mvp.name}</span>
-								<img src={getMonsterIcon(mvp.imgFile, mvp.monsterElement, mvp.isShiny)} alt="monster_icon" />
-								<span>Damage: {toLocaleDecimal(mvp.damage, 0, 0)}</span>
+
+					<div className="row">
+						<div className={`col-md-${mvp && mvp.damage > 0? '6' : '12'}`}>
+							<h2>Encountered</h2>
+							<div className="monster-card-container">
+								<MonsterCard
+									imageFile={result.img_file}
+									elementId={result.element_id}
+									attack={result.attack}
+									defense={result.defense}
+									hp={result.hp}
+									crit={result.crit_chance}
+									additionalInfo={"test"}
+									isShiny={result.is_shiny}
+
+									showMintButton={result.hp_left < 0}
+									mintButtonText={result.is_captured || isCaptured? 'Captured' : 'Capture'}
+									onMintButtonClick={capture}
+									disableMintButton={result.is_captured || isCaptured}
+								/>
 							</div>
-						</>
-					}
+						</div>
+					
+						{
+							mvp && mvp.damage > 0 &&
+							<div className="col-md-6">
+								<h2>MVP</h2>
+								<MonsterCard
+									imageFile={mvp.imgFile}
+									elementId={mvp.monsterElement}
+									attack={mvp.attack}
+									defense={mvp.defense}
+									hp={mvp.hp}
+									crit={mvp.crit_chance}
+									additionalInfo={"test"}
+									isShiny={mvp.isShiny}
+								>
+									<span className='mvp-damage'>Damage: {toLocaleDecimal(mvp.damage, 0, 0)}</span>
+								</MonsterCard>
+							</div>
+						}
+					</div>
 
 					{
 						skillsUsed.length > 0 &&

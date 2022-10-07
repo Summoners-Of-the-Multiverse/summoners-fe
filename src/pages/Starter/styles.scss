@@ -1,6 +1,27 @@
 .starter-page {
     width: 100%;
     max-width: 900px;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    h1 {
+        font-size: 80px;
+        font-family: 'Starguard';
+        color: white;
+        margin-bottom: 30px;
+
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: rgba(0,0,0,0.5) !important;
+
+        @media screen and (max-width: 900px) {
+            margin-top: 40px;
+            font-size: 40px;
+        }
+    }
 
     .starter-monsters-container {
         display: flex;

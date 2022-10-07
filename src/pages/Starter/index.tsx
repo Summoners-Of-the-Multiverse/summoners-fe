@@ -15,6 +15,8 @@ import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
 import Spinner from '../../components/Spinner';
 
 const chains = ChainConfigs;
+const PREPARING_TEXT = "Preparing Ink";
+const CAPTURING_TEXT = "Convincing Guardian";
 
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div>
@@ -22,44 +24,12 @@ const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     </div>
 );
 
-const mint = async(chain: string, address: string, metadataId: number) => {
-    try {
-        const contract = new ContractCall(chain);
-        const mintData: { [ key:string]: any} = await instance.post(`/premint/${chain}`);
-        const tx = await contract.mintNft(mintData);
-
-        if (tx.status === 1) {
-            const chainConfig: ChainConfig|undefined = _.find(chains, { id: chain,  })
-
-            const tokenId: number = mintData.data.id;
-            const tokenHash: number = mintData.data.hash;
-
-            const result: any = await instance.post(`/mint`, {
-                address: address,
-                metadataId: metadataId,
-                tokenId: tokenId,
-                tokenHash: tokenHash
-            });
-
-            if (result.data.success) {
-                toast.success(SuccessMintToast(chainConfig, tx));
-                return true;
-            }
-        }
-        return false;
-    }
-    catch(e) {
-        console.log(e);
-        return false;
-    }
-}
-
-
 const Starter = () => {
     const { address, chain, } = useContext(AddressContext);
     const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
+    const [mintText, setMintText] = useState(PREPARING_TEXT);
 
     const navigate = useNavigate();
 
@@ -116,6 +86,48 @@ const Starter = () => {
         getStarterMonsters();
     }, [address, chain]);
 
+
+    const mint = useCallback(async(chain: string, address: string, metadataId: number) => {
+        try {
+            const contract = new ContractCall(chain);
+            const mintData: { [ key:string]: any} = await instance.post(`/premint/${chain}`);
+
+			setMintText(CAPTURING_TEXT);
+            const tx = await contract.mintNft(mintData);
+
+            if (tx.status === 1) {
+                const chainConfig: ChainConfig|undefined = _.find(chains, { id: chain,  })
+
+                const tokenId: number = mintData.data.id;
+                const tokenHash: number = mintData.data.hash;
+
+                const result: any = await instance.post(`/mint`, {
+                    address: address,
+                    metadataId: metadataId,
+                    tokenId: tokenId,
+                    tokenHash: tokenHash
+                });
+
+                if (result.data.success) {
+                    toast.success(SuccessMintToast(chainConfig, tx));
+                    setMintText(PREPARING_TEXT);
+                    return true;
+                }
+            }
+            toast.error('Not enough charisma :(');
+			setMintText(PREPARING_TEXT);
+            return false;
+        }
+        catch(e: any) {
+            console.log(e);
+			if(e.toString().includes('user rejected transaction')) {
+                toast.error('Y u staph? :(');
+            }
+			setMintText(PREPARING_TEXT);
+            return false;
+        }
+    }, []);
+
     return (
         <div className='starter-page'>
             {
@@ -127,37 +139,37 @@ const Starter = () => {
                     chain={chain}
                     startMinting={startMinting}
                     endMinting={endMinting}
+                    mint={mint}
                 />
             }
             <Spinner
                 show={minting}
                 type={"pulse"}
                 mode={"light"}
-                text={"Minting"}
+                text={mintText}
             ></Spinner>
         </div>
     )
 }
 
-const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting }: MintPromptProps) => {
+const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting, mint }: MintPromptProps) => {
 
     const onMintButtonClick = useCallback(async(chain:string, id: number, name: string) => {
         if(window.confirm(`Mint ${name}?`)) {
             startMinting();
             let res = await mint(chain, address, id);
             if(!res) {
-                toast.error('Unable to mint!');
                 endMinting();
                 return;
             }
 
             onMint();
         }
-    }, [onMint, address, startMinting, endMinting]);
+    }, [onMint, address, startMinting, endMinting, mint]);
 
     return (
         <>
-            <h1 className='mb-3'>Choose Your Guardian</h1>
+            <h1>Choose Your Guardian</h1>
             <div className='starter-monsters-container'>
                 {
                     monsters.map((x, index) => {
@@ -185,9 +197,12 @@ const MintPrompt = ({ monsters, onMint, address, chain, startMinting, endMinting
                                 crit={x.base_crit_chance}
                                 additionalInfo={"test"}
                                 isShiny={false}
-                            >
-                                <button onClick={() => { onMintButtonClick(chain, x.id, x.name) }}>Mint</button>
-                            </MonsterCard>
+
+                                showMintButton={true}
+                                mintButtonText={'Choose'}
+                                onMintButtonClick={() => onMintButtonClick(chain, x.id, x.name)}
+                                disableMintButton={false}
+                            />
                         )
                     })
                 }
