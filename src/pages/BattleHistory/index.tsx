@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import moment from 'moment';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
@@ -30,6 +30,7 @@ const BattleResultHistory = () => {
     const [ results, setResults ] = useState<BattleResult[]>([]); 
 	const [ isLoading, setIsLoading ] = useState(true);
 	const [ page, setPage ] = useState(0);
+	const [ maxPage, setMaxPage ] = useState(0);
 
 	useEffect(() => {
 		if(!address) {
@@ -44,6 +45,7 @@ const BattleResultHistory = () => {
 			try {
 				let res = await instance.post<any, AxiosResponse<BattleResult[]>>(`/battleResults`, { address });
 				setResults(res.data);
+				setMaxPage(Math.ceil((res.data.length) / RESULT_PER_PAGE) - 1);
 			}
 
 			catch {
@@ -76,6 +78,20 @@ const BattleResultHistory = () => {
 		return paginated;
 	}, [page, results]);
 
+	const onRightClick = useCallback(() => {
+		let nextPage = page + 1;
+		if(nextPage <= maxPage) {
+			setPage(nextPage);
+		}
+	}, [page, maxPage]);
+
+	const onLeftClick = useCallback(() => {
+		let nextPage = page - 1;
+		if(nextPage >= 0) {
+			setPage(nextPage);
+		}
+	}, [page]);
+
     return (
         <div className="battle-history-page">
 			{/* <Spinner
@@ -88,6 +104,11 @@ const BattleResultHistory = () => {
 			<BackButton
 				onButtonClick={() => { navigate('/'); }}
 			/>
+			<div className="pagination">
+				<button onClick={onLeftClick}><i className="fa fa-chevron-left"></i></button>
+				<span>{page + 1} / {maxPage + 1}</span>
+				<button onClick={onRightClick}><i className="fa fa-chevron-right"></i></button>
+			</div>
 			<div className="battle-history-container">
 			{
 				paginated.map((x, index) => {
