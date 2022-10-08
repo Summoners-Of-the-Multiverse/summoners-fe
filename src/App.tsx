@@ -6,13 +6,11 @@ import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
-import { Battle, BattleResult, Home, Map, Starter } from './pages';
+import { Battle, BattleResult, Home, Inventory, Map, Portal, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
-import Portal from './pages/Portal';
-import Inventory from './pages/Inventory';
 import { useCurrentPath } from './hooks/useCurrentPath';
 const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
