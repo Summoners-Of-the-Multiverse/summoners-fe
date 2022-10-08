@@ -226,7 +226,7 @@ const BattleResultPage = () => {
 				result &&
 				<div className='battle-result-container'>
 					<BackButton
-						onButtonClick={() => { navigate("/" + returnToPage) }}
+						onButtonClick={() => { navigate("/" + (returnToPage? returnToPage : "")) }}
 					/>
 					<h1 className={`${result.hp_left < 0? 'victory' : 'defeat'}`}>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
 
