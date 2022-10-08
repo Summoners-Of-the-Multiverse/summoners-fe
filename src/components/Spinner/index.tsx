@@ -5,7 +5,7 @@ import { PulseLoader, RotateLoader, PropagateLoader, ScaleLoader, ClipLoader } f
 interface P{
     show: boolean,
     mode: "light" | "dark" | "white",
-    type: "pulse" | "rotate" | "propagate" | "scale" | "clip",
+    type: "pulse" | "rotate" | "propagate" | "scale" | "clip" | "bridging",
     text: string
 }
 interface S{}
@@ -70,6 +70,10 @@ export default class LoadingIndicator extends React.Component<P,S> {
 
             case "clip":
                 dom = <ClipLoader size={ 25 } color={ this.COLOR }/>
+                break;
+
+            case "bridging":
+                dom = <img src="/assets/gif/mob.gif" />
                 break;
 
             default:

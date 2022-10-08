@@ -3,7 +3,7 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
 import _ from 'lodash';
-import { getMonsterIcon, cloneObj, getSkillIcon } from '../../common/utils';
+import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard } from '../../common/utils';
 import LoadingIndicator from '../../components/Spinner';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
@@ -11,6 +11,42 @@ import BackButton from '../../components/BackButton';
 import ElementIcon from '../../components/ElementIcon';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import Button from 'react-bootstrap/Button';
+import ContractCall from '../../components/EVM/ContractCall';
+import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
+import { ChainConfigs } from '../../components/EVM';
+import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
+import { truncateStr } from '../../common/utils';
+import {
+    AxelarGMPRecoveryAPI,
+    Environment,
+} from "@axelar-network/axelarjs-sdk";
+import { Toast } from 'react-toastify/dist/components';
+const isTestnet = true;
+
+// assign chain info based on env
+const BscChain = isTestnet ? BSC_TEST : BSC;
+const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
+
+// Polyfill error solution
+// https://stackoverflow.com/questions/70398678/i-tried-to-polyfill-modules-in-webpack-5-but-not-working-reactjs
+
+// https://github.com/facebook/create-react-app/issues/11756
+
+// https://stackoverflow.com/questions/71562875/node-js-webpack5-error-module-not-found-breaking-change-webpack-5-used-to-i
+
+const sdk = new AxelarGMPRecoveryAPI({
+    environment: Environment.TESTNET,
+});
+const chains = ChainConfigs;
+
+const axelarScan = isTestnet ? `https://testnet.axelarscan.io/gmp/` : `https://axelarscan.io/gmp/`;
+const SuccessBridgeToast = (tx:any) => (
+
+    <div>
+        <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Onboarding
+    </div>
+);
 
 const Inventory = () => {
     const navigate = useNavigate();
@@ -20,6 +56,8 @@ const Inventory = () => {
     const [selected, setSelected] = useState<any>(null);
     // set loading state
     const [isLoading, setIsLoading] = useState(false);
+    // set bridging state
+    const [isBridging, setIsBridging] = useState(false);
     // store all monster
     const [mob, setMob] = useState<any[]>([]);
 
@@ -59,7 +97,10 @@ const Inventory = () => {
                         chainId: chain
                     });
 
-                    setMob(res.data);
+                    let mob = res.data;
+                    // set mob isBridging (so we can display more bridging info based on state here)
+                    setMob(mob);
+
                     setIsLoading(false);
                 } catch(e) {
                     console.log(e);
@@ -126,114 +167,12 @@ const Inventory = () => {
         return component;
     }, [equippedMonster, selectMob]);
 
-    const ActionButton = () => {
-        let component: JSX.Element;
-        if (selectedMob && selectedMob.equipped === 1) {
-            component = (
-                <div className="actions">
-                    <button onClick={unEquipMob}>DROP</button>
-                </div>
-            );
-        } else {
-            component = (
-                <div className="actions">
-                    <button onClick={equipMob}>USE</button>
-                    <button onClick={sendMob}>SEND</button>
-                </div>
-            );
-        }
-        return component;
-    }
-
-    const InfoSlot = useCallback(() => {
-        let mobSkils: JSX.Element[] = [];
-        let mobName = '';
-        let mobStats: JSX.Element = (<div className="mob-stats-slot"></div>);
-        let elementId = null;
-
-        if (selectedMob) {
-            mobName = selectedMob.name;
-            elementId = selectedMob.element_id;
-            _.map(selectedMob.skills, (sm, smIndex) => {
-                const popover = (
-                    <Popover id="popover-basic">
-                        <Popover.Header as="h3">
-                            <div className="mob-skill-stats">
-                                <ElementIcon
-                                    elementId={sm.element_id}
-                                />{sm.name}
-                            </div>
-                        </Popover.Header>
-                        <Popover.Body>
-                            Hits: {sm.hits}<br/>
-                            Damage: {sm.damage}%<br/>
-                            Accuracy: {sm.accuracy}<br />
-                            Cooldown: {sm.cooldown}s<br />
-                        </Popover.Body>
-                    </Popover>
-                );
-
-                mobSkils.push(
-                    <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
-                        <button className="mob-skill-icon">
-                            <img className={sm.element} alt={sm.name} src={getSkillIcon(sm.icon_file)} />
-                        </button>
-                    </OverlayTrigger>
-                )
-            })
-
-            mobStats = (
-                <div className="mob-stats-slot">
-                    <div>
-                        <div className="mob-stats">
-                            <span>ATT</span>
-                            <span>{selectedMob.attack}</span>
-                        </div>
-                        <div className="mob-stats">
-                            <span>LIFE</span>
-                            <span>{selectedMob.hp}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div className="mob-stats">
-                            <span>DEF</span>
-                            <span>{selectedMob.defense}</span>
-                        </div>
-                        <div className="mob-stats">
-                            <span>CRIT</span>
-                            <span>{selectedMob.crit_chance}</span>
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-
-        return (
-            <div className="big-slot">
-                <div className="mob-skills">
-                    {mobSkils}
-                </div>
-                <div className="mob-info">
-                    <div className="mob-name">
-                        <h5>
-                            {elementId && <ElementIcon
-                                elementId={elementId}
-                            />}
-
-                            {mobName}
-                        </h5>
-                    </div>
-                    {mobStats}
-                </div>
-            </div>
-        )
-    }, [selectedMob]);
 
     /**
      * Use mob in battle
      * @date 2022-10-06
      */
-    const equipMob = async () => {
+     const equipMob = async () => {
         try {
             // setIsLoading(true);
             let res = await instance.post(`/equipMob`, {
@@ -320,9 +259,155 @@ const Inventory = () => {
      * Bridging
      * @date 2022-10-06
      */
-    const sendMob = () => {
+    const sendMob = async (destChainId: string) => {
+        try {
+            setIsBridging(true);
+            // destination this
+            const destChain: any = _.find(chains, { id: destChainId });
+            const srcChain: any = _.find(chains, { id: chain });
+            const contract = new ContractCall(chain);
+            const tx = await contract.bridgeNft(destChain, selectedMob.token_id);
+            toast.success(SuccessBridgeToast(tx));
+            localStorage.setItem(`${selectedMob.token_id}`, tx.transactionHash);
+            setIsBridging(false);
+        }
+        catch(e) {
+            setIsBridging(false);
+            console.log(e);
+            return false;
+        }
+    };
 
+    const ActionButton = useCallback(() => {
+        let component: JSX.Element;
+        if (selectedMob && selectedMob.equipped === 1) {
+            component = (
+                <div className="actions">
+                    <button onClick={unEquipMob}>DROP</button>
+                </div>
+            );
+        } else {
+            const disabledBSC = chain === BscChain.id || _.isNil(selectedMob) ? true : false;
+            const disabledPoly = chain === PolygonChain.id || _.isNil(selectedMob) ? true : false;
+            const popover = (
+                <Popover id="popover-basic">
+                    <Popover.Header as="h3">
+                        Send guardian to?
+                    </Popover.Header>
+                    <Popover.Body>
+                        <div className="d-grid gap-1">
+                            <Button variant="outline-warning" onClick={() => sendMob(BscChain.id)} disabled={disabledBSC} size="lg">BSC</Button>
+                            <Button variant="outline-info" onClick={() => sendMob(PolygonChain.id)} disabled={disabledPoly}  size="lg">Polygon</Button>
+                        </div>
+                    </Popover.Body>
+                </Popover>
+            );
+
+            component = (
+                <div className="actions">
+                    <button onClick={equipMob}>USE</button>
+                    <OverlayTrigger rootClose={true} trigger="click" placement="top-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
+                        <button>SEND</button>
+                    </OverlayTrigger>
+                </div>
+            );
+        }
+        return component;
+    }, [chain, selectedMob, equipMob, unEquipMob, sendMob]);
+
+    const copyText = async (text: string) => {
+        await copyToClipboard(text);
+        toast.success(`Copied token: ${truncateStr(text, 10)}`);
     }
+
+    const InfoSlot = useCallback(() => {
+        let mobSkils: JSX.Element[] = [];
+        let mobName = '';
+        let mobTokenId = '';
+        let shortMobTokenId = '';
+        let mobStats: JSX.Element = (<div className="mob-stats-slot"></div>);
+        let elementId = null;
+
+        if (selectedMob) {
+            mobName = selectedMob.name;
+            mobTokenId = selectedMob.token_id;
+            shortMobTokenId = `id: ${truncateStr(selectedMob.token_id, 10)}`;
+            elementId = selectedMob.element_id;
+            _.map(selectedMob.skills, (sm, smIndex) => {
+                const popover = (
+                    <Popover id="popover-basic">
+                        <Popover.Header as="h3">
+                            <div className="mob-skill-stats">
+                                <ElementIcon
+                                    elementId={sm.element_id}
+                                />{sm.name}
+                            </div>
+                        </Popover.Header>
+                        <Popover.Body>
+                            Hits: {sm.hits}<br/>
+                            Damage: {sm.damage}%<br/>
+                            Accuracy: {sm.accuracy}<br />
+                            Cooldown: {sm.cooldown}s<br />
+                        </Popover.Body>
+                    </Popover>
+                );
+
+                mobSkils.push(
+                    <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
+                        <button className="mob-skill-icon">
+                            <img className={sm.element} alt={sm.name} src={getSkillIcon(sm.icon_file)} />
+                        </button>
+                    </OverlayTrigger>
+                )
+            })
+
+            mobStats = (
+                <div className="mob-stats-slot">
+                    <div>
+                        <div className="mob-stats">
+                            <span>ATT</span>
+                            <span>{selectedMob.attack}</span>
+                        </div>
+                        <div className="mob-stats">
+                            <span>LIFE</span>
+                            <span>{selectedMob.hp}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div className="mob-stats">
+                            <span>DEF</span>
+                            <span>{selectedMob.defense}</span>
+                        </div>
+                        <div className="mob-stats">
+                            <span>CRIT</span>
+                            <span>{selectedMob.crit_chance}</span>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        return (
+            <div className="big-slot">
+                <div className="mob-skills">
+                    {mobSkils}
+                </div>
+                <div className="mob-info">
+                    <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{shortMobTokenId}</Button>
+                    <div className="mob-name">
+                        <h5>
+                            {elementId && <ElementIcon
+                                elementId={elementId}
+                            />}
+
+                            {mobName}
+                        </h5>
+                    </div>
+                    {mobStats}
+                </div>
+            </div>
+        )
+    }, [selectedMob]);
 
     const MonsterListing = useCallback(() => {
         let component: JSX.Element[] = [];
@@ -346,7 +431,6 @@ const Inventory = () => {
     }, [unequippedMonsterPaginated, selectMob]);
 
     return (
-
         <div className="inventory-page container">
             <BackButton
                 onButtonClick={() => navigate('/')}
@@ -416,6 +500,13 @@ const Inventory = () => {
                 type={"pulse"}
                 mode={"white"}
                 text={"Loading..."}
+            ></LoadingIndicator>
+
+            <LoadingIndicator
+                show={isBridging}
+                type={"bridging"}
+                mode={"white"}
+                text={"Travelling..."}
             ></LoadingIndicator>
         </div>
     )

@@ -1,11 +1,13 @@
 import { ChainConfig } from "./types";
 import { ethers } from 'ethers';
+import {EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
 
 // chains
 export const BSC_TEST: ChainConfig = {
-    name: 'Binance Smart Chain Mainnet',
+    name: 'BNB Chain',
     shortName: 'BSC TEST',
     id: ethers.utils.hexlify(97),
+    evmChain: EvmChain.BINANCE,
     rpc: 'https://data-seed-prebsc-2-s1.binance.org:8545',
     nativeCurrency: {
         name: 'BNB',
@@ -17,11 +19,14 @@ export const BSC_TEST: ChainConfig = {
     nftContract: '0x797DA68eFCc022df34a634a74F2a4AcB2210c24C'
 };
 export const POLYGON_TEST: ChainConfig = {
-    name: 'Polygon Testnet',
+    name: 'Polygon',
     shortName: 'MUMBAI',
+    evmChain: EvmChain.POLYGON,
     // id: ethers.utils.hexlify(80001),
     id: '0x13881',
-    rpc: 'https://polygontestapi.terminet.io/rpc',
+    rpc: 'https://rpc-mumbai.matic.today/',
+    // rpc: 'https://polygontestapi.terminet.io/rpc',
+    // rpc: 'https://rpc-mumbai.maticvigil.com/',
     nativeCurrency: {
         name: 'MATIC',
         decimals: 18,
@@ -34,6 +39,7 @@ export const POLYGON_TEST: ChainConfig = {
 export const ETH: ChainConfig = {
     name: 'Ethereum',
     shortName: 'ETH',
+    evmChain: EvmChain.ETHEREUM,
     id: ethers.utils.hexlify(1),
     rpc: '',
     nativeCurrency: {
@@ -43,8 +49,9 @@ export const ETH: ChainConfig = {
     },
 };
 export const BSC: ChainConfig = {
-    name: 'Binance Smart Chain Mainnet',
+    name: 'BNB Chain',
     shortName: 'BSC',
+    evmChain: EvmChain.BINANCE,
     id: ethers.utils.hexlify(56),
     rpc: 'https://bsc-dataseed1.binance.org',
     nativeCurrency: {
@@ -57,6 +64,7 @@ export const BSC: ChainConfig = {
 export const AVAX: ChainConfig = {
     name: 'Avalanche C-Chain',
     shortName: 'AVAX',
+    evmChain: EvmChain.AVALANCHE,
     id: ethers.utils.hexlify(43114),
     rpc: 'https://api.avax.network/ext/bc/C/rpc',
     nativeCurrency: {
@@ -67,8 +75,9 @@ export const AVAX: ChainConfig = {
     blockExplorerUrl: 'https://snowtrace.io',
 };
 export const POLYGON: ChainConfig = {
-    name: 'Polygon Mainnet',
+    name: 'Polygon',
     shortName: 'Polygon',
+    evmChain: EvmChain.POLYGON,
     id: ethers.utils.hexlify(137),
     rpc: 'https://polygon-rpc.com',
     nativeCurrency: {
@@ -117,6 +126,7 @@ export const CRO: ChainConfig = {
 export const FTM: ChainConfig = {
     name: 'Fantom Opera',
     shortName: 'FTM',
+    evmChain: EvmChain.FANTOM,
     id: ethers.utils.hexlify(250),
     rpc: 'https://rpc.ftm.tools',
     nativeCurrency: {
@@ -165,12 +175,13 @@ export const GNO: ChainConfig = {
 export const AURORA: ChainConfig = {
     name: 'Aurora Mainnet',
     shortName: 'AURORA',
+    evmChain: EvmChain.AURORA,
     id: ethers.utils.hexlify(1313161554),
     rpc: 'https://mainnet.aurora.dev',
     nativeCurrency: {
-        name: 'ETH',
+        name: 'AURORA',
         decimals: 18,
-        symbol: 'ETH',
+        symbol: 'AURORA',
     },
     blockExplorerUrl: 'https://aurorascan.dev',
 };
@@ -273,6 +284,7 @@ export const MOVR: ChainConfig = {
 export const GLMR: ChainConfig = {
     name: 'Moonbeam',
     shortName: 'GLMR',
+    evmChain: EvmChain.MOONBEAM,
     id: ethers.utils.hexlify(1284),
     rpc: 'https://rpc.api.moonbeam.network',
     nativeCurrency: {

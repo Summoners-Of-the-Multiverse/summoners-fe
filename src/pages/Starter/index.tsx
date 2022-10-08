@@ -57,7 +57,7 @@ const mint = async(chain: string, address: string, metadataId: number) => {
 
 const Starter = () => {
     const { address, chain, } = useContext(AddressContext);
-    const [hasMinted, setHasMinted] = useState(true);
+    const [hasMinted, setHasMinted] = useState(false);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
 
@@ -76,27 +76,27 @@ const Starter = () => {
     }, [navigate]);
 
     //get if address has minted free mon
-    useEffect(() => {
-        const getStarterStatus = async() => {
-            try {
-                if(!address) {
-                    return;
-                }
-                let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
-                setHasMinted(res.data.hasMinted);
-                if(res.data.hasMinted) {
-                    onMint();
-                }
-            }
+    // useEffect(() => {
+    //     const getStarterStatus = async() => {
+    //         try {
+    //             if(!address) {
+    //                 return;
+    //             }
+    //             let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
+    //             setHasMinted(res.data.hasMinted);
+    //             if(res.data.hasMinted) {
+    //                 onMint();
+    //             }
+    //         }
 
-            catch {
-                //always set as true on error
-                setHasMinted(true);
-            }
-        }
+    //         catch {
+    //             //always set as true on error
+    //             setHasMinted(true);
+    //         }
+    //     }
 
-        getStarterStatus();
-    }, [address, onMint]);
+    //     getStarterStatus();
+    // }, [address, onMint]);
 
     useEffect(() => {
         const getStarterMonsters = async() => {

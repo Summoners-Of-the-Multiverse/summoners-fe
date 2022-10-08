@@ -195,3 +195,11 @@ export const truncateStr = (fullStr: string, strLen: number, separator='..') => 
            separator +
            fullStr.substr(fullStr.length - backChars);
 }
+
+export const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+}
+
+export const ucFirst = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
