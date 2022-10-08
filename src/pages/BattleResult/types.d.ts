@@ -4,6 +4,7 @@ export type BattleResultResponse = {
 }
 
 export type BattleResult = {
+    battle_id: number;
 	time_start: string;
 	time_end: string;
 	type: number;

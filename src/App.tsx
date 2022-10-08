@@ -6,7 +6,7 @@ import './App.scss';
 import './keyframes.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
-import { Battle, BattleResult, Home, Inventory, Map, Portal, Starter } from './pages';
+import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
@@ -28,6 +28,8 @@ const pagesWithoutMask: string[] = [];
 const pagesWithBlur = [
     '/portal',
     '/battle',
+    '/inventory',
+    '/battleHistory',
     '/battleResult/:id',
 ];
 
@@ -49,6 +51,8 @@ const routes = [
     { path: '/starter' },
     { path: '/battle' },
     { path: '/battleResult/:id' },
+    { path: '/battleHistory' },
+    { path: '/inventory' },
 ];
 
 function App() {
@@ -113,10 +117,14 @@ function App() {
     }, [address, navigate]);
 
     useEffect(() => {
+        if(!currentPath) {
+            // no random pages
+            navigate('/');
+        }
         setShouldRenderHeader(pagesWithHeader.includes(currentPath));
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath]);
+    }, [currentPath, navigate]);
 
     const handleNewAccount = useCallback((address: string) => {
         setIsLoading(false);
@@ -184,6 +192,7 @@ function App() {
                     <Route path="/home" element={<Home />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleResult/:id" element={<BattleResult />}/>
+                    <Route path="/battleHistory" element={<BattleHistory />}/>
                 </Routes>
             </AddressContext.Provider>
             <ToastContainer
