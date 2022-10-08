@@ -230,7 +230,7 @@ const BattleResultPage = () => {
 					/>
 					<h1>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
 
-					<div className="row">
+					<div className="row p-0 m-0">
 						<div className={`col-md-${mvp && mvp.damage > 0? '6' : '12'}`}>
 							<h2>Encountered</h2>
 							<div className="monster-card-container">
