@@ -1,27 +1,21 @@
 /*
 No images, no background filters, no javascript, simple CSS and HTML
 */
-
-.mob-skill-stats {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-i.element-icon {
-    margin: 0;
-}
-
 .inventory-page {
     max-width: 500px;
     position: relative;
-    .back-button {
-        background: transparent;
-        position: relative;
-        border: 0;
-        box-shadow: none;
+    padding-top: 70px;
+
+    .mob-skill-stats {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    i.element-icon {
         margin: 0;
     }
+    
 
     .top-title {
         font-size: 1.3em;
@@ -62,7 +56,7 @@ i.element-icon {
     }
 
     body,
-    button {
+    button:not(.back-button) {
         background-color: #776F61;
         // font-family: 'Luckiest Guy', cursive;
     }
@@ -193,7 +187,7 @@ i.element-icon {
                 border-radius: 0 20px 20px 0;
             }
 
-            button {
+            button:not(.back-button) {
                 width: 100%;
                 box-shadow: none;
                 border: 0;
@@ -462,7 +456,7 @@ i.element-icon {
         border-right: 5px solid #757161;
     }
 
-    button {
+    button:not(.back-button) {
         border-radius: 10px;
         background-color: #d27d2c;
         box-shadow: inset -1px -1px 0px 2px darken(#d27d2c, 10%);
