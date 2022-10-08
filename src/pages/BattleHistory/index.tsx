@@ -105,7 +105,7 @@ const BattleResultHistory = () => {
 						<button 
 							className="history" 
 							key={`battle-history-${index}`}
-							onClick={() => { navigate(`/battleResult/${x.battle_id}`) }}
+							onClick={() => { navigate(`/battleResult/${x.battle_id}/battleHistory`) }}
 						>
 							<img src={getMonsterIcon(x.img_file, x.element_id, x.is_shiny)} alt="monster_icon" />
 							<div className="d-flex flex-column w-100">

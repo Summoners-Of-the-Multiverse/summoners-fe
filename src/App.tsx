@@ -31,6 +31,7 @@ const pagesWithBlur = [
     '/inventory',
     '/battleHistory',
     '/battleResult/:id',
+    '/battleResult/:id/:returnToPage',
 ];
 
 export const AddressContext = createContext({
@@ -51,6 +52,7 @@ const routes = [
     { path: '/starter' },
     { path: '/battle' },
     { path: '/battleResult/:id' },
+    { path: '/battleResult/:id/:returnToPage' },
     { path: '/battleHistory' },
     { path: '/inventory' },
 ];
@@ -192,6 +194,7 @@ function App() {
                     <Route path="/home" element={<Home />}></Route>
                     <Route path="/battle" element={<Battle />}/>
                     <Route path="/battleResult/:id" element={<BattleResult />}/>
+                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult />}/>
                     <Route path="/battleHistory" element={<BattleHistory />}/>
                 </Routes>
             </AddressContext.Provider>
