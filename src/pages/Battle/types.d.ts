@@ -93,6 +93,7 @@ export type BattlePageProps = {
     encounterDamageReceived?: EncounterDamageReceived;
     encounterCd: number;
     encounterMaxCd: number;
+    ended?: boolean;
 }
 
 export type EncounterImageProps = { 
