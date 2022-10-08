@@ -7,6 +7,7 @@ export type MintPromptProps = {
     chain: string;
     startMinting: () => void;
     endMinting: () => void;
+    mint: (chain: string, address: string, number) => Promise<boolean>;
 }
 
 export type MonsterBaseMetadata = {

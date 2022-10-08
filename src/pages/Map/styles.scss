@@ -1,5 +1,11 @@
 .map-page {
     width: 100%;
+    max-width: 900px;
+    padding: 2%;
+
+    @media screen and (max-width: 900px) {
+        padding: 0;
+    }
 
     .map-container {
         width: 100%;
@@ -10,6 +16,14 @@
         img.map {
             width: 100%;
             max-width: 900px;
+            border-radius: 10px;
+            border: 5px solid black;
+
+            @media screen and (max-width: 900px) {
+                border: none;
+                border-radius: 0;
+                height: 100vh;
+            }
         }
 
         .map-button {

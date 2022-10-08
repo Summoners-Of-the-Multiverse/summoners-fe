@@ -5,8 +5,12 @@ import NftLinker from '../../../abi/SotmNftLinker.json';
 import _ from 'lodash';
 import { getBaseUrl, ucFirst } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
+import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
 import { AxelarQueryAPI, Environment, EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
 const isTestnet = true;
+// assign chain info based on env
+const BscChain = isTestnet ? BSC_TEST : BSC;
+const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
 
 const chains = ChainConfigs;
 export default class ContractCall {
@@ -53,9 +57,7 @@ export default class ContractCall {
     }
 
     bridgeNft = async (destChain: ChainConfig, tokenId: string) => {
-        console.log(this.chainConfig);
         const owner = await this._ownerOf(this.chainConfig, tokenId);
-
         console.log({owner})
 
         console.log('--- Initially ---', owner);
@@ -106,9 +108,9 @@ export default class ContractCall {
         }))
     }
 
-    _ownerOf = async (chain: ChainConfig, tokenId: string) => {
-        const operator: Contract = this.erc721;
+    _checkNftFromContract = async (chain: ChainConfig, tokenId: string) => {
         try {
+            const operator: Contract = this.erc721;
             const owner = await operator.ownerOf(tokenId);
             console.log(owner);
             const metadata = await operator.tokenURI(tokenId);
@@ -118,33 +120,57 @@ export default class ContractCall {
             if (owner !== chain.linkerContract) {
                 // if not equal to nft linker address (original chain NFT)
                 return { chain: chain.name, address: owner, tokenId: tokenId, tokenURI: metadata };
-            } else {
-                // if equal to linker address (for cross-chained NFT)
-                const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-                const signer = provider.getSigner();
-
-                // generate cross chain token id here
-                await Promise.all(_.map(ChainConfigs, async (checkingChain) => {
-                    if (checkingChain != chain) {
-                        try {
-                            const checkingChainContract = new ethers.Contract(checkingChain.linkerContract as string, NftLinker.abi, signer);
-
-                            const address = await checkingChainContract.ownerOf(tokenId);
-                            console.log(address);
-                            return { chain: checkingChain.name, address: address, tokenId: tokenId, tokenURI: metadata };
-                        } catch (e) {
-                            console.log(e);
-                            throw new Error(`You are not the owner of nft`)
-                        }
-                    }
-                }))
             }
-            return { chain: '' };
+            return null;
+        } catch(e) {
+            // console.log(e);
+            return null;
+            // throw new Error(`You are not the owner of nft`);
+        }
+    }
+
+    _checkNftFromLinker = async (chain: ChainConfig, tokenId: string) => {
+        try {
+            // if equal to linker address (for cross-chained NFT)
+            const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+            const signer = provider.getSigner();
+            console.log(chain);
+
+            console.log(tokenId);
+            // generate cross chain token id here
+            // for (const checkingChain of [BscChain, PolygonChain]) {
+            // if (checkingChain.id != chain.id && _.has(checkingChain, 'nftContract')) {
+            // console.log(`checkingChain: ${checkingChain.name} | chain: ${chain.name}`);
+            try {
+                const checkingChainContract = new ethers.Contract(chain.linkerContract as string, NftLinker.abi, signer);
+
+                const address = await checkingChainContract.ownerOf(tokenId);
+                const metadata = await checkingChainContract.tokenURI(tokenId);
+                return { chain: chain.name, address: address, tokenId: tokenId, tokenURI: metadata };
+            } catch (e) {
+                console.log(e);
+            }
+            // }
+            // }
+            return null;
         } catch(e) {
             console.log(e);
-            throw new Error(`You are not the owner of nft`);
+            return null;
+        }
+    }
+
+    _ownerOf = async (chain: ChainConfig, tokenId: string) => {
+        const result1 = await this._checkNftFromContract(chain, tokenId);
+        if (!_.isNil(result1)) {
+            return result1;
         }
 
+        const result2 = await this._checkNftFromLinker(chain, tokenId);
+        if (!_.isNil(result2)) {
+            return result2;
+        } else {
+            throw new Error(`You are not the owner of nft`);
+        }
     };
 
     _getGasFee = async (

@@ -266,9 +266,9 @@ const Inventory = () => {
             const destChain: any = _.find(chains, { id: destChainId });
             const srcChain: any = _.find(chains, { id: chain });
             const contract = new ContractCall(chain);
-            const tx = await contract.bridgeNft(destChain, selectedMob.token_id);
+            const tx = await contract.bridgeNft(destChain, selectedMob.curr_token_id);
             toast.success(SuccessBridgeToast(tx));
-            localStorage.setItem(`${selectedMob.token_id}`, tx.transactionHash);
+            localStorage.setItem(`${selectedMob.curr_token_id}`, tx.transactionHash);
             setIsBridging(false);
         }
         catch(e) {

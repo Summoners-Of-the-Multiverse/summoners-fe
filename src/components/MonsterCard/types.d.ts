@@ -10,4 +10,9 @@ export type MonsterCardProps = {
 
     additionalInfo?: string | JSX.Element;
     children?: JSX.Element | JSX.Element[];
+
+    showMintButton?: boolean;
+    mintButtonText?: string;
+    disableMintButton?: boolean;
+    onMintButtonClick?: () => void;
 }

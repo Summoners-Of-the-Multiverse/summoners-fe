@@ -24,8 +24,8 @@ export const POLYGON_TEST: ChainConfig = {
     evmChain: EvmChain.POLYGON,
     // id: ethers.utils.hexlify(80001),
     id: '0x13881',
-    rpc: 'https://rpc-mumbai.matic.today/',
-    // rpc: 'https://polygontestapi.terminet.io/rpc',
+    // rpc: 'https://rpc-mumbai.matic.today/',
+    rpc: 'https://polygontestapi.terminet.io/rpc',
     // rpc: 'https://rpc-mumbai.maticvigil.com/',
     nativeCurrency: {
         name: 'MATIC',

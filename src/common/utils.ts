@@ -183,6 +183,79 @@ export const getEffect = (assetFile: string) => {
     return `/assets/effects/${assetFile}`;
 }
 
+export const getBg = (areaId: number, blur = false) => {
+    let folder = blur? "bg_blur" : "bg";
+    let name = "grasslands";
+    switch(areaId) {
+        case 1:
+            name = "town";
+            break;
+        case 2:
+            name = "forest";
+            break;
+        case 3:
+            name = "grasslands";
+            break;
+        case 4:
+            name = "beach";
+            break;
+        case 5:
+            name = "volcano";
+            break;
+        case 6:
+            name = "underground";
+            break;
+        case 7:
+            name = "sunken";
+            break;
+        case 8:
+            name = "funfair";
+            break;
+        case 9:
+            name = "sky";
+            break;
+        default:
+            break;
+    }
+    return `/assets/${folder}/${name}_bg.png`;
+}
+
+export const getAreaName = (areaId: number, blur = false) => {
+    let name = "grasslands";
+    switch(areaId) {
+        case 1:
+            name = "Town";
+            break;
+        case 2:
+            name = "Forest";
+            break;
+        case 3:
+            name = "Grasslands";
+            break;
+        case 4:
+            name = "Beach";
+            break;
+        case 5:
+            name = "Volcano";
+            break;
+        case 6:
+            name = "Underground";
+            break;
+        case 7:
+            name = "Sunken City";
+            break;
+        case 8:
+            name = "Fun Fair";
+            break;
+        case 9:
+            name = "Sky City";
+            break;
+        default:
+            break;
+    }
+    return name;
+}
+
 export const truncateStr = (fullStr: string, strLen: number, separator='..') => {
     if (fullStr.length <= strLen) return fullStr;
 
@@ -202,4 +275,19 @@ export const copyToClipboard = async (text: string) => {
 
 export const ucFirst = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export const getElementTooltip = (elementId: number) => {
+    switch(elementId) {
+        case ELEMENT_CHAOS:
+            return `\n\nWeakness\tNone\tStrength\t\tNone\nResistant\t\tNone`;
+        case ELEMENT_FIRE:
+            return `\n\nWeakness\tWater\nStrength\t\tGrass\nResistant\t\tFire`;
+        case ELEMENT_GRASS:
+            return `\n\nWeakness\tFire\nStrength\t\tWater\nResistant\t\tGrass`;
+        case ELEMENT_WATER:
+            return `\n\nWeakness\tGrass\nStrength\t\tFire\nResistant\t\tWater`;
+        default:
+            return ``;
+    }
 }

@@ -1,5 +1,3 @@
-import { Socket } from "socket.io-client";
-
 export type MonsterEquippedSkillById = {
     [monsterId: string]: MonsterSkill
 }
@@ -48,13 +46,11 @@ export type Attack = {
 }
 
 export type StartBattleParams = {
-    socket: Socket; 
     address: string; 
     chainId: string; 
 }
 
 export type ListenBattleParams = {
-    socket: Socket; 
     address: string; 
     onLoad: (battleDetails: BattleDetails) => void;
     onEncounterReceivedDamage: ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => void;
@@ -89,7 +85,6 @@ export type SkillUsage = {
 }
 
 export type BattlePageProps = {
-    socket: Socket;
     address: string;
     details?: BattleDetails;
     playerCurrentHp: number;
@@ -104,6 +99,7 @@ export type EncounterImageProps = {
     encounter: MonsterStats;
     encounterDamageReceived?: EncounterDamageReceived;
     playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
+    battleWon: boolean;
 }
 
 export type EncounterEffectProps = {
@@ -138,12 +134,10 @@ export type PlayerMonsterBarProps = {
     activeMonsterId: string;
     playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
     onSkillClick: (mosnterId: string, endTime: number) => void;
-    socket: Socket;
     address: string;
 }
 
 export type PlayerSkillBarProps = {
-    socket: Socket;
     address: string;
     playerMonsterSkills: {[monsterId: string]: MonsterEquippedSkillById};
     activeMonsterId: string;
