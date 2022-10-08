@@ -8,13 +8,17 @@
     min-height: 100vh;
     max-width: 900px;
 
+    @media screen and (max-width: 900px) {
+        padding-top: 150px;
+    }
+
     .navigate-button {
         background-color: white;
 
         text-transform: uppercase;
         font-family: 'Starguard';
         letter-spacing: 3px;
-        font-size: 42px;
+        font-size: 30px;
         width: 250px;
 
         padding: 5px 20px;

@@ -36,6 +36,12 @@ const Home = () => {
                     >
                         Inventory
                     </button>
+                    <button
+                        className='navigate-button'
+                        onClick={() => navigate('/battleHistory')}
+                    >
+                        History
+                    </button>
 				</>
 			}
 		</div>
