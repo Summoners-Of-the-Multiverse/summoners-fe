@@ -56,27 +56,38 @@ export default class ContractCall {
         }
     }
 
-    bridgeNft = async (destChain: ChainConfig, tokenId: string) => {
-        const owner = await this._ownerOf(this.chainConfig, tokenId);
-        console.log({owner})
+    bridgeNft = async (destChain: ChainConfig, token: any) => {
+        const owner = await this._ownerOf(this.chainConfig, token.curr_token_id);
+        // console.log({owner})
 
         console.log('--- Initially ---', owner);
         // await this._print(tokenId);
 
         const gasFee = await this._getGasFee(ucFirst(this.chainConfig.evmChain!) as EvmChain, ucFirst(destChain.evmChain!) as EvmChain, this.chainConfig.nativeCurrency.symbol);
 
-        // await (await this.erc721.approve(this.ntfLinker.address, owner.tokenId)).wait();
-        const isApproved = await this.erc721.isApprovedForAll(owner.address, this.ntfLinker.address);
-        console.log(await this.erc721.getApproved(owner.tokenId));
-        if (!isApproved) {
-            await (await this.erc721.setApprovalForAll(this.ntfLinker.address, true)).wait();
-        }
+        let tx;
+        if (token.token_id !== token.curr_token_id) {
+            // bridged cross-chain token (native token id != bridged token id)
+            tx = await (
+                await this.ntfLinker.sendNFT(this.ntfLinker.address, owner.tokenId, ucFirst(destChain.evmChain!), await this.signer.getAddress(), {
+                    value: gasFee,
+                })
+            ).wait();
+        } else {
+            // bridge native token
+            // await (await this.erc721.approve(this.ntfLinker.address, owner.tokenId)).wait();
+            const isApproved = await this.erc721.isApprovedForAll(owner.address, this.ntfLinker.address);
+            console.log(await this.erc721.getApproved(owner.tokenId));
+            if (!isApproved) {
+                await (await this.erc721.setApprovalForAll(this.ntfLinker.address, true)).wait();
+            }
 
-        const tx = await (
-            await this.ntfLinker.sendNFT(this.erc721.address, owner.tokenId, ucFirst(destChain.evmChain!), await this.signer.getAddress(), {
-                value: gasFee,
-            })
-        ).wait();
+            tx = await (
+                await this.ntfLinker.sendNFT(this.erc721.address, owner.tokenId, ucFirst(destChain.evmChain!), await this.signer.getAddress(), {
+                    value: gasFee,
+                })
+            ).wait();
+        }
 
         console.log('tx', tx);
 

@@ -266,9 +266,12 @@ const Inventory = () => {
             const destChain: any = _.find(chains, { id: destChainId });
             const srcChain: any = _.find(chains, { id: chain });
             const contract = new ContractCall(chain);
-            const tx = await contract.bridgeNft(destChain, selectedMob.curr_token_id);
+            const tx = await contract.bridgeNft(destChain, selectedMob);
             toast.success(SuccessBridgeToast(tx));
             localStorage.setItem(`${selectedMob.curr_token_id}`, tx.transactionHash);
+            selected.classList.toggle('selected');
+            setSelected(false);
+            setSelectedMob(false);
             setIsBridging(false);
         }
         catch(e) {
