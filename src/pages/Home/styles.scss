@@ -51,21 +51,36 @@
 
         .ribbon {
             position: absolute;
-            top: 15px;
-            left: 30%;
+            top: 10px;
+            left: 33%;
             letter-spacing: 1px;
             font-family: Roboto;
 
             > div {
                 background-color: rgba(255,255,255,0.75);
-                transform: rotate(-45deg);
+                transform: rotate(-35deg);
                 border: 2px dashed black;
-                padding: 5px 15px;
+                padding: 5px 10px;
                 border-radius: 5px;
                 color: red;
                 font-size: 13px;
                 font-weight: bold;
+
+                @media screen and (max-width: 900px) {
+                    transform: rotate(-45deg);
+                    font-size: 10px;
+                    padding: 3px 8px;
+                }
             }
+
+            @media screen and (max-width: 900px) {
+                top: 9px;
+                left: 35%;
+            }
+        }
+
+        @media screen and (max-width: 900px) {
+            font-size: 20px;
         }
     }
 }
