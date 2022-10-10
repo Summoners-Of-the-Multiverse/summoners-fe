@@ -8,7 +8,7 @@ import './styles.scss';
 import { PortalProps } from './types';
 import BackButton from '../../components/BackButton';
 
-const Portal = ({onChainChange}: PortalProps) => {
+const Portal = ({onChainChange, setAudio}: PortalProps) => {
     const { chain, } = useContext(AddressContext);
     const [currentChain, setCurrentChain] = useState(chain);
 	const navigate = useNavigate();
@@ -32,7 +32,7 @@ const Portal = ({onChainChange}: PortalProps) => {
 		<div className='portal-page'>
             <div className="navigate-container">
                 <BackButton
-                    onButtonClick={() => navigate('/')}
+                    onButtonClick={() => navigate('/home')}
                 />
                 <EVMSwitcher
                     targetChain={BSC_TEST}

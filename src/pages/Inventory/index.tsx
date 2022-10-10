@@ -12,11 +12,12 @@ import ElementIcon from '../../components/ElementIcon';
 import ContractCall from '../../components/EVM/ContractCall';
 import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { ChainConfigs } from '../../components/EVM';
-import {
-    AxelarGMPRecoveryAPI,
-    Environment,
-    GMPStatusResponse
-} from "@axelar-network/axelarjs-sdk";
+import { BasePage } from '../../types';
+// import {
+//     AxelarGMPRecoveryAPI,
+//     Environment,
+//     GMPStatusResponse
+// } from "@axelar-network/axelarjs-sdk";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { Card, Popover, Button, OverlayTrigger, Badge } from 'react-bootstrap';
@@ -50,7 +51,7 @@ const SuccessBridgeToast = (tx:any) => (
     </div>
 );
 
-const Inventory = () => {
+const Inventory = ({ setAudio }: BasePage) => {
     const navigate = useNavigate();
 
     const { address, chain, } = useContext(AddressContext);

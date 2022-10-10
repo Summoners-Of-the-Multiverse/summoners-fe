@@ -48,6 +48,7 @@ export type Attack = {
 export type StartBattleParams = {
     address: string; 
     chainId: string; 
+    setAudio: (audioFile: string) => void;
 }
 
 export type ListenBattleParams = {

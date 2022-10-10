@@ -10,6 +10,7 @@ import instance from '../Axios';
 import { BattleResult } from './types';
 import './styles.scss';
 import { getMonsterIcon } from '../../common/utils';
+import { BasePage } from '../../types';
 
 const getDuration = (time_start: string, time_end: string) => {
     //in seconds
@@ -23,12 +24,12 @@ const getDuration = (time_start: string, time_end: string) => {
 
 const RESULT_PER_PAGE = 10;
 
-const BattleResultHistory = () => {
+const BattleHistory = ({ setAudio }: BasePage) => {
 	const { address, } = useContext(AddressContext);
 	const navigate = useNavigate();
 
     const [ results, setResults ] = useState<BattleResult[]>([]); 
-	const [ isLoading, setIsLoading ] = useState(true);
+	// const [ isLoading, setIsLoading ] = useState(true);
 	const [ page, setPage ] = useState(0);
 	const [ maxPage, setMaxPage ] = useState(0);
 
@@ -52,7 +53,7 @@ const BattleResultHistory = () => {
 				toast.error('Unable to get battle results');
 			}
 			
-			setIsLoading(false);
+			// setIsLoading(false);
 		}
 
 		getBattleResult();
@@ -102,7 +103,7 @@ const BattleResultHistory = () => {
 				fullScreen
 			/> */}
 			<BackButton
-				onButtonClick={() => { navigate('/'); }}
+				onButtonClick={() => { navigate('/home'); }}
 			/>
 			<div className="pagination">
 				<button onClick={onLeftClick}><i className="fa fa-chevron-left"></i></button>
@@ -163,4 +164,4 @@ const BattleResultHistory = () => {
     )
 }
 
-export default BattleResultHistory;
+export default BattleHistory;

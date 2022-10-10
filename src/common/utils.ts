@@ -114,7 +114,11 @@ export const getUTCDate = () => {
 }
 
 export const getBaseUrl = () => {
-    return process.env.REACT_APP_BASE_URL;
+    return process.env.REACT_APP_BASE_URL!;
+}
+
+export const getWsUrl = () => {
+    return process.env.REACT_APP_WS_URL!;
 }
 
 export const getSkillIcon = (assetFile: string) => {
@@ -205,21 +209,18 @@ export const getBg = (areaId: number, blur = false) => {
             name = "grasslands";
             break;
         case 4:
-            name = "beach";
-            break;
-        case 5:
             name = "volcano";
             break;
-        case 6:
+        case 5:
             name = "underground";
             break;
-        case 7:
+        case 6:
             name = "sunken";
             break;
-        case 8:
-            name = "funfair";
+        case 7:
+            name = "island";
             break;
-        case 9:
+        case 8:
             name = "sky";
             break;
         default:
@@ -241,22 +242,52 @@ export const getAreaName = (areaId: number, blur = false) => {
             name = "Grasslands";
             break;
         case 4:
-            name = "Beach";
-            break;
-        case 5:
             name = "Volcano";
             break;
-        case 6:
+        case 5:
             name = "Underground";
             break;
-        case 7:
+        case 6:
             name = "Sunken City";
             break;
-        case 8:
-            name = "Fun Fair";
+        case 7:
+            name = "Island";
             break;
-        case 9:
+        case 8:
             name = "Sky City";
+            break;
+        default:
+            break;
+    }
+    return name;
+}
+
+export const getAreaAudio = (areaId: number) => {
+    let name = "map_world";
+    switch(areaId) {
+        case 1:
+            name = "map_village";
+            break;
+        case 2:
+            name = "map_forest";
+            break;
+        case 3:
+            name = "map_grasslands";
+            break;
+        case 4:
+            name = "map_volcano";
+            break;
+        case 5:
+            name = "map_underworld";
+            break;
+        case 6:
+            name = "map_sunken";
+            break;
+        case 7:
+            name = "map_island";
+            break;
+        case 8:
+            name = "map_sky";
             break;
         default:
             break;

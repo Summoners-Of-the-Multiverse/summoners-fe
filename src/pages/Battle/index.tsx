@@ -2,13 +2,14 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import './styles.scss'
 import { io } from 'socket.io-client';
 import { AddressContext } from '../../App';
-import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString, getSkillIcon, sleep } from '../../common/utils';
+import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString, getSkillIcon, getWsUrl, sleep } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, MonsterSkill, Attack, ListenBattleParams, MonsterStats, EncounterHpBarProps, PlayerMonsterImageProps } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from '../../common/constants';
 import moment from 'moment';
 import ElementIcon from '../../components/ElementIcon';
+import { BasePage } from '../../types';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
@@ -16,13 +17,12 @@ const ENCOUNTER_INITIAL_DELAY = 5000; // in ms
 const CD_ANIMATION_DURATION = 100; // in ms
 
 //dont auto connect cause react will connect it immediately upon loading
-const socket = io('ws://localhost:8081', { autoConnect: false});
-const soundVictory = new Audio('http://localhost:3000/assets/sounds/victory.mp3');
-const soundDefeat = new Audio('http://localhost:3000/assets/sounds/defeat.mp3');
+const socket = io(getWsUrl(), { autoConnect: false});
 
 const startBattle = async({
     address,
     chainId,
+    setAudio,
 }: StartBattleParams ) => {
     while(socket.disconnected) {
         // wait for socket to connect
@@ -30,6 +30,7 @@ const startBattle = async({
     }
 
     if(address && chainId) {
+        setAudio('battle_wild');
         socket.emit('start_battle', {address, chainId});
     }
 }
@@ -126,7 +127,7 @@ const surrender = (address: string, ignoreConfirm = false) => {
     });
 }
 
-const Battle = () => {
+const Battle = ({ setAudio }: BasePage) => {
     const { address, chain, } = useContext(AddressContext);
     const [ battleDetails, setBattleDetails ] = useState<BattleDetails | undefined>(undefined);
     const [ playerCurrentHp, setPlayerCurrentHp ] = useState(-1);
@@ -177,7 +178,7 @@ const Battle = () => {
         }
         
         if(hasWon) {
-            soundVictory.play();
+            setAudio('victory');
             setEncounterCurrentHp(0);
 
             setTimeout(() => {
@@ -186,7 +187,7 @@ const Battle = () => {
         }
 
         else {
-            soundDefeat.play();
+            setAudio('defeat');
             setPlayerCurrentHp(0);
 
             setTimeout(() => {
@@ -196,7 +197,7 @@ const Battle = () => {
 
         isNaturalBattleEnd.current = true;
         setEncounterDamageReceived(undefined);
-    }, []);
+    }, [setAudio]);
 
     //navigates to battle result after battle end
     const navigateToBattleResult = useCallback(() => {
@@ -257,6 +258,10 @@ const Battle = () => {
 
 
     useEffect(() => {
+        if(typeof(setAudio) !== "function") {
+            return;
+        }
+
         if(isInBattle.current) {
             return;
         }
@@ -280,8 +285,9 @@ const Battle = () => {
         startBattle({
             address, 
             chainId: chain, 
+            setAudio
         });
-    }, [address, chain]);
+    }, [address, chain, setAudio]);
 
     return (
         <div className='battle-page'>

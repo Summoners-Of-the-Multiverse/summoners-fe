@@ -16,6 +16,7 @@ import './styles.scss';
 import { BattleResult, BattleResultResponse, BattleSkillsUsed, MVP, SkillsUsageTableProps } from './types';
 import { ChainConfigs } from '../../components/EVM';
 import _ from 'lodash';
+import { BasePage } from '../../types';
 
 const PREPARING_TEXT = "Preparing Nets";
 const CAPTURING_TEXT = "Capturing";
@@ -26,7 +27,7 @@ const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     </div>
 );
 
-const BattleResultPage = () => {
+const BattleResultPage = ({ setAudio }: BasePage) => {
 	const { address, chain, } = useContext(AddressContext);
 	const { id, returnToPage } = useParams();
 	const navigate = useNavigate();
@@ -226,7 +227,16 @@ const BattleResultPage = () => {
 				result &&
 				<div className='battle-result-container'>
 					<BackButton
-						onButtonClick={() => { navigate("/" + (returnToPage? returnToPage : "")) }}
+						onButtonClick={() => {
+							if(returnToPage) {
+								navigate("/" + returnToPage);
+
+							}
+
+							else {
+								navigate("/home");
+							}
+						}}
 					/>
 					<h1 className={`${result.hp_left < 0? 'victory' : 'defeat'}`}>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
 

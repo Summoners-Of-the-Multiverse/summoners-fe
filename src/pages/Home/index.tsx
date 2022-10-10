@@ -1,11 +1,18 @@
 import React, { useContext } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { AddressContext } from '../../App';
+import { getAreaAudio } from '../../common/utils';
+import { BasePage } from '../../types';
 import './styles.scss';
 
-const Home = () => {
-	const { address, } = useContext(AddressContext);
+const Home = ({ setAudio }: BasePage) => {
+	const { address, areaId } = useContext(AddressContext);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		setAudio(getAreaAudio(areaId));
+	}, [setAudio, areaId,]);
 
     return (
 		<div className='home-page'>
@@ -41,6 +48,15 @@ const Home = () => {
                         onClick={() => navigate('/battleHistory')}
                     >
                         History
+                    </button>
+                    <button
+                        className='navigate-button coming-soon'
+						disabled
+                    >
+                        Challenge
+						<div className="ribbon">
+							<div>Soon<sup>tm</sup></div>
+						</div>
                     </button>
                     <button
                         className='navigate-button coming-soon'

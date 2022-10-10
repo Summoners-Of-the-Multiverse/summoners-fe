@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { EVMConnector, ChainConfigs } from './components/EVM';
-import { ellipsizeThis, getBg, getRandomNumber } from './common/utils';
+import { ellipsizeThis, getBg, getRandomNumber, getWsUrl } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
+import './fog.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
-import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter } from './pages';
+import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter, Intermediate } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse } from './types';
 import instance from './pages/Axios';
@@ -20,7 +21,7 @@ const allowedChains =[
 ];
 
 const pagesWithHeader = [
-    '/',
+    '/home',
 ];
 
 const pagesWithoutMask: string[] = [];
@@ -34,6 +35,10 @@ const pagesWithBlur = [
     '/battleResult/:id/:returnToPage',
 ];
 
+const pagesWithoutAreaValidation = [
+    '/',
+];
+
 export const AddressContext = createContext({
     address: "",
     chain: "",
@@ -41,7 +46,7 @@ export const AddressContext = createContext({
     areaId: 0,
 });
 
-const socket = io('ws://localhost:8081');
+const socket = io(getWsUrl());
 export const SocketContext = createContext<Socket>(socket);
 
 // for useCurrentPath
@@ -55,6 +60,7 @@ const routes = [
     { path: '/battleResult/:id/:returnToPage' },
     { path: '/battleHistory' },
     { path: '/inventory' },
+    { path: '/home' },
 ];
 
 function App() {
@@ -68,7 +74,9 @@ function App() {
     const [shouldMask, setShouldMask] = useState(false);
     const [shouldBlur, setShouldBlur] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [audio, setAudio] = useState("");
 
+    const audioPlayer = useRef(new Audio());
     const navigate = useNavigate();
     const currentPath = useCurrentPath(routes);
 
@@ -110,23 +118,36 @@ function App() {
 
             catch {
                 setAreaId(0);
-                navigate('/starter');
                 // toast.error('Unable to get current area');
             }
         }
 
         getAddressCurrentArea();
-    }, [address, navigate]);
+    }, [address]);
 
     useEffect(() => {
         if(!currentPath) {
             // no random pages
             navigate('/');
         }
+
+        //if not intermediate then navigate to starter if there's no area id
+        if(areaId === 0 && !pagesWithoutAreaValidation.includes(currentPath)) {
+            navigate('/starter');
+        }
+
         setShouldRenderHeader(pagesWithHeader.includes(currentPath));
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath, navigate]);
+    }, [currentPath, navigate, areaId]);
+
+    //controls audio
+    useEffect(() => {
+        audioPlayer.current.pause();
+        audioPlayer.current = new Audio('/assets/sounds/' + audio + ".mp3");
+        audioPlayer.current.play();
+        audioPlayer.current.loop = true;
+    }, [audio]);
 
     const handleNewAccount = useCallback((address: string) => {
         setIsLoading(false);
@@ -186,16 +207,17 @@ function App() {
             }}>
                 {/** Please update routes constant if there's a new page */}
                 <Routes>
-                    <Route path="/" element={<Home />}></Route>
-                    <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
-                    <Route path="/portal" element={<Portal onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/starter" element={<Starter />}></Route>
-                    <Route path="/inventory" element={<Inventory />}></Route>
-                    <Route path="/home" element={<Home />}></Route>
-                    <Route path="/battle" element={<Battle />}/>
-                    <Route path="/battleResult/:id" element={<BattleResult />}/>
-                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult />}/>
-                    <Route path="/battleHistory" element={<BattleHistory />}/>
+                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
+                    <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
+                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={() => setAreaId(1)} />}></Route>
+                    <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/" element={<Intermediate />}/>
                 </Routes>
             </AddressContext.Provider>
             <ToastContainer

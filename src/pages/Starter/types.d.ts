@@ -1,4 +1,10 @@
+import { BasePage } from "../../types";
+
 export type StarterStatusResponse = { hasMinted: boolean };
+
+export interface StarterPageProps extends BasePage {
+    onMintCallback: () => void;
+}
 
 export type MintPromptProps = {
     monsters: MonsterBaseMetadata[];
