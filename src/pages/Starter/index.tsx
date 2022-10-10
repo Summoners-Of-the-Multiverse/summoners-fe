@@ -110,7 +110,8 @@ const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
                     address: address,
                     metadataId: metadataId,
                     tokenId: tokenId,
-                    tokenHash: tokenHash
+                    tokenHash: tokenHash,
+                    chainId: chain
                 });
 
                 if (result.data.success) {

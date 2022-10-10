@@ -156,6 +156,10 @@ export const getMonsterImage = (assetFile: string, elementId: number, isShiny: b
     return `/assets/sprites/${file}/${assetFile}`;
 }
 
+export const getBridgingIcon = (assetFile: string) => {
+    return `/assets/gif/${assetFile}.webp`;
+}
+
 export const getMonsterIcon = (assetFile: string, elementId: number, isShiny: boolean) => {
     let file = "";
     switch(elementId) {
@@ -185,6 +189,10 @@ export const getMonsterIcon = (assetFile: string, elementId: number, isShiny: bo
 
 export const getEffect = (assetFile: string) => {
     return `/assets/effects/${assetFile}`;
+}
+
+export const getChainLogo = (assetFile: string) => {
+    return `/assets/chain/${assetFile}.png`;
 }
 
 export const getBg = (areaId: number, blur = false) => {

@@ -3,24 +3,28 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
 import _ from 'lodash';
-import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard, truncateStr } from '../../common/utils';
+import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard, getBridgingIcon, truncateStr, sleep, getChainLogo } from '../../common/utils';
 import LoadingIndicator from '../../components/Spinner';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import BackButton from '../../components/BackButton';
 import ElementIcon from '../../components/ElementIcon';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import Button from 'react-bootstrap/Button';
 import ContractCall from '../../components/EVM/ContractCall';
 import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { ChainConfigs } from '../../components/EVM';
 import { BasePage } from '../../types';
-/* import {
-    AxelarGMPRecoveryAPI,
-    Environment,
-} from "@axelar-network/axelarjs-sdk"; */
+// import {
+//     AxelarGMPRecoveryAPI,
+//     Environment,
+//     GMPStatusResponse
+// } from "@axelar-network/axelarjs-sdk";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import { Card, Popover, Button, OverlayTrigger, Badge } from 'react-bootstrap';
+import moment from 'moment';
 
+const PREPARING_TEXT = "Packing..";
+const BRIDGING_TEXT = "Travelling..";
 const isTestnet = true;
 
 // assign chain info based on env
@@ -57,43 +61,43 @@ const Inventory = ({ setAudio }: BasePage) => {
     const [isLoading, setIsLoading] = useState(false);
     // set bridging state
     const [isBridging, setIsBridging] = useState(false);
+    const [bridgingText, setBridgingText] = useState(PREPARING_TEXT);
+    // display travelling paws on mob icon
+    const [travellingMob, setTravellingMob] = useState<any[]>([]);
     // store all monster
     const [mob, setMob] = useState<any[]>([]);
-
     // store selected monster (onclick)
-    const [selectedMob, setSelectedMob] = useState<any>();
-
+    const [selectedMob, setSelectedMob] = useState<any>(null);
     // for pagination purpose
     const [skip, setSkip] = useState(0);
-
     // each page up/page down will reload 1 row (5mobs)
     const skipStep = 5;
     // limit monster display per pagination
     const take = 15;
     const maxEquipped = 4;
 
-    useEffect(() => {
-        const getInventory = async(chain: string, address: string) => {
-            if (address && chain) {
-                try {
-                    setIsLoading(true);
-                    let res = await instance.post(`/inventory`, {
-                        address: address,
-                        chainId: chain
-                    });
+    const getInventory = useCallback(async (chain: string, address: string) => {
+        if (address && chain) {
+            try {
+                setIsLoading(true);
+                let res = await instance.post(`/inventory`, {
+                    address: address,
+                    chainId: chain
+                });
 
-                    let mob = res.data;
-                    // set mob isBridging (so we can display more bridging info based on state here)
-                    setMob(mob);
+                let mob = res.data;
+                // set mob isBridging (so we can display more bridging info based on state here)
+                setMob(mob);
 
-                    setIsLoading(false);
-                } catch(e) {
-                    console.log(e);
-                    setIsLoading(false);
-                }
+                setIsLoading(false);
+            } catch(e) {
+                console.log(e);
+                setIsLoading(false);
             }
         }
+    }, [chain, address]);
 
+    useEffect(() => {
         getInventory(chain, address);
     }, [chain, address]);
 
@@ -247,24 +251,51 @@ const Inventory = ({ setAudio }: BasePage) => {
     const sendMob = useCallback(async (destChainId: string) => {
         try {
             setIsBridging(true);
+            setTravellingMob(_.concat(travellingMob, [selectedMob.id]));
+
             // destination this
             const destChain: any = _.find(chains, { id: destChainId });
-            // const srcChain: any = _.find(chains, { id: chain });
+            const currChain: any = _.find(chains, { id: chain });
             const contract = new ContractCall(chain);
+            setBridgingText(BRIDGING_TEXT);
             const tx = await contract.bridgeNft(destChain, selectedMob);
+
+            // save record in be
+            let res = await instance.post(`/bridgeLog`, {
+                monsterId: selectedMob.id,
+                tokenId: selectedMob.token_id,
+                address: address,
+                fromChainId: currChain.id,
+                toChainId: destChain.id,
+                txHash: tx.transactionHash
+            });
+
             toast.success(SuccessBridgeToast(tx));
             localStorage.setItem(`${selectedMob.curr_token_id}`, tx.transactionHash);
-            selected.classList.toggle('selected');
-            setSelected(false);
-            setSelectedMob(false);
+            // selected.classList.toggle('selected');
+            // setSelected(false);
+            // setSelectedMob(false);
             setIsBridging(false);
+            setBridgingText(PREPARING_TEXT);
+            // while (true) {
+            //     const txStatus: GMPStatusResponse = await sdk.queryTransactionStatus(tx.transactionHash);
+            //     console.log(txStatus);
+            //     await sleep(2000);
+            // }
+
         }
         catch(e) {
+            setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
+            setBridgingText(PREPARING_TEXT);
             setIsBridging(false);
             console.log(e);
             return false;
         }
     }, [chain, selected, selectedMob]);
+
+    const trackBridging = async (monsterId: number) => {
+
+    }
 
     const ActionButton = useCallback(() => {
         let component: JSX.Element;
@@ -274,6 +305,40 @@ const Inventory = ({ setAudio }: BasePage) => {
                     <button onClick={unEquipMob}>DROP</button>
                 </div>
             );
+
+        //     const popover = (
+        //         <Popover id="popover-basic">
+        //             <Popover.Header as="h3">
+        //                 Travelling log
+        //             </Popover.Header>
+        //             <Popover.Body>
+        //                 <div className="d-grid gap-1">
+        //                     <div>Contract Called</div>
+        //                     <div>Gas Paid</div>
+        //                     <div>Call Approved</div>
+        //                     <div>Executed</div>
+        //                     {/* <div>Error</div> */}
+        //                 </div>
+        //             </Popover.Body>
+        //         </Popover>
+        //     );
+        //     component = (
+        //         <div className="actions">
+        //             <OverlayTrigger onToggle={(onShowing) => {
+        //                 if (onShowing) {
+        //                     trackBridging(selectedMob.id)
+        //                 }
+        //             }} rootClose={true} trigger="click" placement="top-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
+        //                 <button>TRACK</button>
+        //             </OverlayTrigger>
+        //         </div>
+        //     );
+        // } else if (selectedMob && travellingMob.includes(selectedMob.id)) {
+        //     component = (
+        //         <div className="actions">
+        //             <button onClick={() => trackBridging(selectedMob.id)}>TRACK</button>
+        //         </div>
+        //     );
         } else {
             const disabledBSC = chain === BscChain.id || _.isNil(selectedMob) ? true : false;
             const disabledPoly = chain === PolygonChain.id || _.isNil(selectedMob) ? true : false;
@@ -301,7 +366,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             );
         }
         return component;
-    }, [chain, selectedMob, equipMob, unEquipMob, sendMob]);
+    }, [chain, selectedMob, equipMob, unEquipMob, sendMob, travellingMob]);
 
     const copyText = async (text: string) => {
         await copyToClipboard(text);
@@ -312,6 +377,7 @@ const Inventory = ({ setAudio }: BasePage) => {
         let mobSkils: JSX.Element[] = [];
         let mobName = '';
         let mobTokenId = '';
+        let mobOriginChain = '';
         let shortMobTokenId = '';
         let mobStats: JSX.Element = (<div className="mob-stats-slot"></div>);
         let elementId = null;
@@ -319,6 +385,8 @@ const Inventory = ({ setAudio }: BasePage) => {
         if (selectedMob) {
             mobName = selectedMob.name;
             mobTokenId = selectedMob.token_id;
+            const mobOriChainName:any = _.find(chains, { id: selectedMob.origin_chain });
+            mobOriginChain = getChainLogo(mobOriChainName.evmChain);
             shortMobTokenId = `id: ${truncateStr(selectedMob.token_id, 10)}`;
             elementId = selectedMob.element_id;
             _.map(selectedMob.skills, (sm, smIndex) => {
@@ -381,7 +449,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                     {mobSkils}
                 </div>
                 <div className="mob-info">
-                    <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{shortMobTokenId}</Button>
+                    <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{mobOriginChain && <img className="origin-chain-logo" src={mobOriginChain} />}{shortMobTokenId}</Button>
                     <div className="mob-name">
                         <h5>
                             {elementId && <ElementIcon
@@ -402,10 +470,11 @@ const Inventory = ({ setAudio }: BasePage) => {
         for (let index = 0; index < take; index++) {
             const m = unequippedMonsterPaginated[index];
             if (m) {
-                const isEquipped = m.equipped === 1 ? 'slot equipped' : 'slot';
+                // const isEquipped = m.equipped === 1 ? 'slot equipped' : 'slot';
                 component.push(
-                    <div key={`mob-${index}`} className={isEquipped} onClick={(e) => selectMob(e, m)}>
+                    <div key={`mob-${index}`} className="slot" onClick={(e) => selectMob(e, m)}>
                         <img src={getMonsterIcon(m.img_file, m.element_id, m.is_shiny)} alt="monster_icon"/>
+                        <img className={ travellingMob.includes(m.id) ? 'travelling' : 'not-travelling' } src={getBridgingIcon('white_paws')} alt="sotm bridging" />
                     </div>
                 )
             } else {
@@ -416,7 +485,107 @@ const Inventory = ({ setAudio }: BasePage) => {
             }
         }
         return component;
-    }, [unequippedMonsterPaginated, selectMob]);
+    }, [unequippedMonsterPaginated, selectMob, travellingMob]);
+
+    const BridgeLog = (data: any) => {
+        let component: JSX.Element[] = [];
+        for (let d of data) {
+            const currChain: any = _.find(chains, { id: d.from_chain_id });
+            const destChain: any = _.find(chains, { id: d.to_chain_id });
+            const cardFooterEnd = ( d.updated_at &&
+                <div className="card-footer-start">
+                    <i className="mdi mdi-check-all"></i>{' '}{moment(d.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+            )
+            component.push(
+                <Card className="bridge-ticket" border="light">
+                    <Card.Header className={destChain.evmChain}>
+                        <div className="ticket-header">
+                            <span className="ticket-header-title">
+                                Axelar
+                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : ''}
+                            </span>
+                            <span className="ticket-header-info">
+                                Boarding Pass
+                            </span>
+                        </div>
+                    </Card.Header>
+                    <Card.Body>
+                        <Card.Title>
+                            <div className="ticket-bridging-location">
+                                <div className="ticket-bridging-location-info">
+                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain)} /> {currChain.shortName}
+                                </div>
+                                <i className="mdi mdi-airplane-takeoff"></i>
+                                <div className="ticket-bridging-location-info">
+                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain)} /> {destChain.shortName}
+                                </div>
+                            </div>
+                        </Card.Title>
+                        <Card.Text className="card-text">
+                            <div className="ticket-body">
+                                <table className='ticket-body-table'>
+                                    <tbody>
+                                        <tr>
+                                            <th>Token</th>
+                                            <th>Receipt</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div className="ticket-body-token" onClick={() => {copyText(d.token_id)}}>{truncateStr(d.token_id, 10)}</div>
+                                            </td>
+                                            <td>
+                                                <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${d.tx_hash}`}>{truncateStr(d.tx_hash, 10)}</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className={`card-footer ${destChain.evmChain}`}>
+                                <div className="card-footer-start">
+                                    <i className="mdi mdi-alarm"></i>{' '}{moment(d.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                                </div>
+                                {cardFooterEnd}
+                            </div>
+                        </Card.Text>
+                    </Card.Body>
+                </Card>
+            );
+        }
+
+        return <>{component}</>
+    }
+
+    const showBridgeLog = async () => {
+        const data: any = await instance.get(`/bridgeLog/${address}`);
+        const MySwal = withReactContent(Swal)
+
+        MySwal.fire({
+            title: (<p>Bridge History</p>),
+            html: BridgeLog(data.data),
+            customClass: {
+                container: "swal-bridge-log"
+            }
+        // didOpen: () => {
+        //     // `MySwal` is a subclass of `Swal` with all the same instance & static methods
+        //     MySwal.showLoading()
+        // },
+        // }).then(() => {
+        //     return MySwal.fire(<p>Shorthand works too</p>)
+        })
+    }
+
+    const BridgeLogButton = () => {
+        return (
+            <div onClick={()=> {
+                showBridgeLog()
+            }} className='bridge-history-btn' style={{float: "right"}}>Bridge History</div>
+        )
+    }
+
+    const currChain: any = _.find(chains, { id: chain });
+    const currChainLogo: string = _.has(currChain, 'evmChain') ? getChainLogo(currChain.evmChain) : '';
 
     return (
         <div className="inventory-page container">
@@ -424,8 +593,11 @@ const Inventory = ({ setAudio }: BasePage) => {
                 onButtonClick={() => navigate('/')}
             />
 
+            <BridgeLogButton></BridgeLogButton>
+
             <div className="inventory">
                 <div className="title groovy">
+                    <img className="chain-logo" src={currChainLogo} />
                     <div className="text">INVENTORY</div>
                 </div>
 
@@ -473,6 +645,14 @@ const Inventory = ({ setAudio }: BasePage) => {
                             <i className="fa fa-arrow-down" aria-hidden="true"></i>
                         </button>
                     </li>
+                    <li>
+                        <button
+                            className="navigation"
+                            onClick={() => getInventory(chain, address)}
+                        >
+                            <i className="fa fa-refresh" aria-hidden="true"></i>
+                        </button>
+                    </li>
                     {/* <li>
                         <button
                             className="navigation"
@@ -487,14 +667,14 @@ const Inventory = ({ setAudio }: BasePage) => {
                 show={isLoading}
                 type={"pulse"}
                 mode={"white"}
-                text={"Loading..."}
+                text={"Loading.."}
             ></LoadingIndicator>
 
             <LoadingIndicator
                 show={isBridging}
                 type={"bridging"}
                 mode={"white"}
-                text={"Travelling..."}
+                text={bridgingText}
             ></LoadingIndicator>
         </div>
     )
