@@ -1,12 +1,18 @@
 import React, { useContext } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { AddressContext } from '../../App';
+import { getAreaAudio } from '../../common/utils';
 import { BasePage } from '../../types';
 import './styles.scss';
 
 const Home = ({ setAudio }: BasePage) => {
-	const { address, } = useContext(AddressContext);
+	const { address, areaId } = useContext(AddressContext);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		setAudio(getAreaAudio(areaId));
+	}, [setAudio, areaId,]);
 
     return (
 		<div className='home-page'>

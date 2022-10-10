@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
@@ -32,18 +33,22 @@ const Map = ({ onAreaChange, setAudio }: MapProps) => {
     const { address, areaId, chainName } = useContext(AddressContext);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        setAudio("map_world");
+    }, [setAudio]);
+
     const onTravelClick = useCallback(async (areaId: number) => {
         let hasTravelled = await travel(address, areaId);
 
         if(hasTravelled) {
             setAudio(getAreaAudio(areaId));
             onAreaChange(areaId);
-            navigate("/");
+            navigate("/home");
         }
     }, [address, onAreaChange, navigate, setAudio]);
 
     const onCloseClick = useCallback(() => {
-        navigate("/");
+        navigate("/home");
     }, [navigate]);
 
     const map = useMemo(() => {

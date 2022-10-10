@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { AddressContext } from '../../App';
 import instance from '../Axios';
-import { MintPromptProps, MonsterBaseMetadata, StarterStatusResponse } from './types';
+import { MintPromptProps, MonsterBaseMetadata, StarterPageProps, StarterStatusResponse } from './types';
 import './styles.scss';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -25,7 +25,7 @@ const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     </div>
 );
 
-const Starter = ({ setAudio }: BasePage) => {
+const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
     const { address, chain, } = useContext(AddressContext);
     const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
@@ -33,6 +33,10 @@ const Starter = ({ setAudio }: BasePage) => {
     const [mintText, setMintText] = useState(PREPARING_TEXT);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setAudio('map_world');
+    }, [setAudio]);
 
     const startMinting = () => {
         setMinting(true);
@@ -43,8 +47,9 @@ const Starter = ({ setAudio }: BasePage) => {
     }
 
     const onMint = useCallback(() => {
-        navigate('/');
-    }, [navigate]);
+        onMintCallback();
+        navigate('/home');
+    }, [navigate, onMintCallback]);
 
     // get if address has minted free mon
     useEffect(() => {

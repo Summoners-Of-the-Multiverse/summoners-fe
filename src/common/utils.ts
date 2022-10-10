@@ -251,7 +251,7 @@ export const getAreaName = (areaId: number, blur = false) => {
 }
 
 export const getAreaAudio = (areaId: number) => {
-    let name = "";
+    let name = "map_world";
     switch(areaId) {
         case 1:
             name = "map_village";

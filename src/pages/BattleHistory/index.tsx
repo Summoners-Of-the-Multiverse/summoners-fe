@@ -103,7 +103,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 				fullScreen
 			/> */}
 			<BackButton
-				onButtonClick={() => { navigate('/'); }}
+				onButtonClick={() => { navigate('/home'); }}
 			/>
 			<div className="pagination">
 				<button onClick={onLeftClick}><i className="fa fa-chevron-left"></i></button>

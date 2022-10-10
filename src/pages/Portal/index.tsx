@@ -32,7 +32,7 @@ const Portal = ({onChainChange, setAudio}: PortalProps) => {
 		<div className='portal-page'>
             <div className="navigate-container">
                 <BackButton
-                    onButtonClick={() => navigate('/')}
+                    onButtonClick={() => navigate('/home')}
                 />
                 <EVMSwitcher
                     targetChain={BSC_TEST}
