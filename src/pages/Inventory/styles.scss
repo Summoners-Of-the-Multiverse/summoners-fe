@@ -1,7 +1,139 @@
 /*
 No images, no background filters, no javascript, simple CSS and HTML
 */
+.swal-bridge-log {
+    font-family: 'Starguard';
+
+    .swal2-title > p {
+        margin-bottom: 0px;
+    }
+
+    .swal2-html-container {
+        display: flex !important;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+
+        .bridge-ticket {
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+            width: 95%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            border-bottom: 0px;
+            border-left: 0px;
+            border-right: 0px;
+
+            .polygon {
+                // background-color: #7d45de;
+                background-color: #ac91da;
+            }
+
+            .binance {
+                // background-color: #ebb42e;
+                background-color: #e2c886;
+            }
+
+            .avalanche {
+                background-color: #da91ae;
+            }
+
+            .ticket-header {
+                display: flex;
+                flex-flow: row;
+                font-size: 18px;
+                justify-content: space-between;
+                .ticket-header-title {
+                    // color:rgba(41, 0, 43, 0.97);
+                    color:rgba(0, 0, 0, 0.25);
+                    .mdi-red {
+                        color: red;
+                    }
+                }
+
+                .ticket-header-info {
+                    color:rgba(0, 0, 0, 0.25);
+                }
+            }
+
+            .ticket-bridging-location {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+
+                .mdi-airplane-takeoff {
+                    margin: 0px 10px;
+                }
+
+                .ticket-bridging-location-info {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+
+                    .ticket-bridging-chain {
+                        height: 15px;
+                        width: auto;
+                        margin-right: 5px;
+                    }
+                }
+            }
+
+            .card-body {
+                padding: 0;
+                padding-top: 7px;
+
+                .ticket-body {
+                    font-size: 14px;
+                }
+
+                .ticket-body-table {
+                    width: 100%;
+                    th {
+                        color: #8e8e8e;
+                    }
+
+                    .ticket-body-token {
+                        cursor: pointer;
+                    }
+                }
+
+                .card-footer {
+                    color: #fff;
+                    padding: 4px 16px;
+                    font-size: 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .card-footer-start {
+                        justify-content: flex-start;
+                    }
+
+                    .card-footer-end {
+                        justify-content: flex-end;
+                    }
+                }
+            }
+
+            .card-text {
+                background-color: #e1e1e181;
+            }
+        }
+    }
+}
+
 .inventory-page {
+    .bridge-history-btn {
+        position: absolute;
+        right: 60px;
+        top: 12px;
+        font-family: 'Starguard';
+        text-decoration: underline;
+        font-size: 28px;
+        cursor: pointer;
+    }
+
     max-width: 500px;
     position: relative;
     padding-top: 70px;
@@ -11,11 +143,11 @@ No images, no background filters, no javascript, simple CSS and HTML
         justify-content: center;
         align-items: center;
     }
-    
+
     i.element-icon {
         margin: 0;
     }
-    
+
 
     .top-title {
         font-size: 1.3em;
@@ -86,7 +218,20 @@ No images, no background filters, no javascript, simple CSS and HTML
         text-shadow: 3px 0px 2px #222222;
         text-align: center;
         z-index: 3;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Starguard';
 
+        .chain-logo {
+            height: 30px;
+            width: auto;
+        }
+
+        .text {
+            margin-left: 5px;
+        }
     }
 
     .close {
@@ -161,7 +306,7 @@ No images, no background filters, no javascript, simple CSS and HTML
         position: absolute;
         right: 0;
         // top: 200px;
-        top: 39%;
+        top: 42%;
         list-style: none;
         padding: 0;
         margin: 0;
@@ -328,6 +473,17 @@ No images, no background filters, no javascript, simple CSS and HTML
             position: absolute;
         }
 
+        .travelling {
+            display: block;
+            position: absolute;
+            background-color: #00000040;
+        }
+
+        .not-travelling {
+            display: none;
+            position: absolute;
+        }
+
         &.selected {
             border: 3px dashed #fbff00cd;
             animation: frameBlink 1s linear infinite;
@@ -407,6 +563,10 @@ No images, no background filters, no javascript, simple CSS and HTML
             text-align: left;
 
             .mob-token-id {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
                 // background-color: transparent;
                 border: none;
                 box-shadow: none;
@@ -416,6 +576,11 @@ No images, no background filters, no javascript, simple CSS and HTML
                 color: #fff;
                 font-size: 16px;
                 align-self: center;
+                .origin-chain-logo {
+                    height: 18px;
+                    margin-right: 4px;
+                    width: auto;
+                }
             }
 
             .mob-name {
