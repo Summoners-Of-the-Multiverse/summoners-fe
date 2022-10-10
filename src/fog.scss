@@ -8,27 +8,61 @@
     -webkit-filter: blur(1px) grayscale(0.2) saturate(1.2) sepia(0.2);
     filter: blur(1px) grayscale(0.2) saturate(1.2) sepia(0.2);
   }
-  #foglayer_01, #foglayer_02, #foglayer_03 {
+  .foglayer_01, .foglayer_02, .foglayer_03 {
     height: 100%;
     position: absolute;
     width: 200%;
+
+    @media screen and (max-width: 900px) {
+        width: 1440px;
+    }
+
+    &.second {
+        left: 50%;
+    }
   }
-  #foglayer_01 .image01, #foglayer_01 .image02,
-  #foglayer_02 .image01, #foglayer_02 .image02,
-  #foglayer_03 .image01, #foglayer_03 .image02 {
+
+  .foglayer_01 .image01, .foglayer_01 .image02,
+  .foglayer_02 .image01, .foglayer_02 .image02,
+  .foglayer_03 .image01, .foglayer_03 .image02 {
     float: left;
     height: 100%;
     width: 50%;
   }
-  #foglayer_01 {
+  .foglayer_01 {
     -webkit-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme 3s linear infinite;
     -moz-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme 3s linear infinite;
     animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme 3s linear infinite;
+
+    @media screen and (max-width: 900px) {
+        -webkit-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_second 3s linear infinite;
+        -moz-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_second 3s linear infinite;
+        animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_second 3s linear infinite;
+
+        &.second {
+            -webkit-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_third 3s linear infinite;
+            -moz-animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_third 3s linear infinite;
+            animation: foglayer_01_opacity 2s linear infinite, foglayer_moveme_third 3s linear infinite;
+        }
+    }
   }
-  #foglayer_02, #foglayer_03 {
+
+  .foglayer_02, .foglayer_03 {
     -webkit-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme 2.6s linear infinite;
     -moz-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme 2.6s linear infinite;
     animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme 2.6s linear infinite;
+
+    @media screen and (max-width: 900px) {
+        -webkit-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_second 2.6s linear infinite;
+        -moz-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_second 2.6s linear infinite;
+        animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_second 2.6s linear infinite;
+
+        &.second {
+            -webkit-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_third 3s linear infinite;
+            -moz-animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_third 2.6s linear infinite;
+            animation: foglayer_02_opacity 4.2s linear infinite, foglayer_moveme_third 2.6s linear infinite;
+        }
+    }
   }
   
   /* ---------- Moving Fog ---------- */
@@ -38,11 +72,11 @@
     'attachment: fixed' causing unexpected results in Chrome
     'repeat-x' || 'no-repeat'; results remain the same
   */ 
-  #foglayer_01 .image01, #foglayer_01 .image02 {
+  .foglayer_01 .image01, .foglayer_01 .image02 {
     background: url("https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png") center center/cover no-repeat transparent;
   }
-  #foglayer_02 .image01, #foglayer_02 .image02,
-  #foglayer_03 .image01, #foglayer_03 .image02{
+  .foglayer_02 .image01, .foglayer_02 .image02,
+  .foglayer_03 .image01, .foglayer_03 .image02{
     background: url("https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog2.png") center center/cover no-repeat transparent;
   }
   
@@ -154,13 +188,37 @@
     0% { left: 0; }
     100% { left: -100%; }
   }
-  
-  @media only screen
-    and (min-width: 280px)
-    and (max-width: 767px) {
-      #foglayer_01 .image01, #foglayer_01 .image02,
-      #foglayer_02 .image01, #foglayer_02 .image02,
-      #foglayer_03 .image01, #foglayer_03 .image02 {
-        width: 100%;
-      }
-}
+
+  @-webkit-keyframes foglayer_moveme_second {
+    0% { left: 0; }
+    100% { left: -1440px; }
+  }
+  @-moz-keyframes foglayer_moveme_second {
+    0% { left: 0; }
+    100% { left: -1440px; }
+  }
+  @-o-keyframes foglayer_moveme_second {
+    0% { left: 0; }
+    100% { left: -1440px; }
+  }
+  @keyframes foglayer_moveme_second {
+    0% { left: 0; }
+    100% { left: -1440px; }
+  }
+
+  @-webkit-keyframes foglayer_moveme_third {
+    0% { left: 720px; }
+    100% { left: -720px; }
+  }
+  @-moz-keyframes foglayer_moveme_third {
+    0% { left: 720px; }
+    100% { left: -720px; }
+  }
+  @-o-keyframes foglayer_moveme_third {
+    0% { left: 720px; }
+    100% { left: -720px; }
+  }
+  @keyframes foglayer_moveme_third {
+    0% { left: 720px; }
+    100% { left: -720px; }
+  }
