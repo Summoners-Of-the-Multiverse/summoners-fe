@@ -29,7 +29,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 	const navigate = useNavigate();
 
     const [ results, setResults ] = useState<BattleResult[]>([]); 
-	const [ isLoading, setIsLoading ] = useState(true);
+	// const [ isLoading, setIsLoading ] = useState(true);
 	const [ page, setPage ] = useState(0);
 	const [ maxPage, setMaxPage ] = useState(0);
 
@@ -53,7 +53,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 				toast.error('Unable to get battle results');
 			}
 			
-			setIsLoading(false);
+			// setIsLoading(false);
 		}
 
 		getBattleResult();

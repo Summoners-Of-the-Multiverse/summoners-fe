@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import './styles.scss'
 import { io } from 'socket.io-client';
 import { AddressContext } from '../../App';
-import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString, getSkillIcon, sleep } from '../../common/utils';
+import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString, getSkillIcon, getWsUrl, sleep } from '../../common/utils';
 import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, MonsterSkill, Attack, ListenBattleParams, MonsterStats, EncounterHpBarProps, PlayerMonsterImageProps } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -17,7 +17,7 @@ const ENCOUNTER_INITIAL_DELAY = 5000; // in ms
 const CD_ANIMATION_DURATION = 100; // in ms
 
 //dont auto connect cause react will connect it immediately upon loading
-const socket = io('ws://localhost:8081', { autoConnect: false});
+const socket = io(getWsUrl(), { autoConnect: false});
 
 const startBattle = async({
     address,
@@ -197,7 +197,7 @@ const Battle = ({ setAudio }: BasePage) => {
 
         isNaturalBattleEnd.current = true;
         setEncounterDamageReceived(undefined);
-    }, []);
+    }, [setAudio]);
 
     //navigates to battle result after battle end
     const navigateToBattleResult = useCallback(() => {

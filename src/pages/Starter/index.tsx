@@ -13,7 +13,6 @@ import _ from 'lodash';
 import { ChainConfigs } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
 import Spinner from '../../components/Spinner';
-import { BasePage } from '../../types';
 
 const chains = ChainConfigs;
 const PREPARING_TEXT = "Preparing Ink";

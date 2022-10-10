@@ -114,7 +114,11 @@ export const getUTCDate = () => {
 }
 
 export const getBaseUrl = () => {
-    return process.env.REACT_APP_BASE_URL;
+    return process.env.REACT_APP_BASE_URL!;
+}
+
+export const getWsUrl = () => {
+    return process.env.REACT_APP_WS_URL!;
 }
 
 export const getSkillIcon = (assetFile: string) => {

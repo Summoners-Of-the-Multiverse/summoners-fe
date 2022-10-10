@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { EVMConnector, ChainConfigs } from './components/EVM';
-import { ellipsizeThis, getBg, getRandomNumber } from './common/utils';
+import { ellipsizeThis, getBg, getRandomNumber, getWsUrl } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import './fog.scss';
@@ -46,7 +46,7 @@ export const AddressContext = createContext({
     areaId: 0,
 });
 
-const socket = io('ws://localhost:8081');
+const socket = io(getWsUrl());
 export const SocketContext = createContext<Socket>(socket);
 
 // for useCurrentPath
@@ -144,7 +144,7 @@ function App() {
     //controls audio
     useEffect(() => {
         audioPlayer.current.pause();
-        audioPlayer.current = new Audio('http://localhost:3000/assets/sounds/' + audio + ".mp3");
+        audioPlayer.current = new Audio('/assets/sounds/' + audio + ".mp3");
         audioPlayer.current.play();
         audioPlayer.current.loop = true;
     }, [audio]);
