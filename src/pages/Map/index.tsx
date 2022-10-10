@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
-import { getAreaName } from '../../common/utils';
+import { getAreaAudio, getAreaName } from '../../common/utils';
 import CloseButton from '../../components/CloseButton';
 import instance from '../Axios';
 import './styles.scss';
@@ -28,7 +28,7 @@ const travel = async(address: string, areaId: number) => {
     }
 }
 
-const Map = ({ onAreaChange }: MapProps) => {
+const Map = ({ onAreaChange, setAudio }: MapProps) => {
     const { address, areaId, chainName } = useContext(AddressContext);
     const navigate = useNavigate();
 
@@ -36,10 +36,11 @@ const Map = ({ onAreaChange }: MapProps) => {
         let hasTravelled = await travel(address, areaId);
 
         if(hasTravelled) {
+            setAudio(getAreaAudio(areaId));
             onAreaChange(areaId);
             navigate("/");
         }
-    }, [address, onAreaChange, navigate]);
+    }, [address, onAreaChange, navigate, setAudio]);
 
     const onCloseClick = useCallback(() => {
         navigate("/");
@@ -73,22 +74,19 @@ const Map = ({ onAreaChange }: MapProps) => {
                 <button className={`map-button ${areaId === 3? 'active' : ''}`} style={{ bottom: '24%', left: '50%' }} onClick={() => { onTravelClick(3) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className={`map-button ${areaId === 4? 'active' : ''}`} style={{ bottom: '10%', left: '40%' }} onClick={() => { onTravelClick(4) }}>
+                <button className={`map-button ${areaId === 4? 'active' : ''}`} style={{ bottom: '51%', left: '18%' }} onClick={() => { onTravelClick(4) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className={`map-button ${areaId === 5? 'active' : ''}`} style={{ bottom: '51%', left: '18%' }} onClick={() => { onTravelClick(5) }}>
+                <button className={`map-button ${areaId === 5? 'active' : ''}`} style={{ bottom: '56%', left: '30%' }} onClick={() => { onTravelClick(5) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className={`map-button ${areaId === 6? 'active' : ''}`} style={{ bottom: '56%', left: '30%' }} onClick={() => { onTravelClick(6) }}>
+                <button className={`map-button ${areaId === 6? 'active' : ''}`} style={{ bottom: '52%', left: '68.5%' }} onClick={() => { onTravelClick(6) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className={`map-button ${areaId === 7? 'active' : ''}`} style={{ bottom: '52%', left: '68.5%' }} onClick={() => { onTravelClick(7) }}>
+                <button className={`map-button ${areaId === 7? 'active' : ''}`} style={{ bottom: '73%', left: '70%' }} onClick={() => { onTravelClick(7) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
-                <button className={`map-button ${areaId === 8? 'active' : ''}`} style={{ bottom: '73%', left: '70%' }} onClick={() => { onTravelClick(8) }}>
-                    <i className="fa fa-map-marker"></i>
-                </button>
-                <button className={`map-button ${areaId === 9? 'active' : ''}`} style={{ bottom: '80%', left: '16%' }} onClick={() => { onTravelClick(9) }}>
+                <button className={`map-button ${areaId === 8? 'active' : ''}`} style={{ bottom: '80%', left: '16%' }} onClick={() => { onTravelClick(8) }}>
                     <i className="fa fa-map-marker"></i>
                 </button>
                 <CloseButton

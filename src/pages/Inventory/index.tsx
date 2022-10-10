@@ -15,6 +15,7 @@ import Button from 'react-bootstrap/Button';
 import ContractCall from '../../components/EVM/ContractCall';
 import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { ChainConfigs } from '../../components/EVM';
+import { BasePage } from '../../types';
 /* import {
     AxelarGMPRecoveryAPI,
     Environment,
@@ -46,7 +47,7 @@ const SuccessBridgeToast = (tx:any) => (
     </div>
 );
 
-const Inventory = () => {
+const Inventory = ({ setAudio }: BasePage) => {
     const navigate = useNavigate();
 
     const { address, chain, } = useContext(AddressContext);

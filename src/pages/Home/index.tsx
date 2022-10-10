@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { AddressContext } from '../../App';
+import { BasePage } from '../../types';
 import './styles.scss';
 
-const Home = () => {
+const Home = ({ setAudio }: BasePage) => {
 	const { address, } = useContext(AddressContext);
 	const navigate = useNavigate();
 

@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from '../../common/constants';
 import moment from 'moment';
 import ElementIcon from '../../components/ElementIcon';
+import { BasePage } from '../../types';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
@@ -17,13 +18,11 @@ const CD_ANIMATION_DURATION = 100; // in ms
 
 //dont auto connect cause react will connect it immediately upon loading
 const socket = io('ws://localhost:8081', { autoConnect: false});
-const soundVictory = new Audio('http://localhost:3000/assets/sounds/victory.mp3');
-const soundDefeat = new Audio('http://localhost:3000/assets/sounds/defeat.mp3');
-const soundBattle = new Audio('http://localhost:3000/assets/sounds/battle_wild.mp3');
 
 const startBattle = async({
     address,
     chainId,
+    setAudio,
 }: StartBattleParams ) => {
     while(socket.disconnected) {
         // wait for socket to connect
@@ -31,7 +30,7 @@ const startBattle = async({
     }
 
     if(address && chainId) {
-        soundBattle.play();
+        setAudio('battle_wild');
         socket.emit('start_battle', {address, chainId});
     }
 }
@@ -128,7 +127,7 @@ const surrender = (address: string, ignoreConfirm = false) => {
     });
 }
 
-const Battle = () => {
+const Battle = ({ setAudio }: BasePage) => {
     const { address, chain, } = useContext(AddressContext);
     const [ battleDetails, setBattleDetails ] = useState<BattleDetails | undefined>(undefined);
     const [ playerCurrentHp, setPlayerCurrentHp ] = useState(-1);
@@ -177,11 +176,9 @@ const Battle = () => {
             toast.error('There is currently an ongoing battle!');
             return;
         }
-
-        soundBattle.pause();
         
         if(hasWon) {
-            soundVictory.play();
+            setAudio('victory');
             setEncounterCurrentHp(0);
 
             setTimeout(() => {
@@ -190,7 +187,7 @@ const Battle = () => {
         }
 
         else {
-            soundDefeat.play();
+            setAudio('defeat');
             setPlayerCurrentHp(0);
 
             setTimeout(() => {
@@ -261,6 +258,10 @@ const Battle = () => {
 
 
     useEffect(() => {
+        if(typeof(setAudio) !== "function") {
+            return;
+        }
+
         if(isInBattle.current) {
             return;
         }
@@ -284,8 +285,9 @@ const Battle = () => {
         startBattle({
             address, 
             chainId: chain, 
+            setAudio
         });
-    }, [address, chain]);
+    }, [address, chain, setAudio]);
 
     return (
         <div className='battle-page'>

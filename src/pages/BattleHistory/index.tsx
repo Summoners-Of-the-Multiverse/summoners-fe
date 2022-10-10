@@ -10,6 +10,7 @@ import instance from '../Axios';
 import { BattleResult } from './types';
 import './styles.scss';
 import { getMonsterIcon } from '../../common/utils';
+import { BasePage } from '../../types';
 
 const getDuration = (time_start: string, time_end: string) => {
     //in seconds
@@ -23,7 +24,7 @@ const getDuration = (time_start: string, time_end: string) => {
 
 const RESULT_PER_PAGE = 10;
 
-const BattleResultHistory = () => {
+const BattleHistory = ({ setAudio }: BasePage) => {
 	const { address, } = useContext(AddressContext);
 	const navigate = useNavigate();
 
@@ -163,4 +164,4 @@ const BattleResultHistory = () => {
     )
 }
 
-export default BattleResultHistory;
+export default BattleHistory;

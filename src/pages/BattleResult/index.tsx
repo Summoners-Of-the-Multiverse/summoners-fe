@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState, useContext, useMemo } from 're
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
-import { getElementTooltip, getMonsterIcon, getSkillIcon, toLocaleDecimal, truncateStr } from '../../common/utils';
+import { getAreaAudio, getElementTooltip, getMonsterIcon, getSkillIcon, toLocaleDecimal, truncateStr } from '../../common/utils';
 import BackButton from '../../components/BackButton';
 import ElementIcon from '../../components/ElementIcon';
 import ContractCall from '../../components/EVM/ContractCall';
@@ -16,6 +16,7 @@ import './styles.scss';
 import { BattleResult, BattleResultResponse, BattleSkillsUsed, MVP, SkillsUsageTableProps } from './types';
 import { ChainConfigs } from '../../components/EVM';
 import _ from 'lodash';
+import { BasePage } from '../../types';
 
 const PREPARING_TEXT = "Preparing Nets";
 const CAPTURING_TEXT = "Capturing";
@@ -26,8 +27,8 @@ const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     </div>
 );
 
-const BattleResultPage = () => {
-	const { address, chain, } = useContext(AddressContext);
+const BattleResultPage = ({ setAudio }: BasePage) => {
+	const { address, chain, areaId, } = useContext(AddressContext);
 	const { id, returnToPage } = useParams();
 	const navigate = useNavigate();
 	
@@ -226,7 +227,10 @@ const BattleResultPage = () => {
 				result &&
 				<div className='battle-result-container'>
 					<BackButton
-						onButtonClick={() => { navigate("/" + (returnToPage? returnToPage : "")) }}
+						onButtonClick={() => {
+							setAudio(getAreaAudio(areaId));
+							navigate("/" + (returnToPage? returnToPage : ""));
+						}}
 					/>
 					<h1 className={`${result.hp_left < 0? 'victory' : 'defeat'}`}>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
 

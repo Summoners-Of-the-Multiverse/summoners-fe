@@ -68,7 +68,9 @@ function App() {
     const [shouldMask, setShouldMask] = useState(false);
     const [shouldBlur, setShouldBlur] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [audio, setAudio] = useState("");
 
+    const audioPlayer = useRef(new Audio());
     const navigate = useNavigate();
     const currentPath = useCurrentPath(routes);
 
@@ -128,6 +130,14 @@ function App() {
         setShouldBlur(pagesWithBlur.includes(currentPath));
     }, [currentPath, navigate]);
 
+    //controls audio
+    useEffect(() => {
+        audioPlayer.current.pause();
+        audioPlayer.current = new Audio('http://localhost:3000/assets/sounds/' + audio + ".mp3");
+        audioPlayer.current.play();
+        audioPlayer.current.loop = true;
+    }, [audio]);
+
     const handleNewAccount = useCallback((address: string) => {
         setIsLoading(false);
         setAddress(address);
@@ -186,16 +196,16 @@ function App() {
             }}>
                 {/** Please update routes constant if there's a new page */}
                 <Routes>
-                    <Route path="/" element={<Home />}></Route>
-                    <Route path="/map" element={<Map onAreaChange={setAreaId}/>}></Route>
-                    <Route path="/portal" element={<Portal onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/starter" element={<Starter />}></Route>
-                    <Route path="/inventory" element={<Inventory />}></Route>
-                    <Route path="/home" element={<Home />}></Route>
-                    <Route path="/battle" element={<Battle />}/>
-                    <Route path="/battleResult/:id" element={<BattleResult />}/>
-                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult />}/>
-                    <Route path="/battleHistory" element={<BattleHistory />}/>
+                    <Route path="/" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
+                    <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
+                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
                 </Routes>
             </AddressContext.Provider>
             <ToastContainer

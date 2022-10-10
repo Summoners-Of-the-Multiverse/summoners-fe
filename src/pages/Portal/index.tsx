@@ -8,7 +8,7 @@ import './styles.scss';
 import { PortalProps } from './types';
 import BackButton from '../../components/BackButton';
 
-const Portal = ({onChainChange}: PortalProps) => {
+const Portal = ({onChainChange, setAudio}: PortalProps) => {
     const { chain, } = useContext(AddressContext);
     const [currentChain, setCurrentChain] = useState(chain);
 	const navigate = useNavigate();
