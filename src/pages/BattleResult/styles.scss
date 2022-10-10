@@ -20,6 +20,20 @@
         margin: 5vh 0 2vh 0;
     }
 
+    h1 {
+        font-size: 50px;
+        -webkit-text-stroke-width: 0.5px;
+        -webkit-text-stroke-color: black;
+
+        &.victory {
+            color: rgb(27, 249, 27);
+        }
+
+        &.defeat {
+            color: red;
+        }
+    }
+
     .battle-result-container {
         position: relative;
         border-radius: 10px;

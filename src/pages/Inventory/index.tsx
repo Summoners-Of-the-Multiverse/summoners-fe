@@ -3,7 +3,7 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
 import _ from 'lodash';
-import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard } from '../../common/utils';
+import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard, truncateStr } from '../../common/utils';
 import LoadingIndicator from '../../components/Spinner';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
@@ -15,13 +15,11 @@ import Button from 'react-bootstrap/Button';
 import ContractCall from '../../components/EVM/ContractCall';
 import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { ChainConfigs } from '../../components/EVM';
-import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
-import { truncateStr } from '../../common/utils';
-import {
+/* import {
     AxelarGMPRecoveryAPI,
     Environment,
-} from "@axelar-network/axelarjs-sdk";
-import { Toast } from 'react-toastify/dist/components';
+} from "@axelar-network/axelarjs-sdk"; */
+
 const isTestnet = true;
 
 // assign chain info based on env
@@ -35,9 +33,9 @@ const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
 
 // https://stackoverflow.com/questions/71562875/node-js-webpack5-error-module-not-found-breaking-change-webpack-5-used-to-i
 
-const sdk = new AxelarGMPRecoveryAPI({
+/* const sdk = new AxelarGMPRecoveryAPI({
     environment: Environment.TESTNET,
-});
+}); */
 const chains = ChainConfigs;
 
 const axelarScan = isTestnet ? `https://testnet.axelarscan.io/gmp/` : `https://axelarscan.io/gmp/`;
@@ -72,20 +70,6 @@ const Inventory = () => {
     // limit monster display per pagination
     const take = 15;
     const maxEquipped = 4;
-
-    // load popover
-    useEffect(() => {
-        const script = document.createElement('script');
-
-        script.src = "https://use.typekit.net/foobar.js";
-        script.async = true;
-
-        document.body.appendChild(script);
-
-        return () => {
-          document.body.removeChild(script);
-        }
-    }, []);
 
     useEffect(() => {
         const getInventory = async(chain: string, address: string) => {
@@ -172,7 +156,7 @@ const Inventory = () => {
      * Use mob in battle
      * @date 2022-10-06
      */
-     const equipMob = async () => {
+     const equipMob = useCallback(async () => {
         try {
             // setIsLoading(true);
             let res = await instance.post(`/equipMob`, {
@@ -210,13 +194,13 @@ const Inventory = () => {
             console.log(e);
             // setIsLoading(false);
         }
-    }
+    }, [address, chain, mob, selected, selectedMob]);
 
     /**
      * Remove mob from battle
      * @date 2022-10-06
      */
-     const unEquipMob = async () => {
+     const unEquipMob = useCallback(async () => {
         try {
             // setIsLoading(true);
             let res = await instance.post(`/unequipMob`, {
@@ -253,18 +237,18 @@ const Inventory = () => {
             console.log(e);
             // setIsLoading(false);
         }
-    }
+    }, [address, chain, mob, selected, selectedMob]);
 
     /**
      * Bridging
      * @date 2022-10-06
      */
-    const sendMob = async (destChainId: string) => {
+    const sendMob = useCallback(async (destChainId: string) => {
         try {
             setIsBridging(true);
             // destination this
             const destChain: any = _.find(chains, { id: destChainId });
-            const srcChain: any = _.find(chains, { id: chain });
+            // const srcChain: any = _.find(chains, { id: chain });
             const contract = new ContractCall(chain);
             const tx = await contract.bridgeNft(destChain, selectedMob);
             toast.success(SuccessBridgeToast(tx));
@@ -279,7 +263,7 @@ const Inventory = () => {
             console.log(e);
             return false;
         }
-    };
+    }, [chain, selected, selectedMob]);
 
     const ActionButton = useCallback(() => {
         let component: JSX.Element;

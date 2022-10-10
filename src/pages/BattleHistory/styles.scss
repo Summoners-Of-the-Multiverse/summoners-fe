@@ -1,0 +1,122 @@
+.battle-history-page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 900px;
+    min-height: 100vh;
+    height: 100%;
+
+    padding: 2% 5%;
+
+    @media screen and (max-width: 900px) {
+        padding: 0;
+    }
+
+    .back-button {
+        left: 8%;
+
+        @media screen and (max-width: 900px) {
+            left: 10px;
+        }
+    }
+
+    .pagination {
+        position: absolute;
+        top: 50px;
+        right: 70px;
+
+        font-size: 15px;
+
+        @media screen and (max-width: 900px) {
+            top: 35px;
+            right: 0;
+        }
+
+        > button {
+            border: none;
+            background-color: transparent;
+
+            &:nth-of-type(1) {
+                margin-right: 10px;
+            }
+
+            &:nth-of-type(2) {
+                margin-left: 10px;
+            }
+        }
+    }
+
+    .battle-history-container {
+        margin-top: 30px;
+        height: calc(100vh - 130px);
+        overflow: auto;
+
+        @media screen and (max-width: 900px) {
+            margin-top: 60px;
+            height: calc(100vh - 70px);
+        }
+    }
+
+    .history {
+        height: 150px;
+        width: 95vw;
+        max-width: 600px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 15px;
+        border: 2px solid black;
+        margin-bottom: 15px;
+
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+
+        @media screen and (max-width: 900px) {
+            padding: 8px;
+        }
+
+        > img {
+            height: 100%;
+            margin-right: 15px;
+        }
+
+        span {
+            font-size: 15px;
+
+            @media screen and (max-width: 900px) {
+                font-size: 12px;
+            }
+        }
+
+        .result-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+
+            font-family: 'Starguard';
+
+            > span {
+                font-size: 50px;
+                letter-spacing: 5px;
+
+                @media screen and (max-width: 900px) {
+                    font-size: 40px;
+                }
+            }
+
+            &.victory {
+                color: green;
+            }
+
+            &.defeat {
+                color: red;
+            }
+
+            &.captured {
+                color: rgb(199, 173, 22);
+            }
+        }
+    }
+}

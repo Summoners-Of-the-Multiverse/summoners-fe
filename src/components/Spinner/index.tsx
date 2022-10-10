@@ -11,7 +11,7 @@ interface P{
 }
 interface S{}
 
-export default class LoadingIndicator extends React.Component<P,S> {
+export default class Spinner extends React.Component<P,S> {
 
     constructor(props: P){
         super(props);
@@ -58,7 +58,7 @@ export default class LoadingIndicator extends React.Component<P,S> {
                 break;
 
             case "bridging":
-                dom = <img src="/assets/gif/mob.gif" />
+                dom = <img src="/assets/gif/mob.gif" alt="bridging"/>
                 break;
 
             default:

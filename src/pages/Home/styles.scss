@@ -8,13 +8,21 @@
     min-height: 100vh;
     max-width: 900px;
 
+    // for when too many buttons
+    // margin-top: 150px;
+
+    @media screen and (max-width: 900px) {
+        padding-top: 150px;
+    }
+
     .navigate-button {
+        position: relative;
         background-color: white;
 
         text-transform: uppercase;
         font-family: 'Starguard';
         letter-spacing: 3px;
-        font-size: 42px;
+        font-size: 30px;
         width: 250px;
 
         padding: 5px 20px;
@@ -30,6 +38,34 @@
 
         &:hover {
             transform: scale(1.1);
+        }
+
+        &.coming-soon {
+            border-color: #00000033;
+            cursor: no-drop;
+
+            &:hover {
+                transform: unset;
+            }
+        }
+
+        .ribbon {
+            position: absolute;
+            top: 15px;
+            left: 30%;
+            letter-spacing: 1px;
+            font-family: Roboto;
+
+            > div {
+                background-color: rgba(255,255,255,0.75);
+                transform: rotate(-45deg);
+                border: 2px dashed black;
+                padding: 5px 15px;
+                border-radius: 5px;
+                color: red;
+                font-size: 13px;
+                font-weight: bold;
+            }
         }
     }
 }

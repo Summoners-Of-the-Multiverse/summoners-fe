@@ -36,6 +36,21 @@ const Home = () => {
                     >
                         Inventory
                     </button>
+                    <button
+                        className='navigate-button'
+                        onClick={() => navigate('/battleHistory')}
+                    >
+                        History
+                    </button>
+                    <button
+                        className='navigate-button coming-soon'
+						disabled
+                    >
+                        Marketplace
+						<div className="ribbon">
+							<div>Soon<sup>tm</sup></div>
+						</div>
+                    </button>
 				</>
 			}
 		</div>

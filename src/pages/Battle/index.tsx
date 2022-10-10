@@ -137,17 +137,12 @@ const Battle = () => {
     const [ encounterCd, setEncounterCd ] = useState(ENCOUNTER_INITIAL_DELAY);
     const [ encounterMaxCd, setEncounterMaxCd ] = useState(ENCOUNTER_INITIAL_DELAY);
 
+    const [ showVictory, setShowVictory ] = useState(false);
+    const [ showDefeat, setShowDefeat ] = useState(false);
+
     const navigate = useNavigate();
     const isInBattle = useRef<boolean>(false);
     const isNaturalBattleEnd = useRef<boolean>(false);
-    const isMounted = useRef<boolean>(false);
-
-    useEffect(() => {
-        isMounted.current = true;
-        return () => {
-            isMounted.current = false;
-        }
-    }, []);
 
     //handle socket connections and clean up
     useEffect(() => {
@@ -184,29 +179,28 @@ const Battle = () => {
         if(hasWon) {
             soundVictory.play();
             setEncounterCurrentHp(0);
+
+            setTimeout(() => {
+                setShowVictory(true);
+            }, 2000);
         }
 
         else {
             soundDefeat.play();
             setPlayerCurrentHp(0);
+
+            setTimeout(() => {
+                setShowDefeat(true);
+            }, 1000);
         }
 
         isNaturalBattleEnd.current = true;
         setEncounterDamageReceived(undefined);
+    }, []);
 
-        //only show toast if is mounted
-        if(isMounted.current) {
-            toast.info('Redirecting to battle stats in 3 seconds', {
-                autoClose: 2000
-            });
-
-            setTimeout(() => {
-                //only redirect if is mount
-                if(isMounted.current) {
-                    navigate(`/battleResult/${battleDetails!.battle_id}`);
-                }
-            }, 3000);
-        }
+    //navigates to battle result after battle end
+    const navigateToBattleResult = useCallback(() => {
+        navigate(`/battleResult/${battleDetails!.battle_id}`);
     }, [navigate, battleDetails]);
 
     //handle when encounters get hit
@@ -300,13 +294,31 @@ const Battle = () => {
                 encounterDamageReceived={encounterDamageReceived}
                 encounterCd={encounterCd}
                 encounterMaxCd={encounterMaxCd}
-
+                ended={showVictory || showDefeat}
             />
+            {
+                showVictory &&
+                <div className="result-indicator victory">
+                    <strong>Victory</strong>
+                </div>
+            }
+            {
+                showDefeat &&
+                <div className="result-indicator defeat">
+                    <strong>Defeat</strong>
+                </div>
+            }
+            {
+                (showVictory || showDefeat) &&
+                <div className="result-navigate-button">
+                    <button onClick={navigateToBattleResult}>Show Result</button>
+                </div>
+            }
         </div>
     )
 }
 
-const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, monsterIdOffCd, encounterDamageReceived, encounterCd, encounterMaxCd}: BattlePageProps) => {
+const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, monsterIdOffCd, encounterDamageReceived, encounterCd, encounterMaxCd, ended}: BattlePageProps) => {
     const [activeMonsterId, setActiveMonsterId] = useState<string>("");
     const [monstersOnCd, setMonstersOnCd] = useState<{[monsterId: string]: number}>({});
 
@@ -455,7 +467,7 @@ const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, mons
     let nonNullActiveMonsterId = activeMonsterId ?? Object.keys(playerMonsterSkills)[0];
 
     return (
-        <div className="battle-container">
+        <div className={`battle-container ${ended? 'end' : ''}`}>
             <EncounterHpBar
                 name={`${encounter.name}${encounter.is_shiny? '*' : ''}`}
                 currentHp={encounterCurrentHp === -1? monsterMaxHp : encounterCurrentHp}

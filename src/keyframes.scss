@@ -167,3 +167,19 @@
 		transform: translateX(2px);
 	}
 }
+
+@keyframes dropIn {
+	0% {
+		transform: rotate(-20deg) scale(2.5);
+	}
+
+	100% {
+		transform: rotate(-20deg) scale(1);
+	}
+}
+
+@keyframes delayedFadeIn {
+    0% { opacity: 0; }
+    80% { opacity: 0; }
+    100% { opacity: 1; }
+}

@@ -28,7 +28,7 @@ const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
 
 const BattleResultPage = () => {
 	const { address, chain, } = useContext(AddressContext);
-	const { id } = useParams();
+	const { id, returnToPage } = useParams();
 	const navigate = useNavigate();
 	
 	const [ isLoading, setIsLoading ] = useState(true);
@@ -226,11 +226,11 @@ const BattleResultPage = () => {
 				result &&
 				<div className='battle-result-container'>
 					<BackButton
-						onButtonClick={() => navigate('/')}
+						onButtonClick={() => { navigate("/" + (returnToPage? returnToPage : "")) }}
 					/>
-					<h1>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
+					<h1 className={`${result.hp_left < 0? 'victory' : 'defeat'}`}>{result.hp_left < 0? "Victory" : "Defeat"}</h1>
 
-					<div className="row">
+					<div className="row p-0 m-0">
 						<div className={`col-md-${mvp && mvp.damage > 0? '6' : '12'}`}>
 							<h2>Encountered</h2>
 							<div className="monster-card-container">
