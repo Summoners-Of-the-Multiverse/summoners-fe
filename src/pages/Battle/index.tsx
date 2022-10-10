@@ -19,6 +19,7 @@ const CD_ANIMATION_DURATION = 100; // in ms
 const socket = io('ws://localhost:8081', { autoConnect: false});
 const soundVictory = new Audio('http://localhost:3000/assets/sounds/victory.mp3');
 const soundDefeat = new Audio('http://localhost:3000/assets/sounds/defeat.mp3');
+const soundBattle = new Audio('http://localhost:3000/assets/sounds/battle_wild.mp3');
 
 const startBattle = async({
     address,
@@ -30,6 +31,7 @@ const startBattle = async({
     }
 
     if(address && chainId) {
+        soundBattle.play();
         socket.emit('start_battle', {address, chainId});
     }
 }
@@ -175,6 +177,8 @@ const Battle = () => {
             toast.error('There is currently an ongoing battle!');
             return;
         }
+
+        soundBattle.pause();
         
         if(hasWon) {
             soundVictory.play();
