@@ -12,7 +12,6 @@ import ElementIcon from '../../components/ElementIcon';
 import ContractCall from '../../components/EVM/ContractCall';
 import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { ChainConfigs } from '../../components/EVM';
-import { BasePage } from '../../types';
 // import {
 //     AxelarGMPRecoveryAPI,
 //     Environment,
@@ -22,6 +21,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { Card, Popover, Button, OverlayTrigger, Badge } from 'react-bootstrap';
 import moment from 'moment';
+import { BasePage } from '../../types';
 
 const PREPARING_TEXT = "Packing..";
 const BRIDGING_TEXT = "Travelling..";
@@ -91,7 +91,6 @@ const Inventory = ({ setAudio }: BasePage) => {
 
                 setIsLoading(false);
             } catch(e) {
-                console.log(e);
                 setIsLoading(false);
             }
         }
@@ -196,7 +195,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
             // setIsLoading(false);
         } catch(e) {
-            console.log(e);
+            // console.log(e);
             // setIsLoading(false);
         }
     }, [address, chain, mob, selected, selectedMob]);
@@ -239,7 +238,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
             // setIsLoading(false);
         } catch(e) {
-            console.log(e);
+            // console.log(e);
             // setIsLoading(false);
         }
     }, [address, chain, mob, selected, selectedMob]);
@@ -288,7 +287,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
             setBridgingText(PREPARING_TEXT);
             setIsBridging(false);
-            console.log(e);
+            // console.log(e);
             return false;
         }
     }, [chain, selected, selectedMob]);
@@ -387,7 +386,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             mobTokenId = selectedMob.token_id;
             const mobOriChainName:any = _.find(chains, { id: selectedMob.origin_chain });
             mobOriginChain = getChainLogo(mobOriChainName.evmChain);
-            shortMobTokenId = `id: ${truncateStr(selectedMob.token_id, 10)}`;
+            shortMobTokenId = ` ${truncateStr(selectedMob.token_id, 10)}`;
             elementId = selectedMob.element_id;
             _.map(selectedMob.skills, (sm, smIndex) => {
                 const popover = (
