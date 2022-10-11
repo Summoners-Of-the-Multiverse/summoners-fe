@@ -129,6 +129,7 @@ function App() {
         if(!currentPath) {
             // no random pages
             navigate('/');
+            return;
         }
 
         //if not intermediate then navigate to starter if there's no area id
@@ -180,7 +181,7 @@ function App() {
 
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
-            <div className="bg-container">
+            <div className={`${currentPath === "/"? 'd-none' : ''} bg-container`}>
                 <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
 
                 {/** mask only when address is present cause it'll be the login page then */}
