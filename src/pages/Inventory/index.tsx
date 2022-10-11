@@ -3,7 +3,7 @@ import { AddressContext } from '../../App';
 import instance from '../Axios';
 import './styles.scss'
 import _ from 'lodash';
-import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard, getBridgingIcon, truncateStr, sleep, getChainLogo } from '../../common/utils';
+import { getMonsterIcon, cloneObj, getSkillIcon, copyToClipboard, getBridgingIcon, truncateStr, getChainLogo } from '../../common/utils';
 import LoadingIndicator from '../../components/Spinner';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
@@ -19,7 +19,7 @@ import { ChainConfigs } from '../../components/EVM';
 // } from "@axelar-network/axelarjs-sdk";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { Card, Popover, Button, OverlayTrigger, Badge } from 'react-bootstrap';
+import { Card, Popover, Button, OverlayTrigger } from 'react-bootstrap';
 import moment from 'moment';
 import { BasePage } from '../../types';
 
@@ -94,11 +94,11 @@ const Inventory = ({ setAudio }: BasePage) => {
                 setIsLoading(false);
             }
         }
-    }, [chain, address]);
+    }, []);
 
     useEffect(() => {
         getInventory(chain, address);
-    }, [chain, address]);
+    }, [chain, address, getInventory]);
 
     const equippedMonster = useMemo(() => {
         return _.filter(mob, { equipped: 1 });
@@ -260,7 +260,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             const tx = await contract.bridgeNft(destChain, selectedMob);
 
             // save record in be
-            let res = await instance.post(`/bridgeLog`, {
+            await instance.post(`/bridgeLog`, {
                 monsterId: selectedMob.id,
                 tokenId: selectedMob.token_id,
                 address: address,
@@ -290,11 +290,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             // console.log(e);
             return false;
         }
-    }, [chain, selected, selectedMob]);
-
-    const trackBridging = async (monsterId: number) => {
-
-    }
+    }, [chain, selectedMob, travellingMob, address]);
 
     const ActionButton = useCallback(() => {
         let component: JSX.Element;
@@ -365,7 +361,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             );
         }
         return component;
-    }, [chain, selectedMob, equipMob, unEquipMob, sendMob, travellingMob]);
+    }, [chain, selectedMob, equipMob, unEquipMob, sendMob]);
 
     const copyText = async (text: string) => {
         await copyToClipboard(text);
@@ -448,7 +444,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                     {mobSkils}
                 </div>
                 <div className="mob-info">
-                    <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{mobOriginChain && <img className="origin-chain-logo" src={mobOriginChain} />}{shortMobTokenId}</Button>
+                    <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{mobOriginChain && <img className="origin-chain-logo" src={mobOriginChain} alt="original_chain_logo"/>}{shortMobTokenId}</Button>
                     <div className="mob-name">
                         <h5>
                             {elementId && <ElementIcon
@@ -513,11 +509,11 @@ const Inventory = ({ setAudio }: BasePage) => {
                         <Card.Title>
                             <div className="ticket-bridging-location">
                                 <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain)} /> {currChain.shortName}
+                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain)} alt="bridging"/> {currChain.shortName}
                                 </div>
                                 <i className="mdi mdi-airplane-takeoff"></i>
                                 <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain)} /> {destChain.shortName}
+                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain)} alt="bridging"/> {destChain.shortName}
                                 </div>
                             </div>
                         </Card.Title>
@@ -596,7 +592,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
             <div className="inventory">
                 <div className="title groovy">
-                    <img className="chain-logo" src={currChainLogo} />
+                    <img className="chain-logo" src={currChainLogo} alt="chain_logo"/>
                     <div className="text">INVENTORY</div>
                 </div>
 

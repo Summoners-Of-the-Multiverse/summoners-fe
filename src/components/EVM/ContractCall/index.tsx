@@ -5,12 +5,12 @@ import NftLinker from '../../../abi/SotmNftLinker.json';
 import _ from 'lodash';
 import { getBaseUrl, ucFirst } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
-import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
+// import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
 import { AxelarQueryAPI, Environment, EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
 const isTestnet = true;
 // assign chain info based on env
-const BscChain = isTestnet ? BSC_TEST : BSC;
-const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
+// const BscChain = isTestnet ? BSC_TEST : BSC;
+// const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
 
 const chains = ChainConfigs;
 export default class ContractCall {
@@ -109,7 +109,7 @@ export default class ContractCall {
     _print = async (tokenId: string) => {
         await Promise.all(_.map(chains, async(chain, index) => {
             try {
-                const owner = await this._ownerOf(chain, tokenId);
+                // const owner = await this._ownerOf(chain, tokenId);
                 // console.log(`Token that was originally minted at ${chain.name} is at ${owner.chain}.`);
             } catch (e) {
                 // console.log(`ownerOf ${chain.name} failed`);
