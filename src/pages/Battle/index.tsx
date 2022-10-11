@@ -10,6 +10,7 @@ import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from '../..
 import moment from 'moment';
 import ElementIcon from '../../components/ElementIcon';
 import { BasePage } from '../../types';
+import Spinner from '../../components/Spinner';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
@@ -140,6 +141,7 @@ const Battle = ({ setAudio }: BasePage) => {
 
     const [ showVictory, setShowVictory ] = useState(false);
     const [ showDefeat, setShowDefeat ] = useState(false);
+    const [ isLoading, setIsLoading ] = useState(true);
 
     const navigate = useNavigate();
     const isInBattle = useRef<boolean>(false);
@@ -147,7 +149,9 @@ const Battle = ({ setAudio }: BasePage) => {
 
     //handle socket connections and clean up
     useEffect(() => {
-        socket.connect();
+        if(socket.disconnected) {
+            socket.connect();
+        }
 
         return () => {
             if(!isInBattle.current || isNaturalBattleEnd.current) {
@@ -155,7 +159,6 @@ const Battle = ({ setAudio }: BasePage) => {
             }
 
             surrender(address, true);
-            socket.disconnect();
         }
     }, [address]);
 
@@ -243,6 +246,7 @@ const Battle = ({ setAudio }: BasePage) => {
             setPlayerCurrentHp(-1);
             setBattleDetails(battleDetails);
             setCdTimers(ENCOUNTER_INITIAL_DELAY);
+            setIsLoading(false);
         }
 
         return listenToBattle({
@@ -291,6 +295,13 @@ const Battle = ({ setAudio }: BasePage) => {
 
     return (
         <div className='battle-page'>
+            <Spinner
+                fullScreen
+                mode='dark'
+                show={isLoading}
+                type="pulse"
+                text='Tracking'
+            />
             <BattlePage 
                 address={address}
                 details={battleDetails}
