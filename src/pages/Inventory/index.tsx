@@ -97,6 +97,11 @@ const Inventory = ({ setAudio }: BasePage) => {
     }, []);
 
     useEffect(() => {
+        if (selected) {
+            selected.classList.toggle('selected');
+        }
+        setSelected(false);
+        setSelectedMob(false);
         getInventory(chain, address);
     }, [chain, address, getInventory]);
 
@@ -281,7 +286,6 @@ const Inventory = ({ setAudio }: BasePage) => {
             //     console.log(txStatus);
             //     await sleep(2000);
             // }
-
         }
         catch(e) {
             setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
@@ -300,40 +304,12 @@ const Inventory = ({ setAudio }: BasePage) => {
                     <button onClick={unEquipMob}>DROP</button>
                 </div>
             );
-
-        //     const popover = (
-        //         <Popover id="popover-basic">
-        //             <Popover.Header as="h3">
-        //                 Travelling log
-        //             </Popover.Header>
-        //             <Popover.Body>
-        //                 <div className="d-grid gap-1">
-        //                     <div>Contract Called</div>
-        //                     <div>Gas Paid</div>
-        //                     <div>Call Approved</div>
-        //                     <div>Executed</div>
-        //                     {/* <div>Error</div> */}
-        //                 </div>
-        //             </Popover.Body>
-        //         </Popover>
-        //     );
-        //     component = (
-        //         <div className="actions">
-        //             <OverlayTrigger onToggle={(onShowing) => {
-        //                 if (onShowing) {
-        //                     trackBridging(selectedMob.id)
-        //                 }
-        //             }} rootClose={true} trigger="click" placement="top-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
-        //                 <button>TRACK</button>
-        //             </OverlayTrigger>
-        //         </div>
-        //     );
-        // } else if (selectedMob && travellingMob.includes(selectedMob.id)) {
-        //     component = (
-        //         <div className="actions">
-        //             <button onClick={() => trackBridging(selectedMob.id)}>TRACK</button>
-        //         </div>
-        //     );
+        } else if (selectedMob && travellingMob.includes(selectedMob.id)) {
+            component = (
+                <div className="actions">
+                    <button onClick={() => showBridgeLog()}>Track</button>
+                </div>
+            );
         } else {
             const disabledBSC = chain === BscChain.id || _.isNil(selectedMob) ? true : false;
             const disabledPoly = chain === PolygonChain.id || _.isNil(selectedMob) ? true : false;
@@ -497,8 +473,8 @@ const Inventory = ({ setAudio }: BasePage) => {
                     <Card.Header className={destChain.evmChain}>
                         <div className="ticket-header">
                             <span className="ticket-header-title">
-                                Axelar
-                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : ''}
+                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all mdi-green'></i> : ''}
+                                {' '}Axelar
                             </span>
                             <span className="ticket-header-info">
                                 Boarding Pass
