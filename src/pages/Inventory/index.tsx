@@ -590,7 +590,7 @@ const Inventory = ({ setAudio }: BasePage) => {
     return (
         <div className="inventory-page container">
             <BackButton
-                onButtonClick={() => navigate('/')}
+                onButtonClick={() => navigate('/home')}
             />
 
             <BridgeLogButton></BridgeLogButton>

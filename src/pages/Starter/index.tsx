@@ -174,6 +174,7 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
                 />
             }
             {
+                !hasMinted &&
                 shouldShowSwitcher &&
                 <>
                     <h1>Choose Your Realm</h1>
