@@ -22,8 +22,9 @@ const { POLYGON_TEST, BSC_TEST } = chains;
 const allowedChains = [BSC_TEST.id, POLYGON_TEST.id];
 
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
-    <div>
-        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Mint success
+    <div className='link-toast'>
+        Guardian Convinced
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Papers here ⬅</a> 
     </div>
 );
 

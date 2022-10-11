@@ -22,8 +22,9 @@ const PREPARING_TEXT = "Preparing Nets";
 const CAPTURING_TEXT = "Capturing";
 
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
-    <div>
-        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Mint success
+    <div className='link-toast'>
+		Captured
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Verify your capture ⬅</a> 
     </div>
 );
 
