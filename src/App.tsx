@@ -221,7 +221,7 @@ function App() {
                     <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
                     <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
                     <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={() => setAreaId(1)} />}></Route>
+                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={() => setAreaId(1)} onChainChange={handleChainChange}/>}></Route>
                     <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
                     <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
                     <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>

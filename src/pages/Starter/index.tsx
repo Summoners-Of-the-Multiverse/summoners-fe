@@ -10,7 +10,7 @@ import MonsterCard from '../../components/MonsterCard';
 import ContractCall from '../../components/EVM/ContractCall';
 import { getElementTooltip, truncateStr } from '../../common/utils';
 import _ from 'lodash';
-import { ChainConfigs } from '../../components/EVM';
+import { ChainConfigs, EVMSwitcher } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
 import Spinner from '../../components/Spinner';
 
@@ -18,17 +18,23 @@ const chains = ChainConfigs;
 const PREPARING_TEXT = "Preparing Ink";
 const CAPTURING_TEXT = "Convincing Guardian";
 
+const { POLYGON_TEST, BSC_TEST } = chains;
+const allowedChains = [BSC_TEST.id, POLYGON_TEST.id];
+
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div>
         <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Mint success
     </div>
 );
 
-const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
+const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) => {
     const { address, chain, } = useContext(AddressContext);
+    
+    const [currentChain, setCurrentChain] = useState(chain);
     const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
+    const [shouldShowSwitcher, setShouldShowSwitcher] = useState(false);
     const [mintText, setMintText] = useState(PREPARING_TEXT);
 
     const navigate = useNavigate();
@@ -88,6 +94,7 @@ const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
             }
         }
 
+        setShouldShowSwitcher(!allowedChains.includes(chain));
         getStarterMonsters();
     }, [address, chain]);
 
@@ -134,10 +141,28 @@ const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
         }
     }, []);
 
+    const handleChainChange = useCallback(async (chain: string) => {
+        if(currentChain !== chain) {
+            setCurrentChain(chain);
+            onChainChange(chain);
+
+            setShouldShowSwitcher(!allowedChains.includes(chain));
+        }
+    }, [currentChain, onChainChange]);
+
+    const handleUserRejection = () => {
+        toast.error('User Rejected');
+    }
+
+    const handleUnknownError = () => {
+        toast.error('Unknown Error');
+    }
+
     return (
         <div className='starter-page'>
             {
                 !hasMinted &&
+                !shouldShowSwitcher &&
                 <MintPrompt
                     monsters={starterMonsters}
                     onMint={onMint}
@@ -147,6 +172,32 @@ const Starter = ({ onMintCallback, setAudio }: StarterPageProps) => {
                     endMinting={endMinting}
                     mint={mint}
                 />
+            }
+            {
+                shouldShowSwitcher &&
+                <>
+                    <h1>Choose Your Realm</h1>
+                    <EVMSwitcher
+                        targetChain={BSC_TEST}
+                        handleChainChange={handleChainChange}
+                        handleUserRejection={handleUserRejection}
+                        handleUnknownError={handleUnknownError}
+                        className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
+                        currentChainId={chain}
+                    >
+                        <span>BSC</span>
+                    </EVMSwitcher>
+                    <EVMSwitcher
+                        targetChain={POLYGON_TEST}
+                        handleChainChange={handleChainChange}
+                        handleUserRejection={handleUserRejection}
+                        handleUnknownError={handleUnknownError}
+                        className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
+                        currentChainId={chain}
+                    >
+                        <span>Polygon</span>
+                    </EVMSwitcher>
+                </>
             }
             <Spinner
                 show={minting}
