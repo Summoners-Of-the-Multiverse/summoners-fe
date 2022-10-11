@@ -58,10 +58,8 @@ export default class ContractCall {
 
     bridgeNft = async (destChain: ChainConfig, token: any) => {
         const owner = await this._ownerOf(this.chainConfig, token.curr_token_id);
-        // console.log({owner})
 
-        console.log('--- Initially ---', owner);
-        // await this._print(tokenId);
+        // console.log('--- Initially ---', owner);
 
         const gasFee = await this._getGasFee(ucFirst(this.chainConfig.evmChain!) as EvmChain, ucFirst(destChain.evmChain!) as EvmChain, this.chainConfig.nativeCurrency.symbol);
 
@@ -77,7 +75,7 @@ export default class ContractCall {
             // bridge native token
             // await (await this.erc721.approve(this.ntfLinker.address, owner.tokenId)).wait();
             const isApproved = await this.erc721.isApprovedForAll(owner.address, this.ntfLinker.address);
-            console.log(await this.erc721.getApproved(owner.tokenId));
+            // console.log(await this.erc721.getApproved(owner.tokenId));
             if (!isApproved) {
                 await (await this.erc721.setApprovalForAll(this.ntfLinker.address, true)).wait();
             }
@@ -89,7 +87,7 @@ export default class ContractCall {
             ).wait();
         }
 
-        console.log('tx', tx);
+        // console.log('tx', tx);
 
         // axelar tx
         return tx;
@@ -112,7 +110,7 @@ export default class ContractCall {
         await Promise.all(_.map(chains, async(chain, index) => {
             try {
                 const owner = await this._ownerOf(chain, tokenId);
-                console.log(`Token that was originally minted at ${chain.name} is at ${owner.chain}.`);
+                // console.log(`Token that was originally minted at ${chain.name} is at ${owner.chain}.`);
             } catch (e) {
                 // console.log(`ownerOf ${chain.name} failed`);
             }
@@ -123,9 +121,7 @@ export default class ContractCall {
         try {
             const operator: Contract = this.erc721;
             const owner = await operator.ownerOf(tokenId);
-            console.log(owner);
             const metadata = await operator.tokenURI(tokenId);
-            console.log(metadata);
 
             // owner here is owner's wallet address
             if (owner !== chain.linkerContract) {
@@ -145,13 +141,7 @@ export default class ContractCall {
             // if equal to linker address (for cross-chained NFT)
             const provider = new ethers.providers.Web3Provider(window.ethereum as any);
             const signer = provider.getSigner();
-            console.log(chain);
 
-            console.log(tokenId);
-            // generate cross chain token id here
-            // for (const checkingChain of [BscChain, PolygonChain]) {
-            // if (checkingChain.id != chain.id && _.has(checkingChain, 'nftContract')) {
-            // console.log(`checkingChain: ${checkingChain.name} | chain: ${chain.name}`);
             try {
                 const checkingChainContract = new ethers.Contract(chain.linkerContract as string, NftLinker.abi, signer);
 
@@ -159,13 +149,11 @@ export default class ContractCall {
                 const metadata = await checkingChainContract.tokenURI(tokenId);
                 return { chain: chain.name, address: address, tokenId: tokenId, tokenURI: metadata };
             } catch (e) {
-                console.log(e);
+                // console.log(e);
+                return null;
             }
-            // }
-            // }
-            return null;
         } catch(e) {
-            console.log(e);
+            // console.log(e);
             return null;
         }
     }
@@ -195,7 +183,6 @@ export default class ContractCall {
 
         const gasFee = await api.estimateGasFee(sourceChainName, destinationChainName, sourceChainTokenSymbol, 1000000);
 
-        console.log(gasFee);
         return gasFee;
     };
 
