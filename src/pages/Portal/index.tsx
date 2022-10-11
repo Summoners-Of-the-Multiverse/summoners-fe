@@ -21,11 +21,11 @@ const Portal = ({onChainChange, setAudio}: PortalProps) => {
     }, [currentChain, onChainChange]);
 
     const handleUserRejection = () => {
-        toast.error('User Rejected');
+        toast.error('Distracted by Butterflies');
     }
 
     const handleUnknownError = () => {
-        toast.error('Unknown Error');
+        toast.error('Portal Malfunction');
     }
 
     return (

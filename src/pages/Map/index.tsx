@@ -24,7 +24,7 @@ const travel = async(address: string, areaId: number) => {
     }
 
     catch {
-        toast.error('Unable to travel!');
+        toast.error('You got lost!');
         return false;
     }
 }

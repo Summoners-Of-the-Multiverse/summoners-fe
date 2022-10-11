@@ -150,11 +150,11 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
     }, [currentChain, onChainChange]);
 
     const handleUserRejection = () => {
-        toast.error('User Rejected');
+        toast.error('You sure?');
     }
 
     const handleUnknownError = () => {
-        toast.error('Unknown Error');
+        toast.error('Portal fluids gone bad');
     }
 
     return (

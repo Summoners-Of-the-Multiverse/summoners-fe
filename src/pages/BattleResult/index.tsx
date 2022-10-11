@@ -104,7 +104,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 			}
 
 			catch {
-				toast.error('Unable to get battle result');
+				toast.error('Another waterlogged diary');
 			}
 			
 			setIsLoading(false);

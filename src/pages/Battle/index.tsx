@@ -173,7 +173,7 @@ const Battle = ({ setAudio }: BasePage) => {
         //3s timer
         if(isInvalid) {
             navigate('/home');
-            toast.error(msg ?? 'Unable to start battle');
+            toast.error(msg ?? 'Monsters hibernating');
             return;
         }
         

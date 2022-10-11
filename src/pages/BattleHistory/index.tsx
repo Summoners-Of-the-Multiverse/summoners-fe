@@ -50,7 +50,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 			}
 
 			catch {
-				toast.error('Unable to get battle results');
+				toast.error('Logs are messed up');
 			}
 			
 			// setIsLoading(false);
