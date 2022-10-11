@@ -1,91 +1,98 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import './styles.scss'
-import { Socket } from 'socket.io-client';
-import { AddressContext, SocketContext } from '../../App';
-import { cloneObj, getRandomNumber, getRandomNumberAsString } from '../../common/utils';
-import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, PlayerSkillBarProps, MonsterSkill, Attack } from './types';
+import { io } from 'socket.io-client';
+import { AddressContext } from '../../App';
+import { cloneObj, getEffect, getMonsterBattleImage, getMonsterIcon, getRandomNumber, getRandomNumberAsString, getSkillIcon, getWsUrl, sleep } from '../../common/utils';
+import { StartBattleParams, BattleDetails, BattlePageProps, EncounterEffectProps, EncounterImageProps, MonsterEquippedSkillById, PlayerHpBarProps, PlayerMonsterBarProps, EncounterHit, EncounterDamageReceived, SkillUsage, MonsterSkill, Attack, ListenBattleParams, MonsterStats, EncounterHpBarProps, PlayerMonsterImageProps } from './types';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import { ELEMENT_CHAOS, ELEMENT_FIRE, ELEMENT_GRASS, ELEMENT_WATER } from '../../common/constants';
+import moment from 'moment';
+import ElementIcon from '../../components/ElementIcon';
+import { BasePage } from '../../types';
+import Spinner from '../../components/Spinner';
 
 let playerMonsterSkills: {[id: string]: MonsterEquippedSkillById } = {};
 const AUTO_BATTLE = false;
+const ENCOUNTER_INITIAL_DELAY = 5000; // in ms
+const CD_ANIMATION_DURATION = 100; // in ms
 
-const startBattle = ({
-    socket,
-    isInBattle,
+//dont auto connect cause react will connect it immediately upon loading
+const socket = io(getWsUrl(), { autoConnect: false});
+
+const startBattle = async({
     address,
     chainId,
-    areaId,
+    setAudio,
+}: StartBattleParams ) => {
+    while(socket.disconnected) {
+        // wait for socket to connect
+        await sleep(100);
+    }
+
+    if(address && chainId) {
+        setAudio('battle_wild');
+        socket.emit('start_battle', {address, chainId});
+    }
+}
+
+const listenToBattle = ({
+    address,
     onLoad,
     onEncounterReceivedDamage,
     onDamageReceived,
     onMonsterOffCd,
     onEndSkillsReceived,
     onBattleEnd,
-}: StartBattleParams ) => {
-    if(isInBattle) {
-        return;
-    }
+}: ListenBattleParams ) => {
+    socket.on('invalid_battle', (msg: string) => { onBattleEnd(false, true, msg) });
+    socket.on('battle_start', (battleDetails: BattleDetails) => {
+        onLoad(battleDetails);
+        playerMonsterSkills = battleDetails.playerMonsterSkills;
 
-    isInBattle = true;
-    
-    console.log('starting battle')
-    if(address) {
-        socket.emit('start_battle', {address, chainId, areaId});
-        socket.on('invalid_battle', () => { onBattleEnd(false) });
-        socket.on('battle_start', (battleDetails: BattleDetails) => {
-            onLoad(battleDetails);
-            playerMonsterSkills = battleDetails.playerMonsterSkills;
+        if(AUTO_BATTLE) {
+            Object.keys(playerMonsterSkills).forEach(id => {
+                let skillIds = Object.keys(playerMonsterSkills[id]);
+                let skillIndex = getRandomNumber(0, 3, true);
+                let skillId = skillIds[skillIndex];
+                attack(address, parseInt(id), parseInt(skillId));
+            });
+        }
+    })
 
-            if(AUTO_BATTLE) {
-                console.log('emitting attack');
-                Object.keys(playerMonsterSkills).forEach(id => {
-                    let skillIds = Object.keys(playerMonsterSkills[id]);
-                    let skillIndex = getRandomNumber(0, 3, true);
-                    let skillId = skillIds[skillIndex];
-                    attack(socket, address, parseInt(id), parseInt(skillId));
-                });
-            }
-        })
+    socket.on('encounter_hit', ({ damage, playerHpLeft, cd }: EncounterHit) => {
+        onDamageReceived({damage, playerHpLeft, cd});
+    });
 
-        socket.on('encounter_hit', ({ damage, playerHpLeft }: EncounterHit) => {
-            onDamageReceived({damage, playerHpLeft});
-        });
+    socket.on('player_monster_off_cd', (monsterId: number) => {
+        onMonsterOffCd(monsterId);
 
-        socket.on('player_monster_off_cd', (monsterId: number) => {
-            onMonsterOffCd(monsterId);
+        if(AUTO_BATTLE) {
+            Object.keys(playerMonsterSkills).forEach(id => {
+                let skillIds = Object.keys(playerMonsterSkills[id]);
+                let skillIndex = getRandomNumber(0, 3, true);
+                let skillId = skillIds[skillIndex];
+                attack(address, parseInt(id), parseInt(skillId));
+            });
+        }
+    });
+    socket.on('encounter_damage_received', (dmg: EncounterDamageReceived) => {
+        onEncounterReceivedDamage(dmg);
+    });
+    socket.on('end_battle_skill_usage', (usage: SkillUsage) => {
+        onEndSkillsReceived(usage);
+    });
 
-            if(AUTO_BATTLE) {
-                console.log('emitting attack');
-                Object.keys(playerMonsterSkills).forEach(id => {
-                    let skillIds = Object.keys(playerMonsterSkills[id]);
-                    let skillIndex = getRandomNumber(0, 3, true);
-                    let skillId = skillIds[skillIndex];
-                    attack(socket, address, parseInt(id), parseInt(skillId));
-                });
-            }
-        });
-        socket.on('encounter_damage_received', (dmg: EncounterDamageReceived) => {
-            onEncounterReceivedDamage(dmg);
-        });
-        socket.on('end_battle_skill_usage', (usage: SkillUsage) => {
-            onEndSkillsReceived(usage);
-        });
+    socket.on('battle_lost', () => {
+        onBattleEnd(false);
+    });
 
-        socket.on('battle_lost', () => {
-            isInBattle = false;
-            onBattleEnd(false);
-            console.log('Battle Lost')
-        });
-
-        socket.on('battle_won', () => {
-            isInBattle = false;
-            onBattleEnd(true);
-            console.log('Battle Won')
-        });
-    }
+    socket.on('battle_won', () => {
+        onBattleEnd(true);
+    });
 
     return () => {
+        socket.off('invalid_battle');
         socket.off('battle_start');
         socket.off('encounter_hit');
         socket.off('player_monster_off_cd');
@@ -94,9 +101,9 @@ const startBattle = ({
         socket.off('battle_lost');
         socket.off('battle_won');
     };
-} 
+}
 
-const attack = (socket: Socket, address: string, monsterId: number, skillId: number) => {
+const attack = (address: string, monsterId: number, skillId: number) => {
     socket.emit(`battle_${address}`, {
         type: "player_attack",
         value: {
@@ -106,125 +113,231 @@ const attack = (socket: Socket, address: string, monsterId: number, skillId: num
     });
 }
 
-const getMonsterImage = (assetFile: string) => {
-    return `/assets/sprites/${assetFile}`;
+const surrender = (address: string, ignoreConfirm = false) => {
+    if(!ignoreConfirm) {
+        if(!window.confirm('Surrender?')) return;
+    }
+
+    socket.emit(`battle_${address}`, {
+        type: "flee",
+        value: { address }
+    });
 }
 
-const getEffect = (assetFile: string) => {
-    return `/assets/effects/${assetFile}`;
-}
-
-const Battle = () => {
-    const socket = useContext(SocketContext);
+const Battle = ({ setAudio }: BasePage) => {
     const { address, chain, } = useContext(AddressContext);
     const [ battleDetails, setBattleDetails ] = useState<BattleDetails | undefined>(undefined);
-    const [ isInBattle, setIsInBattle ] = useState(false);
     const [ playerCurrentHp, setPlayerCurrentHp ] = useState(-1);
     const [ encounterCurrentHp, setEncounterCurrentHp ] = useState(-1);
     const [ monsterIdOffCd, setMonsterIdOffCd ] = useState<string | undefined>(undefined);
     const [ encounterDamageReceived, setEncounterDamageReceived ] = useState<EncounterDamageReceived | undefined>(undefined);
+
+    const [ encounterCd, setEncounterCd ] = useState(ENCOUNTER_INITIAL_DELAY);
+    const [ encounterMaxCd, setEncounterMaxCd ] = useState(ENCOUNTER_INITIAL_DELAY);
+
+    const [ showVictory, setShowVictory ] = useState(false);
+    const [ showDefeat, setShowDefeat ] = useState(false);
+    const [ isLoading, setIsLoading ] = useState(true);
+
     const navigate = useNavigate();
+    const isInBattle = useRef<boolean>(false);
+    const isNaturalBattleEnd = useRef<boolean>(false);
 
-    const onLoad = (battleDetails: BattleDetails) => {
-        setEncounterCurrentHp(-1);
-        setPlayerCurrentHp(-1);
-        setBattleDetails(battleDetails);
-    }
+    //handle socket connections and clean up
+    useEffect(() => {
+        if(socket.disconnected) {
+            socket.connect();
+        }
 
-    const onBattleEnd = (hasWon: boolean) => {
+        return () => {
+            if(!isInBattle.current || isNaturalBattleEnd.current) {
+                return;
+            }
+
+            surrender(address, true);
+        }
+    }, [address]);
+
+    //for cd animations
+    const setCdTimers = useCallback((cd: number) => {
+        let iterationsNeeded = Math.ceil(cd / CD_ANIMATION_DURATION);
+        for(let i = 0; i < iterationsNeeded; i++) {
+            setTimeout(() => {
+                let newCd = cd - ((i + 1) * CD_ANIMATION_DURATION);
+                setEncounterCd(newCd);
+            }, i * CD_ANIMATION_DURATION);
+        }
+    }, []);
+
+    const onBattleEnd = useCallback((hasWon: boolean, isInvalid: boolean = false, msg: string = "") => {
         //3s timer
+        if(isInvalid) {
+            navigate('/home');
+            toast.error(msg ?? 'Unable to start battle');
+            return;
+        }
+        
         if(hasWon) {
+            setAudio('victory');
             setEncounterCurrentHp(0);
+
+            setTimeout(() => {
+                setShowVictory(true);
+            }, 2000);
         }
 
         else {
+            setAudio('defeat');
             setPlayerCurrentHp(0);
-        }
-        
-        toast.info('Redirecting to battle stats in 3 seconds', {
-            autoClose: 2000
-        });
-        setTimeout(() => {
-            setIsInBattle(false);
-            navigate('/battleEnd');
-        }, 3000);
-    }
 
-    const onEncounterReceivedDamage = ({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
+            setTimeout(() => {
+                setShowDefeat(true);
+            }, 1000);
+        }
+
+        isNaturalBattleEnd.current = true;
+        setEncounterDamageReceived(undefined);
+    }, [setAudio, navigate]);
+
+    //navigates to battle result after battle end
+    const navigateToBattleResult = useCallback(() => {
+        navigate(`/battleResult/${battleDetails!.battle_id}`);
+    }, [navigate, battleDetails]);
+
+    //handle when encounters get hit
+    const onEncounterReceivedDamage = useCallback(({attacks, encounterHpLeft, monsterId, skillId}: EncounterDamageReceived) => {
         setEncounterCurrentHp(encounterHpLeft);
         setEncounterDamageReceived({attacks, encounterHpLeft, monsterId, skillId});
-    }
+    }, []);
 
-    const onDamageReceived = ({ damage, playerHpLeft }: EncounterHit) => {
+    //handle when players get hit
+    const onDamageReceived = useCallback(({ damage, playerHpLeft, cd /* in s */ }: EncounterHit) => {
+        cd = cd * 1000;
         setPlayerCurrentHp(playerHpLeft);
-    }
+        setEncounterMaxCd(cd);
 
-    const onMonsterOffCd = (monsterId: number) => {
+        // only set cd timers when player is alive
+        if(playerHpLeft > 0) {
+            setCdTimers(cd);
+        }
+    }, [setCdTimers]);
+
+    //handle monsters going off cd
+    const onMonsterOffCd = useCallback((monsterId: number) => {
         setMonsterIdOffCd(monsterId.toString());
 
         setTimeout(() => {
             setMonsterIdOffCd(undefined);
         }, 10);
-    }
+    }, []);
 
+    //display end battle screen
     const onEndSkillsReceived = () => {
-
+        //currently not used
     }
 
-    const handleStartBattle = () => {
-        setIsInBattle(true);
+    //constantly listen to events
+    useEffect(() => {
+        const onLoad = (battleDetails: BattleDetails) => {
+            setEncounterCurrentHp(-1);
+            setPlayerCurrentHp(-1);
+            setBattleDetails(battleDetails);
+            setCdTimers(ENCOUNTER_INITIAL_DELAY);
+            setIsLoading(false);
+        }
+
+        return listenToBattle({
+            address,
+            onLoad,
+            onBattleEnd,
+            onDamageReceived,
+            onEncounterReceivedDamage,
+            onEndSkillsReceived,
+            onMonsterOffCd
+        });
+    }, [address, onBattleEnd, onDamageReceived, onEncounterReceivedDamage, onMonsterOffCd, setCdTimers]);
+
+
+    useEffect(() => {
+        if(typeof(setAudio) !== "function") {
+            return;
+        }
+
+        if(isInBattle.current) {
+            return;
+        }
+
+        if(!address) {
+            return;
+        }
+
+        if(!chain) {
+            return;
+        }
+
+        if(!socket) {
+            return;
+        }
+
+        isInBattle.current = true;
+
+        // console.log('starting battle');
+
         startBattle({
-            socket, 
-            isInBattle, 
             address, 
             chainId: chain, 
-            areaId: 1, 
-            onLoad, 
-            onEncounterReceivedDamage,
-            onDamageReceived,
-            onMonsterOffCd,
-            onEndSkillsReceived,
-            onBattleEnd,
+            setAudio
         });
-    }
+    }, [address, chain, setAudio]);
 
     return (
         <div className='battle-page'>
-            <div className='d-flex flex-column'>
-                {
-                    !isInBattle &&
-                    address &&
-                    chain &&
-                    <button 
-                        className='btn btn-sm btn-success'
-                        onClick={handleStartBattle}
-                    >
-                        Start Battle
-                    </button>
-                }
-
-                {
-                    isInBattle &&
-                    <BattlePage 
-                        socket={socket}
-                        address={address}
-                        details={battleDetails}
-                        playerCurrentHp={playerCurrentHp}
-                        encounterCurrentHp={encounterCurrentHp}
-                        monsterIdOffCd={monsterIdOffCd}
-                        encounterDamageReceived={encounterDamageReceived}
-                    />
-                }
-            </div>
+            <Spinner
+                fullScreen
+                mode='dark'
+                show={isLoading}
+                type="pulse"
+                text='Tracking'
+            />
+            <BattlePage 
+                address={address}
+                details={battleDetails}
+                playerCurrentHp={playerCurrentHp}
+                encounterCurrentHp={encounterCurrentHp}
+                monsterIdOffCd={monsterIdOffCd}
+                encounterDamageReceived={encounterDamageReceived}
+                encounterCd={encounterCd}
+                encounterMaxCd={encounterMaxCd}
+                ended={showVictory || showDefeat}
+            />
+            {
+                showVictory &&
+                <div className="result-indicator victory">
+                    <strong>Victory</strong>
+                </div>
+            }
+            {
+                showDefeat &&
+                <div className="result-indicator defeat">
+                    <strong>Defeat</strong>
+                </div>
+            }
+            {
+                (showVictory || showDefeat) &&
+                <div className="result-navigate-button">
+                    <button onClick={navigateToBattleResult}>Show Result</button>
+                </div>
+            }
         </div>
     )
 }
 
-const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrentHp, monsterIdOffCd, encounterDamageReceived}: BattlePageProps) => {
+const BattlePage = ({address, details, playerCurrentHp, encounterCurrentHp, monsterIdOffCd, encounterDamageReceived, encounterCd, encounterMaxCd, ended}: BattlePageProps) => {
     const [activeMonsterId, setActiveMonsterId] = useState<string>("");
-    const [monstersOnCd, setMonstersOnCd] = useState<string[]>([]);
+    const [monstersOnCd, setMonstersOnCd] = useState<{[monsterId: string]: number}>({});
 
-    let previousMonstersOnCd = useRef<string[]>([]);
+    let previousMonstersOnCd = useRef<{[monsterId: string]: number}>({});
+    let monsterCount = useRef(0);
 
     //init
     let playerMaxHp = useMemo(() => {
@@ -243,20 +356,50 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
 
     //set on / off cd
     useEffect(() => {
-        let cloned = cloneObj<string[]>(previousMonstersOnCd.current).filter(x => x !== monsterIdOffCd);
+        if(!monsterIdOffCd) {
+            return;
+        }
+
+        let cloned = cloneObj<{[monsterId: string]: number}>(previousMonstersOnCd.current);
+        delete cloned[monsterIdOffCd];
         setMonstersOnCd(cloned);
-    }, [monsterIdOffCd]);
+    }, [monsterIdOffCd, details]);
+
 
     //register current monsters on cd
     useEffect(() => {
-        previousMonstersOnCd.current = cloneObj<string[]>(monstersOnCd);
-    }, [monstersOnCd]);
+        previousMonstersOnCd.current = cloneObj<{[monsterId: string]: number}>(monstersOnCd);
+        let monsterIdsOnCd = Object.keys(monstersOnCd);
 
-    const onSkillClick = useCallback((monsterId: string) => {
-        let cloned = cloneObj<string[]>(monstersOnCd);
-        cloned.push(monsterId);
+        // there are other active monsters
+        if(details && (monsterIdsOnCd.includes(activeMonsterId) || !activeMonsterId)) {
+            let nextActiveIds = Object.keys(details.playerMonsters).filter(x => !monsterIdsOnCd.includes(x));
+
+            // set next active id if there are
+            if(nextActiveIds.length > 0) {
+                setActiveMonsterId(nextActiveIds[0]);
+            }
+        }
+    }, [monstersOnCd, activeMonsterId, details]);
+
+    // set skill click effects
+    const onSkillClick = useCallback((monsterId: string, endTime: number) => {
+        if(Object.keys(monstersOnCd).includes(monsterId)) {
+            // toast.error('Guardians need rest!');
+            return;
+        }
+
+        let cloned = cloneObj<{[monsterId: string]: number}>(monstersOnCd);
+        cloned[monsterId] = endTime;
         setMonstersOnCd(cloned);
-    }, [monstersOnCd]);
+
+        // there are other active monsters
+        if(cloned.length < monsterCount.current && details) {
+            let monsterIdsOnCd = Object.keys(cloned);
+            let nextActiveId = Object.keys(details!.playerMonsters).filter(x => !monsterIdsOnCd.includes(x))[0];
+            setActiveMonsterId(nextActiveId);
+        }
+    }, [monstersOnCd, details]);
 
     // add hotkeys
     useEffect(() => {
@@ -272,39 +415,37 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
                 return parseInt(Object.keys(playerMonsterSkills[nonEmptyActiveMonsterId])[index]);
             }
 
-            const getMonsterId = (index: number) => {
-                let { playerMonsterSkills } = details;
-                return Object.keys(playerMonsterSkills)[index];
+            const getSkillCd = (index: number) => {
+                let skillId = getSkillId(index);
+                return playerMonsterSkills[nonEmptyActiveMonsterId][skillId].cooldown;
             }
 
-            switch(e.key) {
-                case "ArrowUp":
-                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(0));
-                    onSkillClick(nonEmptyActiveMonsterId);
+            /* const getMonsterId = (index: number) => {
+                let { playerMonsterSkills } = details;
+                return Object.keys(playerMonsterSkills)[index];
+            } */
+
+            let endTime = 0;
+            switch(e.key.toLowerCase()) {
+                case "q":
+                    attack(address, parseInt(nonEmptyActiveMonsterId), getSkillId(0));
+                    endTime = moment().unix() + getSkillCd(0) * 1000;
+                    onSkillClick(nonEmptyActiveMonsterId, endTime);
                     break;
-                case "ArrowRight":
-                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(1));
-                    onSkillClick(nonEmptyActiveMonsterId);
+                case "w":
+                    attack(address, parseInt(nonEmptyActiveMonsterId), getSkillId(1));
+                    endTime = moment().unix() + getSkillCd(1) * 1000;
+                    onSkillClick(nonEmptyActiveMonsterId, endTime);
                     break;
-                case "ArrowLeft":
-                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(2));
-                    onSkillClick(nonEmptyActiveMonsterId);
+                case "e":
+                    attack(address, parseInt(nonEmptyActiveMonsterId), getSkillId(2));
+                    endTime = moment().unix() + getSkillCd(2) * 1000;
+                    onSkillClick(nonEmptyActiveMonsterId, endTime);
                     break;
-                case "ArrowDown":
-                    attack(socket, address, parseInt(nonEmptyActiveMonsterId), getSkillId(3));
-                    onSkillClick(nonEmptyActiveMonsterId);
-                    break;
-                case "1":
-                    setActiveMonsterId(getMonsterId(0));
-                    break;
-                case "2":
-                    setActiveMonsterId(getMonsterId(1));
-                    break;
-                case "3":
-                    setActiveMonsterId(getMonsterId(2));
-                    break;
-                case "4":
-                    setActiveMonsterId(getMonsterId(3));
+                case "r":
+                    attack(address, parseInt(nonEmptyActiveMonsterId), getSkillId(3));
+                    endTime = moment().unix() + getSkillCd(3) * 1000;
+                    onSkillClick(nonEmptyActiveMonsterId, endTime);
                     break;
                 default:
                     break;
@@ -316,7 +457,21 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
         return () => {
             document.removeEventListener("keydown", listener);
         };
-    }, [activeMonsterId, details, socket, address, onSkillClick]);
+    }, [activeMonsterId, details, address, onSkillClick]);
+
+    // set monster count
+    useEffect(() => {
+        if(!details) {
+            return;
+        }
+
+        monsterCount.current = Object.keys(details.playerMonsters).length;
+    }, [details]);
+
+    // surrender
+    const onSurrender = useCallback(() => {
+        surrender(address);
+    }, [address]);
 
     if(!details) {
         return null;
@@ -326,17 +481,23 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
     let nonNullActiveMonsterId = activeMonsterId ?? Object.keys(playerMonsterSkills)[0];
 
     return (
-        <div className="battle-container">
+        <div className={`battle-container ${ended? 'end' : ''}`}>
+            <EncounterHpBar
+                name={`${encounter.name}${encounter.is_shiny? '*' : ''}`}
+                currentHp={encounterCurrentHp === -1? monsterMaxHp : encounterCurrentHp}
+                maxHp={monsterMaxHp}
+                cd={encounterCd}
+                maxCd={encounterMaxCd}
+                elementId={encounter.element_id}
+            />
             <EncounterImage 
                 encounter={encounter}
                 encounterDamageReceived={encounterDamageReceived}
                 playerMonsterSkills={playerMonsterSkills}
-            />
-            <EncounterHpBar
-                currentHp={encounterCurrentHp === -1? monsterMaxHp : encounterCurrentHp}
-                maxHp={monsterMaxHp}
+                battleWon={encounterCurrentHp === 0}
             />
             <PlayerHpBar
+                name='You'
                 currentHp={playerCurrentHp === -1? playerMaxHp : playerCurrentHp}
                 maxHp={playerMaxHp}
             />
@@ -345,20 +506,19 @@ const BattlePage = ({socket, address, details, playerCurrentHp, encounterCurrent
                 onPlayerMonsterClick={(monsterId)=> {setActiveMonsterId(monsterId)}}
                 monstersOnCd={monstersOnCd}
                 activeMonsterId={nonNullActiveMonsterId}
-            />
-            <PlayerSkillBar
-                socket={socket}
-                address={address}
                 playerMonsterSkills={playerMonsterSkills}
-                activeMonsterId={nonNullActiveMonsterId}
                 onSkillClick={onSkillClick}
-                isOnCd={monstersOnCd.includes(activeMonsterId)}
+                address={address}
             />
+            <button className="flee-button" onClick={onSurrender}>
+                <span>Surrender</span>
+                <i className="mdi mdi-flag-outline"></i>
+            </button>
         </div>
     );
 }
 
-const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkills }: EncounterImageProps) => {
+const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkills, battleWon }: EncounterImageProps) => {
     const [currentEffects, setCurrentEffects] = useState<string[]>([]);
     const effects = useRef<string[]>([]);
 
@@ -387,8 +547,8 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
 
     return (
         <div className='encounter-img-container'>
-            <span>{encounter.name}{encounter.is_shiny? '*' : ''}</span>
-            <img className='encounter-img' src={getMonsterImage(encounter.img_file)} alt="encounter_img"></img>
+            {/* <span>{encounter.element_name} {encounter.name}{encounter.is_shiny? '*' : ''}</span> */}
+            <img className={`encounter-img ${battleWon? 'dead' : ''} ${battleWon? 'shake' : ''}`} src={getMonsterBattleImage(encounter.img_file)} alt="encounter_img"></img>
             {
                 Object.entries(playerMonsterSkills).map(([monsterId, skills], index) => (
                     <EncounterDamagedNumbers
@@ -414,9 +574,9 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
 
 const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex, monsterId }: EncounterEffectProps) => {
     const [attacks, setAttacks] = useState<Attack[]>([]);
-    const [randomBottom, setRandomBottom] = useState("0%");
-    const [randomLeft, setRandomLeft] = useState("50%");
+    const [randomLocations, setRandomLocations] = useState([["0%", "0%"]]);
 
+    // set damage numbers
     useEffect(() => {
         //no damage dont do anything
         if(!encounterDamageReceived) {
@@ -435,11 +595,18 @@ const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex,
 
         setAttacks([]);
 
-        let randomBottom = getRandomNumberAsString(0, 30) + "%";
-        let randomLeft = getRandomNumberAsString(30, 60) + "%";
+        let newLocations: string[][] = [];
 
-        setRandomBottom(randomBottom);
-        setRandomLeft(randomLeft);
+        for(var i = 0; i < encounterDamageReceived.attacks.length; i++) {
+            let randomBottom = getRandomNumberAsString(20, 80) + "%";
+            let randomLeft = getRandomNumberAsString(30, 60) + "%";
+            newLocations.push([randomBottom, randomLeft]);
+        }
+
+        // setRandomBottom(randomBottom);
+        // setRandomLeft(randomLeft);
+
+        setRandomLocations(newLocations);
 
         setTimeout(() => {
             setAttacks(encounterDamageReceived.attacks);
@@ -448,88 +615,162 @@ const EncounterDamagedNumbers = ({ encounterDamageReceived, skills, attackIndex,
     }, [encounterDamageReceived, skills, monsterId]);
 
     return (
-        <div className={`attacks`} style={{ bottom: randomBottom, left: randomLeft }}>
+        <div className={`attacks`}>
             {
                 attacks.map((x, index) => {
                     let damage = x.damage.toFixed(0);
+                    let [bottom, left] = randomLocations[index];
+
+                    let element = "";
+
+                    switch(x.element_id) {
+                        case ELEMENT_GRASS:
+                            element = "grass";
+                            break;
+                        case ELEMENT_FIRE:
+                            element = "fire";
+                            break;
+                        case ELEMENT_WATER:
+                            element = "water";
+                            break;
+                        case ELEMENT_CHAOS:
+                            element = "chaos";
+                            break;
+                        default:
+                            element = "chaos";
+                            break;
+                    }
+
+                    let attackDiv = null;
+
                     switch(x.type) {
                         case "immune":
-                            return (<div className='attack immune' key={`attack-${attackIndex}-${index}`}>Immune</div>)
+                            attackDiv = <div className={`attack immune ${element}`} style={{ bottom, left }} key={`attack-${attackIndex}-${index}`}>Immune</div>;
+                            break;
+
                         case "miss":
-                            return (<div className='attack miss' key={`attack-${attackIndex}-${index}`}>Miss</div>)
+                            attackDiv = <div className={`attack miss ${element}`} style={{ bottom, left }} key={`attack-${attackIndex}-${index}`}>Miss</div>;
+                            break;
+
                         case "crit":
-                            return (<div className='attack crit' key={`attack-${attackIndex}-${index}`}>{damage}</div>)
+                            attackDiv = <div className={`attack crit ${element}`} style={{ bottom, left }} key={`attack-${attackIndex}-${index}`}>{damage}</div>;
+                            break;
                         case "normal":
-                            return (<div className='attack normal' key={`attack-${attackIndex}-${index}`}>{damage}</div>)
+                            attackDiv = <div className={`attack normal ${element}`} style={{ bottom, left }} key={`attack-${attackIndex}-${index}`}>{damage}</div>;
+                            break;
+
                         default:
-                            return null;
+                            break;
                     }
+
+                    return attackDiv;
+                })
+            }
+            {
+                attacks.map((x, index) => {
+
+                    let newTotalDamage = 0;
+                    let cloned = cloneObj<Attack[]>(attacks);
+                    newTotalDamage = cloned.filter((_, _index) => _index <= index).map(x => x.damage).reduce((a,b) => a+b);
+
+                    let element = "";
+
+                    switch(x.element_id) {
+                        case ELEMENT_GRASS:
+                            element = "grass";
+                            break;
+                        case ELEMENT_FIRE:
+                            element = "fire";
+                            break;
+                        case ELEMENT_WATER:
+                            element = "water";
+                            break;
+                        case ELEMENT_CHAOS:
+                            element = "chaos";
+                            break;
+                        default:
+                            element = "chaos";
+                            break;
+                    }
+
+                    //last attack will always show as crit element
+                    return (
+                        <span className={`attack-total attack-index-${attackIndex} ${index === attacks.length - 1? 'crit' : x.type} ${element}`} key={`attack-total-${attackIndex}-${index}`}>{newTotalDamage.toFixed(0)}</span>
+                    );
                 })
             }
         </div>
     );
 }
 
-const EncounterHpBar = ({ currentHp, maxHp }: PlayerHpBarProps) => {
+const EncounterHpBar = ({ currentHp, maxHp, name, maxCd, cd, elementId }: EncounterHpBarProps) => {
     currentHp = currentHp < 0? 0 : currentHp;
     let pct = Math.ceil((currentHp * 100/ maxHp));
+    pct = pct > 100? 100: pct;
+
+    let cdPct = 0;
+    if(cd && maxCd) {
+        cdPct = Math.ceil((cd * 100/ maxCd));
+    }
+
     return (
         <div className="hp-bar encounter">
-            <div className="hp-left" style={{ width: `${pct}%`, backgroundColor: 'crimson', color: 'white' }}></div>
+            <div className="hp-left encounter" style={{ width: `${pct}%` }}></div>
+            <div className="cd-left encounter" style={{ width: `${cdPct}%` }}></div>
             <div className='hp-number'>
                 <span>{currentHp.toFixed(0)} / {maxHp.toFixed(0)}</span>
             </div>
+            {
+                name &&
+                <div className='hp-name'>
+                    <ElementIcon
+                        elementId={elementId}
+                    />
+                    <span>{name}</span>
+                </div>
+            }
         </div>
     )
 }
 
-const PlayerHpBar = ({ currentHp, maxHp }: PlayerHpBarProps) => {
+const PlayerHpBar = ({ currentHp, maxHp, name }: PlayerHpBarProps) => {
     currentHp = currentHp < 0? 0 : currentHp;
     let pct = Math.ceil((currentHp * 100/ maxHp));
+    pct = pct > 100? 100: pct;
     return (
         <div className="hp-bar">
             <div className="hp-left" style={{ width: `${pct}%`, backgroundColor: 'greenyellow' }}></div>
             <div className='hp-number'>
                 <span>{currentHp.toFixed(0)} / {maxHp.toFixed(0)}</span>
             </div>
+            {
+                name &&
+                <div className='hp-name'>
+                    <span>{name}</span>
+                </div>
+            }
         </div>
     )
 }
 
-const PlayerMonsterBar = ({ playerMonsters, onPlayerMonsterClick, monstersOnCd, activeMonsterId }: PlayerMonsterBarProps) => {
-    const [currentActiveMonster, setCurrentActiveMonster] = useState("");
+const PlayerMonsterBar = ({ playerMonsters, playerMonsterSkills, onPlayerMonsterClick, monstersOnCd, activeMonsterId, onSkillClick, address }: PlayerMonsterBarProps) => {
+    const [currentActiveMonsterId, setCurrentActiveMonsterId] = useState("");
+    const [currentActiveMonster, setCurrentActiveMonster] = useState<MonsterStats | undefined>(undefined);
+    const [currentSkills, setCurrentSkills] = useState<MonsterSkill[]>([]);
 
+    // set active monster
     useEffect(() => {
         if(!activeMonsterId && Object.values(playerMonsters).length === 0) {
             return;
         }
 
         let nonEmptyActiveId = !activeMonsterId? Object.keys(playerMonsters)[0] : activeMonsterId;
-        setCurrentActiveMonster(nonEmptyActiveId);
+
+        setCurrentActiveMonsterId(nonEmptyActiveId);
+        setCurrentActiveMonster(playerMonsters[nonEmptyActiveId]);
     }, [activeMonsterId, playerMonsters]);
 
-    return (
-        <div className="player-monster-image-container">
-            {
-                Object.entries(playerMonsters).map(x => {
-                    const [monsterId, monster] = x;
-                    return (
-                    <button 
-                        key={`player-monster-image-${monsterId}`}
-                        className={`player-monster-image ${monstersOnCd.includes(monsterId)? 'on-cd' : ''} ${currentActiveMonster === monsterId? 'active' : ''}`}
-                        onClick={() => { onPlayerMonsterClick(monsterId) }}
-                    >
-                        <img src={getMonsterImage(monster.img_file)} alt="monster_image"></img>
-                    </button>);
-                })
-            }
-        </div>
-    )
-}
-
-const PlayerSkillBar = ({socket, address, playerMonsterSkills, activeMonsterId, onSkillClick, isOnCd}: PlayerSkillBarProps) => {
-    const [currentSkills, setCurrentSkills] = useState<MonsterSkill[]>([]);
-
+    //set current skills
     useEffect(() => {
         if(!activeMonsterId && Object.values(playerMonsterSkills).length === 0) {
             return;
@@ -543,47 +784,129 @@ const PlayerSkillBar = ({socket, address, playerMonsterSkills, activeMonsterId, 
 
     const onInternalSkillClick = (skillId: number) => {
         let nonEmptyActiveId = !activeMonsterId? Object.keys(playerMonsterSkills)[0] : activeMonsterId;
-        attack(socket, address, parseInt(nonEmptyActiveId), skillId);
-        onSkillClick(nonEmptyActiveId);
+        attack(address, parseInt(nonEmptyActiveId), skillId);
+        let endTime = moment().unix() + playerMonsterSkills[nonEmptyActiveId][skillId].cooldown * 1000;
+        onSkillClick(nonEmptyActiveId, endTime);
+    }
+
+    if(!currentActiveMonster) {
+        // set timer
+        return null;
     }
 
     return (
-        <div className="battle-button-big-container">
-            <div className={`battle-button-container ${isOnCd? 'on-cd' : ''}`}>
+        <div className="player-monster-bar">
+            <div className="player-monster-container">
                 {
-                    currentSkills.map((x, index) => {
-                        let circleClass = "";
-                        switch(index) {
-                            case 0:
-                                circleClass = "top-left";
-                                break;
-                            case 1:
-                                circleClass = "top-right";
-                                break;
-                            case 2:
-                                circleClass = "bottom-left";
-                                break;
-                            case 3:
-                                circleClass = "bottom-right";
-                                break;
-                            default:
-                                circleClass = "top-left";
-                                break;
-                        }
+                    Object.entries(playerMonsters).sort((a, _) => (currentActiveMonsterId === a[0]? -1 : 1)).map((x, index) => {
+                        const [monsterId, monster] = x;
+
                         return (
-                            <button 
-                                className={`battle-button ${circleClass}`} 
-                                key={`skill_${x.id}`} 
-                                onClick={() => {onInternalSkillClick(x.id)}}
-                            >
-                                <div className={circleClass}></div>
-                                <span>{x.name}</span>
-                            </button>
-                        )
+                        <div 
+                            key={`player-monster-${monsterId}`}
+                            className={`player-monster`}
+                            onClick={() => { onPlayerMonsterClick(monsterId) }}
+                        >
+                            <PlayerMonsterImage
+                                monster={monster}
+                                endTime={monstersOnCd[monsterId]}
+                            />
+                            {
+                                index === 0 &&
+                                <>
+                                    <button 
+                                        className={`skill-button ${monstersOnCd[monsterId]? 'on-cd' : ''}`}
+                                        onClick={() => { onInternalSkillClick(currentSkills[0].id) }}
+                                    >
+                                        <span>Q</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[0].element_id}
+                                                size={10}
+                                            />
+                                        </div>
+                                        <img src={getSkillIcon(currentSkills[0].icon_file)} alt="skill_icon" />
+                                    </button>
+                                    <button 
+                                        className={`skill-button ${monstersOnCd[monsterId]? 'on-cd' : ''}`}
+                                        onClick={() => { onInternalSkillClick(currentSkills[1].id) }}
+                                    >
+                                        <span>W</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[1].element_id}
+                                                size={10}
+                                            />
+                                        </div>
+                                        <img src={getSkillIcon(currentSkills[1].icon_file)} alt="skill_icon" />
+                                    </button>
+                                    <button 
+                                        className={`skill-button ${monstersOnCd[monsterId]? 'on-cd' : ''}`}
+                                        onClick={() => { onInternalSkillClick(currentSkills[2].id) }}
+                                    >
+                                        <span>E</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[2].element_id}
+                                                size={10}
+                                            />
+                                        </div>
+                                        <img src={getSkillIcon(currentSkills[2].icon_file)} alt="skill_icon" />
+                                    </button>
+                                    <button 
+                                        className={`skill-button ${monstersOnCd[monsterId]? 'on-cd' : ''}`}
+                                        onClick={() => { onInternalSkillClick(currentSkills[3].id) }}
+                                    >
+                                        <span>R</span>
+                                        <div className="element-icon-container">
+                                            <ElementIcon
+                                                elementId={currentSkills[3].element_id}
+                                                size={10}
+                                            />
+                                        </div>
+                                        <img src={getSkillIcon(currentSkills[3].icon_file)} alt="skill_icon" />
+                                    </button>
+                                </>
+                            }
+                        </div>);
                     })
                 }
-                <div className="battle-center"></div>
             </div>
+        </div>
+    )
+}
+
+const PlayerMonsterImage = ({monster, endTime}: PlayerMonsterImageProps) => {
+    const [countdown, setCountdown] = useState(0);
+
+    const setCdTimers = useCallback((cd: number) => {
+        let iterationsNeeded = Math.ceil(cd / CD_ANIMATION_DURATION);
+        for(let i = 0; i < iterationsNeeded; i++) {
+            setTimeout(() => {
+                let newCd = cd - ((i + 1) * CD_ANIMATION_DURATION);
+                setCountdown(newCd);
+            }, i * CD_ANIMATION_DURATION);
+        }
+    }, []);
+
+    useEffect(() => {
+        let now = moment().unix();
+        if(!endTime || endTime < now) {
+            return;
+        }
+
+        setCdTimers(endTime - now);
+    }, [endTime, setCdTimers]);
+
+    return (
+        <div className="player-monster-image-container">
+            <img src={getMonsterIcon(monster.img_file, monster.element_id, monster.is_shiny)} alt="imageFile"></img>
+            {
+                countdown &&
+                <div className="cd-container">
+                    {(countdown / 1000).toFixed(1)}s
+                </div>
+            }
         </div>
     )
 }

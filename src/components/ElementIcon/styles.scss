@@ -1,0 +1,21 @@
+i.element-icon {
+    font-size: 20px;
+    margin: auto;
+
+    &.mdi-leaf {
+        color: lightgreen;
+    }
+
+    &.mdi-water {
+        font-size: 21px;
+        color: lightblue;
+    }
+
+    &.mdi-fire {
+        color: rgb(255,90,0);
+    }
+
+    &.mdi-decagram {
+        color: grey;
+    }
+}

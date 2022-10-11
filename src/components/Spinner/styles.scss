@@ -1,0 +1,49 @@
+.spinner-container {
+    font-family: 'Starguard';
+
+    position: absolute;
+    display: flex;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 99999999;
+
+    &.dark {
+        background-color: rgba( 0, 0, 0, 0.5 );
+    }
+
+    &.light {
+        background-color: rgba( 255, 255, 255, 0.2 );
+    }
+
+    &.no-bg {
+        background-color: transparent;
+    }
+
+    &.fullscreen {
+        min-width: 100vw;
+    }
+
+    .spinner {
+        position: sticky;
+        border-radius: 10px;
+        width: 250px;
+        height: 150px;
+        background: #efefef;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: column;
+        top: calc(50% - 75px);
+        left: calc(50% - 125px);
+
+        border: 2px solid black;
+
+        > div:first-child {
+            display: block;
+            position: relative;
+
+            margin-bottom: 20px;
+            font-size: 30px;
+        }
+    }
+}

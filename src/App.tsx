@@ -1,38 +1,95 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import { EVMConnector, ChainConfigs, EVMSwitcher } from './components/EVM';
-import { ellipsizeThis } from './common/utils';
+import { ToastContainer } from 'react-toastify';
+import { EVMConnector, ChainConfigs } from './components/EVM';
+import { ellipsizeThis, getBg, getRandomNumber, getWsUrl } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
+import './fog.scss';
 import 'react-toastify/dist/ReactToastify.css';
-import { Route, Routes } from 'react-router';
-import { Battle, BattleEnd, Home } from './pages';
+import { Route, Routes, useNavigate } from 'react-router';
+import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter, Intermediate } from './pages';
 import { io, Socket } from 'socket.io-client';
+import { AddressAreaResponse } from './types';
+import instance from './pages/Axios';
+import { AxiosResponse } from 'axios';
+import { useCurrentPath } from './hooks/useCurrentPath';
+const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
 
-const { BSC, POLYGON } = ChainConfigs;
 const allowedChains =[
-    BSC,
-    POLYGON,
+    BSC_TEST,
+    POLYGON_TEST,
+];
+
+const pagesWithHeader = [
+    '/home',
+];
+
+const pagesWithoutMask: string[] = [];
+
+const pagesWithBlur = [
+    '/portal',
+    '/battle',
+    '/inventory',
+    '/battleHistory',
+    '/battleResult/:id',
+    '/battleResult/:id/:returnToPage',
+];
+
+const pagesWithoutAreaValidation = [
+    '/',
 ];
 
 export const AddressContext = createContext({
     address: "",
     chain: "",
+    chainName: "",
+    areaId: 0,
 });
 
-const socket = io('ws://localhost:8081');
+const socket = io(getWsUrl());
 export const SocketContext = createContext<Socket>(socket);
 
+// for useCurrentPath
+const routes = [
+    { path: '/' },
+    { path: '/portal' },
+    { path: '/map' },
+    { path: '/starter' },
+    { path: '/battle' },
+    { path: '/battleResult/:id' },
+    { path: '/battleResult/:id/:returnToPage' },
+    { path: '/battleHistory' },
+    { path: '/inventory' },
+    { path: '/home' },
+];
 
 function App() {
     const [address, setAddress] = useState('');
     const [showLoader, setShowLoader] = useState(true);
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
-    const [isMobile, setIsMobile] = useState(false);
+    // const [isMobile, setIsMobile] = useState(false);
+    const [areaId, setAreaId] = useState(getRandomNumber(1, 9, true));
+    const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
+    const [shouldMask, setShouldMask] = useState(false);
+    const [shouldBlur, setShouldBlur] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [audio, setAudio] = useState("");
+
+    const audioPlayer = useRef(new Audio());
+    const navigate = useNavigate();
+    const currentPath = useCurrentPath(routes);
 
     //mutable chain id cause dont wanna set into infinite loop
     let currentChain = useRef("");
+
+    //updates it to mobile or desktop version
+    /* const updateWindowDimensions = () => {
+        var width = window.innerWidth;
+        var isMobile = width <= 900;
+
+        setIsMobile(isMobile);
+    }
 
     //first update for mobile or desktop version
     useEffect(() => {
@@ -40,18 +97,71 @@ function App() {
         var isMobile = width <= 900;
 
         setIsMobile(isMobile);
-    }, []);
-    
-    //updates it to mobile or desktop version
-    const updateWindowDimensions = () => {
-        var width = window.innerWidth;
-        var isMobile = width <= 900;
+        window.addEventListener('resize', updateWindowDimensions);
+    }, []); */
 
-        setIsMobile(isMobile);
-    }
-    window.addEventListener('resize', updateWindowDimensions);
+
+    useEffect(() => {
+        if(!address) {
+            return;
+        }
+
+        const getAddressCurrentArea = async() => {
+            if(!address) {
+                return;
+            }
+
+            try {
+                let areaRes = await instance.get<any, AxiosResponse<AddressAreaResponse>>(`/area/${address}`);
+                setAreaId(areaRes.data.area_id);
+            }
+
+            catch {
+                setAreaId(0);
+                // toast.error('Unable to get current area');
+            }
+        }
+
+        getAddressCurrentArea();
+    }, [address]);
+
+    useEffect(() => {
+        if(!currentPath) {
+            // no random pages
+            navigate('/');
+        }
+
+        //if not intermediate then navigate to starter if there's no area id
+        if(!address && !pagesWithoutAreaValidation.includes(currentPath)) {
+            navigate('/starter');
+            // need the connect button
+            setShouldRenderHeader(true);
+        }
+
+        else if (currentPath === "/starter" && !address) {
+            // need the connect button
+            setShouldRenderHeader(true);
+        }
+
+        else {
+            //default process render header
+            setShouldRenderHeader(pagesWithHeader.includes(currentPath));
+        }
+
+        setShouldMask(!pagesWithoutMask.includes(currentPath));
+        setShouldBlur(pagesWithBlur.includes(currentPath));
+    }, [currentPath, navigate, areaId, address]);
+
+    //controls audio
+    useEffect(() => {
+        audioPlayer.current.pause();
+        audioPlayer.current = new Audio('/assets/sounds/' + audio + ".mp3");
+        audioPlayer.current.play();
+        audioPlayer.current.loop = true;
+    }, [audio]);
 
     const handleNewAccount = useCallback((address: string) => {
+        setIsLoading(false);
         setAddress(address);
     }, []);
 
@@ -68,93 +178,60 @@ function App() {
         setShowLoader(false);
     }
 
-    const handleUserRejection = () => {
-        toast.error('User Rejected');
-    }
-
-    const handleUnknownError = () => {
-        toast.error('Unknown Error');
-    }
-
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
-            {/* <video autoPlay muted loop src="/bg.mp4" className="bg"></video> */}
+            <div className="bg-container">
+                <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
+
+                {/** mask only when address is present cause it'll be the login page then */}
+                <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
+            </div>
 
             {/** Connectors */}
-            <div className='d-flex vw-100 align-items-center justify-content-center'>
-                <div className='connector-container'>
+            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container ${address? '' : 'disconnected'}`}>
+                <div className={`connector-container`}>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
                         handleChainChange={handleChainChange}
                         onFinishLoading={onFinishLoading}
-                        className={`metamask-connector ${address? 'logged-in' : ''}`}
+                        className={`${isLoading? 'loading' : ''} metamask-connector ${address? 'logged-in' : ''}`}
                     >
                         <div className={`metamask-btn ${address? 'disabled' : ''}`}>
-                            <img src="/metamask-logo.png" alt="metamask-logo"></img>
+                            <img src="/logo192.png" alt="metamask-logo"></img>
                         </div>
                         <div className='metamask-text'>
-                            <span>{address? ellipsizeThis(address, 9, 9) : 'Your Jouney Starts Here'}</span>
+                            <span>{address? ellipsizeThis(address, 9, 9) : 'Your Journey Starts Here'}</span>
                         </div>
                     </EVMConnector>
-            
-                    {
-                        address &&
-                        <div className={`switcher-container ${isMobile? 'mobile' : ''}`}>
-                            <EVMSwitcher
-                                targetChain={BSC}
-                                handleChainChange={handleChainChange}
-                                handleUserRejection={handleUserRejection}
-                                handleUnknownError={handleUnknownError}
-                                className={chain === BSC.id? 'active' : ''}
-                                currentChainId={chain}
-                            >
-                                <>
-                                    {
-                                        !isMobile &&
-                                        <span>Forest</span>
-                                    }
-                                    {
-                                        isMobile &&
-                                        <i className='fa fa-tree' style={{ color: 'green' }}></i>
-                                    }
-                                </>
-                            </EVMSwitcher>
-                            <EVMSwitcher
-                                targetChain={POLYGON}
-                                handleChainChange={handleChainChange}
-                                handleUserRejection={handleUserRejection}
-                                handleUnknownError={handleUnknownError}
-                                className={chain === POLYGON.id? 'active' : ''}
-                                currentChainId={chain}
-                            >
-                                <>
-                                    {
-                                        !isMobile &&
-                                        <span>Volcano</span>
-                                    }
-                                    {
-                                        isMobile &&
-                                        <i className='fa fa-fire' style={{ color: 'red' }}></i>
-                                    }
-                                </>
-                            </EVMSwitcher>
-                        </div>
-                    }
+
+                    {/* <h1 className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoners of the Multiverse</h1> */}
+                    <img src="/summoner.png" alt="logo" className={`logo ${address? 'd-block' : 'd-none'}`}/>
+                    <span className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoner: {ellipsizeThis(address, 5, 5)}</span>
                 </div>
             </div>
-            
             {/** Main Pages */}
             <AddressContext.Provider value={{
                 address,
                 chain,
+                areaId,
+                chainName,
             }}>
+                {/** Please update routes constant if there's a new page */}
                 <Routes>
-                    <Route path="/home" element={<Home />}></Route>
-                    <Route path="/" element={<Battle />}/>
-                    <Route path="/battleEnd/:id" element={<BattleEnd />}/>
+                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
+                    <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
+                    <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
+                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={() => setAreaId(1)} onChainChange={handleChainChange}/>}></Route>
+                    <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
+                    <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
+                    <Route path="/" element={<Intermediate />}/>
                 </Routes>
             </AddressContext.Provider>
-            <ToastContainer 
+            <ToastContainer
                 position="bottom-left"
                 autoClose={3000}
                 hideProgressBar={false}

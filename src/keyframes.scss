@@ -1,16 +1,13 @@
 @keyframes pulse {
 	0% {
-		transform: scale(0.95);
 		box-shadow: 0 0 0 0 #feefee65;
 	}
 
 	70% {
-		transform: scale(1);
-		box-shadow: 0 0 0 10px #feefe200;
+		box-shadow: 0 0 0 20px #feefe200;
 	}
 
 	100% {
-		transform: scale(0.95);
 		box-shadow: 0 0 0 0 #feefe200;
 	}
 }
@@ -61,5 +58,168 @@
 	100% {
 		opacity: 0;
         transform: translateY(-130px);
+	}
+}
+
+@keyframes jump {
+	0% {
+        transform: translateY(0px);
+	}
+
+	50% {
+		opacity: 0.85;
+        transform: translateY(-20px);
+	}
+
+	100% {
+        transform: translateY(0px);
+	}
+}
+
+@keyframes shrinkAndFade {
+	0% {
+		opacity: 1;
+        transform: scale(1.5);
+	}
+
+	30% {
+		opacity: 0.5;
+        transform: scale(1.25);
+	}
+
+	90% {
+		opacity: 0.1;
+        transform: scale(1.25);
+	}
+
+	100% {
+		opacity: 0;
+        transform: scale(1.25);
+	}
+}
+
+@keyframes missShrinkAndFade {
+	0% {
+		opacity: 1;
+        transform: scale(1);
+	}
+
+	30% {
+		opacity: 0.5;
+        transform: scale(0.5);
+	}
+
+	100% {
+		opacity: 0;
+        transform: scale(0.5);
+	}
+}
+
+@keyframes critShrinkAndFade {
+	0% {
+		opacity: 1;
+        transform: scale(2.5);
+	}
+
+	15% {
+		opacity: 1;
+        transform: scale(1.5);
+	}
+
+	50% {
+		opacity: 0.1;
+        transform: scale(1.5);
+	}
+
+	100% {
+		opacity: 0;
+        transform: scale(0);
+	}
+}
+
+@keyframes lastCritShrinkAndFade {
+	0% {
+		opacity: 1;
+        transform: scale(2.5);
+	}
+
+	15% {
+		opacity: 1;
+        transform: scale(1.5);
+	}
+
+	90% {
+		opacity: 0.1;
+        transform: scale(1.5);
+	}
+
+	100% {
+		opacity: 0;
+        transform: scale(0);
+	}
+}
+
+@keyframes monsterDead {
+	0% {
+		transform: translateX(-2px);
+	}
+	100% {
+		transform: translateX(2px);
+	}
+}
+
+@keyframes dropIn {
+	0% {
+		transform: rotate(-20deg) scale(2.5);
+	}
+
+	100% {
+		transform: rotate(-20deg) scale(1);
+	}
+}
+
+@keyframes delayedFadeIn {
+    0% { opacity: 0; }
+    80% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes zoomInAndFade {
+	0% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(5);
+		opacity: 0;
+	}
+}
+
+@keyframes heartbeat {
+	0% {
+		transform: scale(1);
+		color: black;
+	}
+	10% {
+		transform: scale(1.1);
+		opacity: 1;
+	}
+	20% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	30% {
+		transform: scale(1.05);
+		opacity: 1;
+		color: red;
+	}
+	35% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+		color: black;
 	}
 }

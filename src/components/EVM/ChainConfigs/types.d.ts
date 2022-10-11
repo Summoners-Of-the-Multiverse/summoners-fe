@@ -2,6 +2,7 @@ export type ChainConfig = {
     name: string;
     shortName: string;
     id: string;
+    evmChain?: string;
     rpc: string;
     nativeCurrency: {
         name: string;
@@ -9,4 +10,6 @@ export type ChainConfig = {
         symbol: string;
     };
     blockExplorerUrl?: string;
+    linkerContract?: string;
+    nftContract?: string;
 }

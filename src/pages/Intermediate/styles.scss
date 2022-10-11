@@ -1,0 +1,76 @@
+$buttonHeight: 300px;
+
+.intermediate-page {
+    height: 100vh;
+    width: 100vw;
+
+    > button {
+        position: absolute;
+        top: calc(49.5% - (#{$buttonHeight} / 2));
+        left: calc(50% - (#{$buttonHeight} / 2));
+
+        height: $buttonHeight;
+        aspect-ratio: 1;
+
+        border-radius: 50%;
+        background-color: transparent;
+        border: none;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+        font-family: 'Nanum Brush Script', cursive;
+        font-size: 50px;
+
+        animation: heartbeat 2.5s linear infinite;
+
+        @media screen and (max-width: 900px) {
+            left: calc(55% - (#{$buttonHeight} / 2));
+        }
+    }
+
+    .intermediate-bg {
+        position: absolute;
+        inset: 0;
+
+        overflow: hidden;
+
+        > img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: opacity 1.5s, transform 1.5s;
+            opacity: 1;
+
+            @media screen and (max-width: 900px) {
+                object-position: 47%;
+            }
+        }
+
+        &.transitioning {
+            > img {
+                opacity: 0;
+                transform: scale(5);
+
+                @media screen and (max-width: 900px) {
+                    transform: scale(3);
+                }
+            }
+        }
+    }
+
+    .fog-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+}

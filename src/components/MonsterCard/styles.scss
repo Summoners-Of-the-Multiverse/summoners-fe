@@ -1,0 +1,143 @@
+.monster-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* border-radius: 10px;
+    padding: 10px;
+
+    -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
+    -moz-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 10px 10px; 
+    box-shadow: rgba( 0, 0, 0, 0.3 ) 5px 5px 10px; */
+    
+    .monster-image-container {
+        position: relative;
+        color: white;
+
+        > img {
+            height: 60vh;
+            width: 100%;
+
+            @media screen and (max-width: 900px) {
+                height: unset;
+                width: 75vw;
+            }
+        }
+
+        > .stats {
+            font-family: 'Starguard', sans-serif;
+            display: flex;
+            flex-direction: column;
+
+            position: absolute;
+            inset: 0;
+
+            font-size: 18px;
+
+            > div {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 16%;
+                height: 6%;
+                
+                &.attack {
+                    bottom: 22.2%;
+                    left: 30.5%;
+                }
+                
+                &.defense {
+                    bottom: 22.2%;
+                    left: 64.5%;
+                }
+                
+                &.hp {
+                    bottom: 12.3%;
+                    left: 30.5%;
+                }
+                
+                &.crit {
+                    bottom: 12.3%;
+                    left: 64.5%;
+                }
+            }
+        }
+    }
+
+
+    > .divider {
+        height: 1px;
+        background-color: #00000022;
+        width: 100%;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        margin-left: 5px;
+        margin-right: 5px;
+        border-radius: 50%;
+    }
+
+    .monster-info {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        font-size: 12px;
+
+        > span:nth-child(1) {
+            margin-right: 5px;
+        }
+
+        > span:nth-child(2) {
+            font-weight: bold;
+        }
+    }
+
+
+    > button.mint-button {
+        border: 3px solid black;
+        border-radius: 10px;
+        background-color: white;
+        font-family: 'Starguard';
+
+        padding: 10px;
+        font-size: 20px;
+        width: 200px;
+
+        margin-bottom: 10px;
+
+        &.disabled {
+            border: 3px solid #00000033;
+        }
+    }
+
+    .info-button {
+        position: absolute;
+        top: 2%;
+        left: 8%;
+        border: none;
+
+        display: flex;
+
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 15px;
+
+        width: 10%;
+        aspect-ratio: 1;
+
+        white-space: pre-wrap;
+        color: black;
+
+        &.active {
+            background-color: white;
+            border-radius: 5px;
+            left: 8%;
+            width: 80%;
+            aspect-ratio: unset;
+            border: 2px solid black;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+.close-button {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background-color: transparent;
+
+    top: 1.25%;
+    right: 2%;
+
+    font-size: 30px;
+
+    color: red;
+
+    @media screen and (max-width: 900px) {
+        position: fixed;
+    }
+}
