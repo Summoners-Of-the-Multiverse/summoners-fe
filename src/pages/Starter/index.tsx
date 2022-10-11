@@ -132,7 +132,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
             return false;
         }
         catch(e: any) {
-            console.log(e);
 			if(e.toString().includes('user rejected transaction')) {
                 toast.error('Y u staph? :(');
             }

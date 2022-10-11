@@ -51,7 +51,6 @@ const listenToBattle = ({
         playerMonsterSkills = battleDetails.playerMonsterSkills;
 
         if(AUTO_BATTLE) {
-            console.log('emitting attack');
             Object.keys(playerMonsterSkills).forEach(id => {
                 let skillIds = Object.keys(playerMonsterSkills[id]);
                 let skillIndex = getRandomNumber(0, 3, true);
@@ -69,7 +68,6 @@ const listenToBattle = ({
         onMonsterOffCd(monsterId);
 
         if(AUTO_BATTLE) {
-            console.log('emitting attack');
             Object.keys(playerMonsterSkills).forEach(id => {
                 let skillIds = Object.keys(playerMonsterSkills[id]);
                 let skillIndex = getRandomNumber(0, 3, true);
@@ -87,12 +85,10 @@ const listenToBattle = ({
 
     socket.on('battle_lost', () => {
         onBattleEnd(false);
-        console.log('Battle Lost')
     });
 
     socket.on('battle_won', () => {
         onBattleEnd(true);
-        console.log('Battle Won')
     });
 
     return () => {
@@ -285,7 +281,7 @@ const Battle = ({ setAudio }: BasePage) => {
 
         isInBattle.current = true;
 
-        console.log('starting battle');
+        // console.log('starting battle');
 
         startBattle({
             address, 
