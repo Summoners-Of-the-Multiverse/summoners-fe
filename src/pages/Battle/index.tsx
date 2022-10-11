@@ -45,7 +45,7 @@ const listenToBattle = ({
     onEndSkillsReceived,
     onBattleEnd,
 }: ListenBattleParams ) => {
-    socket.on('invalid_battle', () => { onBattleEnd(false, true) });
+    socket.on('invalid_battle', (msg: string) => { onBattleEnd(false, true, msg) });
     socket.on('battle_start', (battleDetails: BattleDetails) => {
         onLoad(battleDetails);
         playerMonsterSkills = battleDetails.playerMonsterSkills;
@@ -173,10 +173,11 @@ const Battle = ({ setAudio }: BasePage) => {
         }
     }, []);
 
-    const onBattleEnd = useCallback((hasWon: boolean, isInvalid: boolean = false) => {
+    const onBattleEnd = useCallback((hasWon: boolean, isInvalid: boolean = false, msg: string = "") => {
         //3s timer
         if(isInvalid) {
-            toast.error('There is currently an ongoing battle!');
+            navigate('/home');
+            toast.error(msg ?? 'Unable to start battle');
             return;
         }
         
@@ -200,7 +201,7 @@ const Battle = ({ setAudio }: BasePage) => {
 
         isNaturalBattleEnd.current = true;
         setEncounterDamageReceived(undefined);
-    }, [setAudio]);
+    }, [setAudio, navigate]);
 
     //navigates to battle result after battle end
     const navigateToBattleResult = useCallback(() => {

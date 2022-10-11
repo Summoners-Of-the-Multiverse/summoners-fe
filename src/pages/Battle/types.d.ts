@@ -58,7 +58,7 @@ export type ListenBattleParams = {
     onDamageReceived: ({ damage, playerHpLeft }: EncounterHit) => void;
     onMonsterOffCd: (monsterId: number) => void;
     onEndSkillsReceived: (usage: SkillUsage) => void;
-    onBattleEnd: (hasWon: boolean, isInvalid: boolean = false) => void;
+    onBattleEnd: (hasWon: boolean, isInvalid: boolean = false, msg: string = "") => void;
 }
 
 export type EncounterHit = { 
