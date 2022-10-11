@@ -132,8 +132,13 @@ function App() {
         }
 
         //if not intermediate then navigate to starter if there's no area id
-        if(areaId === 0 && !pagesWithoutAreaValidation.includes(currentPath)) {
+        if(!address && !pagesWithoutAreaValidation.includes(currentPath)) {
             navigate('/starter');
+            // need the connect button
+            setShouldRenderHeader(true);
+        }
+
+        else if (currentPath === "/starter" && !address) {
             // need the connect button
             setShouldRenderHeader(true);
         }
@@ -145,7 +150,7 @@ function App() {
 
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath, navigate, areaId]);
+    }, [currentPath, navigate, areaId, address]);
 
     //controls audio
     useEffect(() => {
