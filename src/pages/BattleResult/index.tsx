@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState, useContext, useMemo } from 're
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { AddressContext } from '../../App';
-import { getElementTooltip, getMonsterIcon, getSkillIcon, toLocaleDecimal, truncateStr } from '../../common/utils';
+import { getElementTooltip, getMonsterIcon, getSkillIcon, toLocaleDecimal } from '../../common/utils';
 import BackButton from '../../components/BackButton';
 import ElementIcon from '../../components/ElementIcon';
 import ContractCall from '../../components/EVM/ContractCall';
@@ -24,7 +24,7 @@ const CAPTURING_TEXT = "Capturing";
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div className='link-toast'>
 		Captured
-        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Verify your capture ⬅</a> 
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Verify your capture ⬅</a>
     </div>
 );
 
@@ -32,7 +32,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 	const { address, chain, } = useContext(AddressContext);
 	const { id, returnToPage } = useParams();
 	const navigate = useNavigate();
-	
+
 	const [ isLoading, setIsLoading ] = useState(true);
 	const [ isMinting, setIsMinting ] = useState(false);
 	const [ isCaptured, setIsCaptured ] = useState(false);
@@ -52,13 +52,13 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 			if(!address || !id) {
 				return;
 			}
-			
+
 			try {
 				let res = await instance.post<any, AxiosResponse<BattleResultResponse>>(`/battleResult`, { address, battleId: id });
 				let { result, skillsUsed } = res.data;
 				setResult(result);
 				setSkillsUsed(skillsUsed);
-				
+
 				// in seconds
 				// let duration = (moment(result.time_end).unix() - moment(result.time_start).unix());
 				// setDuration(duration);
@@ -77,7 +77,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 					crit_chance: 0,
 					crit_multiplier: 0,
 				};
-				
+
 				let mvpDamageDealt = 0;
 
 				for(const skill of skillsUsed) {
@@ -100,14 +100,14 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 						mvp.crit_multiplier = skill.monster_crit_multiplier;
 					}
 				}
-				
+
 				setMvp(mvp);
 			}
 
 			catch {
 				toast.error('Another waterlogged diary');
 			}
-			
+
 			setIsLoading(false);
 		}
 
@@ -125,20 +125,20 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 
 			setMintText(CAPTURING_TEXT);
 			const tx = await contract.mintNft(mintData);
-	
+
 			if (tx.status === 1) {
 				const chainConfig: ChainConfig|undefined = _.find(ChainConfigs, { id: chain,  })
-	
+
 				tokenId = mintData.data.id;
 				tokenHash = mintData.data.hash;
-	
+
 				const result: any = await instance.post(`/capture`, {
 					address: address,
 					battleId: id,
 					tokenId: tokenId,
 					tokenHash: tokenHash
 				});
-	
+
 				if (result.data.success) {
 					toast.success(SuccessMintToast(chainConfig, tx));
 					setIsCaptured(true);
@@ -154,7 +154,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 		catch(e: any) {
 			if(e.toString().includes('user rejected transaction')) {
 				toast.error("You've gone soft!")
-	
+
 				//temporarily ignore
 				/* if(tokenId !== 0 && tokenHash !== 0) {
 					try {
@@ -166,7 +166,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 							tokenHash: tokenHash
 						});
 					}
-	
+
 					catch {
 						// do nothing
 					}
@@ -262,7 +262,7 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 								/>
 							</div>
 						</div>
-					
+
 						{
 							mvp && mvp.damage > 0 &&
 							<div className="col-md-6">
@@ -310,7 +310,7 @@ const SkillsUsageTable = ({ skills }: SkillsUsageTableProps ) => {
 
 	//sort by dps
 	skills = skills.sort((a,b) => (a.total_damage_dealt / a.total_cooldown) > (b.total_damage_dealt / b.total_cooldown)? -1 : 1);
-	
+
 	return (
 		<div className="skills-usage-container">
 			<div className="result-table-container">
