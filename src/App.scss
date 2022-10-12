@@ -27,10 +27,15 @@ body {
 
     &.loading {
         overflow: hidden;
-
-        > .spinner-container { 
-            background-color: black;
+        > .spinner-container {
+            opacity: 1;
         }
+    }
+
+    > .spinner-container { 
+        background-color: black;
+        opacity: 0;
+        transition: opacity 0.75s;
     }
 
     > .loader {

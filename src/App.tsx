@@ -62,6 +62,10 @@ const routes = [
 function App() {
     const [address, setAddress] = useState('');
     const [showLoader, setShowLoader] = useState(true);
+
+    //after animation
+    const [shouldRemoveLoader, setShouldRemoveLoader] = useState(false);
+
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
     // const [isMobile, setIsMobile] = useState(false);
@@ -207,6 +211,10 @@ function App() {
 
     const onFinishLoading = () => {
         setShowLoader(false);
+
+        setTimeout(() => {
+            setShouldRemoveLoader(true);
+        }, 750);
     }
 
     const onMintCallback = () => {
@@ -217,7 +225,7 @@ function App() {
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             {
-                isLoading &&
+                !shouldRemoveLoader &&
                 <div className="spinner-container"></div>
             }
 

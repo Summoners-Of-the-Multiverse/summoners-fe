@@ -45,9 +45,9 @@ const chains = ChainConfigs;
 
 const axelarScan = isTestnet ? `https://testnet.axelarscan.io/gmp/` : `https://axelarscan.io/gmp/`;
 const SuccessBridgeToast = (tx:any) => (
-
-    <div>
-        <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${tx.transactionHash}`}>{truncateStr(tx.transactionHash, 10)}</a> Onboarding
+    <div className='link-toast'>
+        Journey Started
+        <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${tx.transactionHash}`}>⮕ Follow Them ⬅</a> 
     </div>
 );
 
@@ -473,7 +473,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                     <Card.Header className={destChain.evmChain}>
                         <div className="ticket-header">
                             <span className="ticket-header-title">
-                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all mdi-green'></i> : ''}
+                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all'></i> : ''}
                                 {' '}Axelar
                             </span>
                             <span className="ticket-header-info">
@@ -559,93 +559,97 @@ const Inventory = ({ setAudio }: BasePage) => {
     const currChainLogo: string = _.has(currChain, 'evmChain') ? getChainLogo(currChain.evmChain) : '';
 
     return (
-        <div className="inventory-page container">
-            <BackButton
-                onButtonClick={() => navigate('/home')}
-            />
+        <div className="position-relative w-100 vh-100">
 
-            <BridgeLogButton></BridgeLogButton>
+            <div className="inventory-page container">
+                <BackButton
+                    onButtonClick={() => navigate('/home')}
+                />
 
-            <div className="inventory">
-                <div className="title groovy">
-                    <img className="chain-logo" src={currChainLogo} alt="chain_logo"/>
-                    <div className="text">INVENTORY</div>
-                </div>
+                <BridgeLogButton></BridgeLogButton>
 
-                {/* equipped */}
-                <div className="equipment groovy">
-                    <div className="label-slot">
-                        <div className="label-placeholder">
-                            <span className="equipped">In-Use</span>
-                            <i className="label-icon fa fa-optin-monster" aria-hidden="true"></i>
+                <div className="inventory">
+                    <div className="title groovy">
+                        <img className="chain-logo" src={currChainLogo} alt="chain_logo"/>
+                        <div className="text">INVENTORY</div>
+                    </div>
+
+                    {/* equipped */}
+                    <div className="equipment groovy">
+                        <div className="label-slot">
+                            <div className="label-placeholder">
+                                <span className="equipped">In-Use</span>
+                                <i className="label-icon fa fa-optin-monster" aria-hidden="true"></i>
+                            </div>
                         </div>
+                        { EquippedMonster() }
                     </div>
-                    { EquippedMonster() }
+
+                    <div className="bag groovy">
+                        <div className="top-part">
+                            { MonsterListing() }
+                        </div>
+
+                        {/* description part */}
+                        <div className="divider">
+                            <div className="small-slot"></div>
+                        </div>
+
+                        {/* description box */}
+                        <div className="description">
+                            <InfoSlot></InfoSlot>
+                        </div>
+                        <ActionButton></ActionButton>
+                    </div>
+                    <ul className="tabs">
+                        <li>
+                            <button
+                                className="navigation"
+                                onClick={navigateUp}
+                            >
+                                <i className="fa fa-arrow-up" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="navigation"
+                                onClick={navigateDown}
+                            >
+                                <i className="fa fa-arrow-down" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="navigation"
+                                onClick={() => getInventory(chain, address)}
+                            >
+                                <i className="fa fa-refresh" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                        {/* <li>
+                            <button
+                                className="navigation"
+                            >
+                                <i className="fa fa-sort-alpha-asc" aria-hidden="true"></i>
+                            </button>
+                        </li> */}
+                    </ul>
                 </div>
-
-                <div className="bag groovy">
-                    <div className="top-part">
-                        { MonsterListing() }
-                    </div>
-
-                    {/* description part */}
-                    <div className="divider">
-                        <div className="small-slot"></div>
-                    </div>
-
-                    {/* description box */}
-                    <div className="description">
-                        <InfoSlot></InfoSlot>
-                    </div>
-                    <ActionButton></ActionButton>
-                </div>
-                <ul className="tabs">
-                    <li>
-                        <button
-                            className="navigation"
-                            onClick={navigateUp}
-                        >
-                            <i className="fa fa-arrow-up" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            className="navigation"
-                            onClick={navigateDown}
-                        >
-                            <i className="fa fa-arrow-down" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            className="navigation"
-                            onClick={() => getInventory(chain, address)}
-                        >
-                            <i className="fa fa-refresh" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    {/* <li>
-                        <button
-                            className="navigation"
-                        >
-                            <i className="fa fa-sort-alpha-asc" aria-hidden="true"></i>
-                        </button>
-                    </li> */}
-                </ul>
             </div>
-
-            <LoadingIndicator
-                show={isLoading}
-                type={"pulse"}
-                mode={"white"}
-                text={"Loading.."}
-            ></LoadingIndicator>
 
             <LoadingIndicator
                 show={isBridging}
                 type={"bridging"}
-                mode={"white"}
+                mode={"dark"}
                 text={bridgingText}
+            ></LoadingIndicator>
+
+            <LoadingIndicator
+                show={isLoading}
+                type={"pulse"}
+                mode={"dark"}
+                text={"Loading.."}
+                fullScreen
             ></LoadingIndicator>
         </div>
     )

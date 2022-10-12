@@ -3,9 +3,20 @@ No images, no background filters, no javascript, simple CSS and HTML
 */
 .swal-bridge-log {
     font-family: 'Starguard';
+    font-weight: unset;
 
     .swal2-title > p {
         margin-bottom: 0px;
+    }
+
+    .swal2-confirm {
+        width: 150px;
+        letter-spacing: 2px;
+        content: 'X';
+    }
+
+    .mdi-check-all {
+        color: green;
     }
 
     .swal2-html-container {
@@ -61,8 +72,9 @@ No images, no background filters, no javascript, simple CSS and HTML
             .ticket-bridging-location {
                 display: flex;
                 flex-direction: row;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
+                padding: 0 5%;
 
                 .mdi-airplane-takeoff {
                     margin: 0px 10px;
@@ -73,6 +85,7 @@ No images, no background filters, no javascript, simple CSS and HTML
                     flex-direction: row;
                     justify-content: center;
                     align-items: center;
+                    padding: 5% 0;
 
                     .ticket-bridging-chain {
                         height: 15px;
@@ -87,6 +100,7 @@ No images, no background filters, no javascript, simple CSS and HTML
                 padding-top: 7px;
 
                 .ticket-body {
+                    padding: 5% 0;
                     font-size: 14px;
                 }
 
@@ -102,12 +116,13 @@ No images, no background filters, no javascript, simple CSS and HTML
                 }
 
                 .card-footer {
-                    color: #fff;
+                    color: rgba(255, 255, 255, 0.85);
                     padding: 4px 16px;
                     font-size: 10px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    letter-spacing: 2px;
 
                     .card-footer-start {
                         justify-content: flex-start;
