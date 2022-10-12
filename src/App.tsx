@@ -13,11 +13,15 @@ import { AddressAreaResponse, StarterStatusResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useCurrentPath } from './hooks/useCurrentPath';
-const { BSC_TEST, POLYGON_TEST } = ChainConfigs;
+const { BSC_TEST, POLYGON_TEST, BSC, POLYGON } = ChainConfigs;
+const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
-const allowedChains =[
+const allowedChains = isTestnet ? [
     BSC_TEST,
-    POLYGON_TEST,
+    POLYGON_TEST
+] : [
+    BSC,
+    POLYGON
 ];
 
 const pagesWithHeader = [
@@ -243,7 +247,7 @@ function App() {
                     ((!isLoading && areaId !== 0) || currentPath === "/starter") &&
                     <>
                     <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
-                    
+
                     {/** mask only when address is present cause it'll be the login page then */}
                     <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
                     </>
