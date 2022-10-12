@@ -105,7 +105,7 @@ const Inventory = ({ setAudio }: BasePage) => {
         setSelectedMob(false);
         setTravellingMob([]);
         getInventory(chain, address);
-    }, [chain, address, getInventory, selected]);
+    }, [chain, address, getInventory]);
 
     const equippedMonster = useMemo(() => {
         return _.filter(mob, { equipped: 1 });
