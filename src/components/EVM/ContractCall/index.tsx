@@ -181,7 +181,10 @@ export default class ContractCall {
         const environment = isTestnet ? Environment.TESTNET : Environment.MAINNET;
         const api = new AxelarQueryAPI({ environment: environment });
 
-        const gasFee = await api.estimateGasFee(sourceChainName, destinationChainName, sourceChainTokenSymbol, 1000000);
+        let gasFee = await api.estimateGasFee(sourceChainName, destinationChainName, sourceChainTokenSymbol, 1.2e6);
+
+        // bump 40% gas fee to prevent tx stuck on axelar (will get refunded if extra) - encounter multi-time in polygon
+        gasFee = BigInt(Math.floor(Number(gasFee) * 1.4)).toString();
 
         return gasFee;
     };
