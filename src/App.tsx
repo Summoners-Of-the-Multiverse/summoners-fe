@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
-import { ToastContainer } from 'react-toastify';
-import { EVMConnector, ChainConfigs } from './components/EVM';
+import { toast, ToastContainer } from 'react-toastify';
+import { EVMConnector, ChainConfigs, EVMSwitcher } from './components/EVM';
 import { ellipsizeThis, getBg, getWsUrl } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
@@ -75,6 +75,10 @@ function App() {
     const [shouldBlur, setShouldBlur] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMinted, setHasMinted] = useState(true);
+
+    //when switcher appears, bg is blurred and masked
+    //header will be hidden too
+    const [shouldShowSwitcher, setShouldShowSwitcher] = useState(false);
     const [audio, setAudio] = useState("");
 
     const audioPlayer = useRef(new Audio());
@@ -148,6 +152,10 @@ function App() {
     }, [address]);
 
     useEffect(() => {
+        if(isLoading) {
+            return;
+        }
+
         if(!currentPath) {
             // no random pages
             navigate('/');
@@ -156,15 +164,19 @@ function App() {
 
         //if not logged in and not intermediate
         if(currentPath !== "/" && !address) {
-            // no random pages
             navigate('/starter');
             setShouldRenderHeader(true);
+            setShouldMask(true);
+            setShouldBlur(true);
             return;
         }
 
         //if not intermediate and if not minted
         if(!hasMinted && currentPath !== "/" && currentPath !== "/starter" /** prevent endless loop */) {
             navigate('/starter');
+            setShouldRenderHeader(true);
+            setShouldMask(true);
+            setShouldBlur(true);
             // need the connect button
             return;
         }
@@ -190,7 +202,8 @@ function App() {
 
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath, navigate, areaId, address, isLoading, hasMinted]);
+        setShouldShowSwitcher(currentPath !== '/' && !allowedChains.map(x => x.id).includes(chain));
+    }, [currentPath, navigate, areaId, address, isLoading, hasMinted, chain]);
 
     //controls audio
     useEffect(() => {
@@ -215,8 +228,13 @@ function App() {
             setChain(chain);
             let chainName = allowedChains.filter(x => x.id === chain)[0]?.shortName ?? '';
             setChainName(chainName.toLowerCase());
+            setShouldShowSwitcher(
+                currentPath !== '/' 
+                && !allowedChains.map(x => x.id).includes(chain)
+                && !!address // must be logged in
+            );
         }
-    }, []);
+    }, [currentPath, address]);
 
     const onFinishLoading = () => {
         setShowLoader(false);
@@ -231,6 +249,14 @@ function App() {
         setHasMinted(true);
     }
 
+    const handleUserRejection = () => {
+        toast.error('You sure?');
+    }
+
+    const handleUnknownError = () => {
+        toast.error('Portal fluids gone bad');
+    }
+
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             {
@@ -242,16 +268,16 @@ function App() {
                 {
                     ((!isLoading && areaId !== 0) || currentPath === "/starter") &&
                     <>
-                    <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
+                    <img className='bg' src={getBg(areaId, shouldBlur || shouldShowSwitcher)} alt="background_image" />
                     
                     {/** mask only when address is present cause it'll be the login page then */}
-                    <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
+                    <div className={`mask ${shouldMask || shouldShowSwitcher? '' : 'd-none'}`}></div>
                     </>
                 }
             </div>
 
             {/** Connectors */}
-            <div className={`${!shouldRenderHeader? 'd-none' : 'd-flex'} header-container ${address? '' : 'disconnected'}`}>
+            <div className={`${!shouldRenderHeader || shouldShowSwitcher? 'd-none' : 'd-flex'} header-container ${address? '' : 'disconnected'}`}>
                 <div className={`connector-container`}>
                     <EVMConnector
                         handleNewAccount={handleNewAccount}
@@ -272,28 +298,62 @@ function App() {
                     <span className={`logo-text ${address? 'd-block' : 'd-none'}`}>Summoner: {ellipsizeThis(address, 5, 5)}</span>
                 </div>
             </div>
+
+            {
+                shouldShowSwitcher &&
+                address &&
+                <div className='realm-chooser-container'>
+                    <h1>Choose Your Realm</h1>
+                    <EVMSwitcher
+                        targetChain={BSC_TEST}
+                        handleChainChange={handleChainChange}
+                        handleUserRejection={handleUserRejection}
+                        handleUnknownError={handleUnknownError}
+                        className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
+                        currentChainId={chain}
+                    >
+                        <span>BSC</span>
+                    </EVMSwitcher>
+                    <EVMSwitcher
+                        targetChain={POLYGON_TEST}
+                        handleChainChange={handleChainChange}
+                        handleUserRejection={handleUserRejection}
+                        handleUnknownError={handleUnknownError}
+                        className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
+                        currentChainId={chain}
+                    >
+                        <span>Polygon</span>
+                    </EVMSwitcher>
+                </div>
+            }
+
+
             {/** Main Pages */}
-            <AddressContext.Provider value={{
-                address,
-                chain,
-                areaId,
-                chainName,
-            }}>
-                {/** Please update routes constant if there's a new page */}
-                <Routes>
-                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
-                    <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
-                    <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={onMintCallback} onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
-                    <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
-                    <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>
-                    <Route path="/battleResult/:id" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
-                    <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
-                    <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
-                    <Route path="/" element={<Intermediate />}/>
-                </Routes>
-            </AddressContext.Provider>
+            {
+                !shouldShowSwitcher &&
+                <AddressContext.Provider value={{
+                    address,
+                    chain,
+                    areaId,
+                    chainName,
+                }}>
+                    {/** Please update routes constant if there's a new page */}
+                    <Routes>
+                        <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
+                        <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
+                        <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
+                        <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={onMintCallback} onChainChange={handleChainChange}/>}></Route>
+                        <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
+                        <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
+                        <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>
+                        <Route path="/battleResult/:id" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                        <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
+                        <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
+                        <Route path="/" element={<Intermediate />}/>
+                    </Routes>
+                </AddressContext.Provider>
+            }
+
             <ToastContainer
                 position="bottom-left"
                 autoClose={3000}
