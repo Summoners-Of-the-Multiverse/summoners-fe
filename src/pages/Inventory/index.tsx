@@ -22,10 +22,11 @@ import withReactContent from 'sweetalert2-react-content'
 import { Card, Popover, Button, OverlayTrigger } from 'react-bootstrap';
 import moment from 'moment';
 import { BasePage } from '../../types';
+import { sleep } from '@axelar-network/axelarjs-sdk';
 
 const PREPARING_TEXT = "Packing..";
 const BRIDGING_TEXT = "Travelling..";
-const isTestnet = true;
+const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
 // assign chain info based on env
 const BscChain = isTestnet ? BSC_TEST : BSC;
@@ -102,8 +103,9 @@ const Inventory = ({ setAudio }: BasePage) => {
         }
         setSelected(false);
         setSelectedMob(false);
+        setTravellingMob([]);
         getInventory(chain, address);
-    }, [chain, address, getInventory]);
+    }, [chain, address, getInventory, selected]);
 
     const equippedMonster = useMemo(() => {
         return _.filter(mob, { equipped: 1 });
@@ -255,6 +257,7 @@ const Inventory = ({ setAudio }: BasePage) => {
     const sendMob = useCallback(async (destChainId: string) => {
         try {
             setIsBridging(true);
+            await sleep(1);
             setTravellingMob(_.concat(travellingMob, [selectedMob.id]));
 
             // destination this
@@ -291,53 +294,11 @@ const Inventory = ({ setAudio }: BasePage) => {
             setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
             setBridgingText(PREPARING_TEXT);
             setIsBridging(false);
+            toast.warning(`Bridging cancelled..`)
             // console.log(e);
             return false;
         }
     }, [chain, selectedMob, travellingMob, address]);
-
-    const ActionButton = useCallback(() => {
-        let component: JSX.Element;
-        if (selectedMob && selectedMob.equipped === 1) {
-            component = (
-                <div className="actions">
-                    <button onClick={unEquipMob}>DROP</button>
-                </div>
-            );
-        } else if (selectedMob && travellingMob.includes(selectedMob.id)) {
-            component = (
-                <div className="actions">
-                    <button onClick={() => showBridgeLog()}>Track</button>
-                </div>
-            );
-        } else {
-            const disabledBSC = chain === BscChain.id || _.isNil(selectedMob) ? true : false;
-            const disabledPoly = chain === PolygonChain.id || _.isNil(selectedMob) ? true : false;
-            const popover = (
-                <Popover id="popover-basic">
-                    <Popover.Header as="h3">
-                        Send guardian to?
-                    </Popover.Header>
-                    <Popover.Body>
-                        <div className="d-grid gap-1">
-                            <Button variant="outline-warning" onClick={() => sendMob(BscChain.id)} disabled={disabledBSC} size="lg">BSC</Button>
-                            <Button variant="outline-info" onClick={() => sendMob(PolygonChain.id)} disabled={disabledPoly}  size="lg">Polygon</Button>
-                        </div>
-                    </Popover.Body>
-                </Popover>
-            );
-
-            component = (
-                <div className="actions">
-                    <button onClick={equipMob}>USE</button>
-                    <OverlayTrigger rootClose={true} trigger="click" placement="top-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
-                        <button>SEND</button>
-                    </OverlayTrigger>
-                </div>
-            );
-        }
-        return component;
-    }, [chain, selectedMob, equipMob, unEquipMob, sendMob]);
 
     const copyText = async (text: string) => {
         await copyToClipboard(text);
@@ -458,7 +419,7 @@ const Inventory = ({ setAudio }: BasePage) => {
         return component;
     }, [unequippedMonsterPaginated, selectMob, travellingMob]);
 
-    const BridgeLog = (data: any) => {
+    const BridgeLog = useCallback((data: any) => {
         let component: JSX.Element[] = [];
         for (let d of data) {
             const currChain: any = _.find(chains, { id: d.from_chain_id });
@@ -526,9 +487,9 @@ const Inventory = ({ setAudio }: BasePage) => {
         }
 
         return <>{component}</>
-    }
+    }, []);
 
-    const showBridgeLog = async () => {
+    const showBridgeLog = useCallback (async () => {
         const data: any = await instance.get(`/bridgeLog/${address}`);
         const MySwal = withReactContent(Swal)
 
@@ -538,14 +499,8 @@ const Inventory = ({ setAudio }: BasePage) => {
             customClass: {
                 container: "swal-bridge-log"
             }
-        // didOpen: () => {
-        //     // `MySwal` is a subclass of `Swal` with all the same instance & static methods
-        //     MySwal.showLoading()
-        // },
-        // }).then(() => {
-        //     return MySwal.fire(<p>Shorthand works too</p>)
         })
-    }
+    }, [BridgeLog, address])
 
     const BridgeLogButton = () => {
         return (
@@ -554,6 +509,49 @@ const Inventory = ({ setAudio }: BasePage) => {
             }} className='bridge-history-btn' style={{float: "right"}}>Bridge History</div>
         )
     }
+
+    const ActionButton = useCallback(() => {
+        let component: JSX.Element;
+        if (selectedMob && selectedMob.equipped === 1) {
+            component = (
+                <div className="actions">
+                    <button onClick={unEquipMob}>DROP</button>
+                </div>
+            );
+        } else if (selectedMob && travellingMob.includes(selectedMob.id)) {
+            component = (
+                <div className="actions">
+                    <button onClick={() => showBridgeLog()}>Track</button>
+                </div>
+            );
+        } else {
+            const disabledBSC = chain === BscChain.id || _.isNil(selectedMob) ? true : false;
+            const disabledPoly = chain === PolygonChain.id || _.isNil(selectedMob) ? true : false;
+            const popover = (
+                <Popover id="popover-basic">
+                    <Popover.Header as="h3">
+                        Send guardian to?
+                    </Popover.Header>
+                    <Popover.Body>
+                        <div className="d-grid gap-1">
+                            <Button variant="outline-warning" onClick={() => sendMob(BscChain.id)} disabled={disabledBSC} size="lg">BSC</Button>
+                            <Button variant="outline-info" onClick={() => sendMob(PolygonChain.id)} disabled={disabledPoly}  size="lg">Polygon</Button>
+                        </div>
+                    </Popover.Body>
+                </Popover>
+            );
+
+            component = (
+                <div className="actions">
+                    <button onClick={equipMob}>USE</button>
+                    <OverlayTrigger rootClose={true} trigger="click" placement="top-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
+                        <button>SEND</button>
+                    </OverlayTrigger>
+                </div>
+            );
+        }
+        return component;
+    }, [chain, selectedMob, equipMob, unEquipMob, sendMob, showBridgeLog, travellingMob]);
 
     const currChain: any = _.find(chains, { id: chain });
     const currChainLogo: string = _.has(currChain, 'evmChain') ? getChainLogo(currChain.evmChain) : '';
@@ -639,7 +637,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
             <LoadingIndicator
                 show={isBridging}
-                type={"bridging"}
+                type={bridgingText === "Packing.." ? "packing" : "bridging"}
                 mode={"dark"}
                 text={bridgingText}
             ></LoadingIndicator>

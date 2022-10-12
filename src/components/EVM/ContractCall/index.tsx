@@ -7,7 +7,7 @@ import { getBaseUrl, ucFirst } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
 // import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
 import { AxelarQueryAPI, Environment, EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
-const isTestnet = true;
+const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 // assign chain info based on env
 // const BscChain = isTestnet ? BSC_TEST : BSC;
 // const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
