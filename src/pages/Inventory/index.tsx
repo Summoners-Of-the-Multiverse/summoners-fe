@@ -26,7 +26,7 @@ import { sleep } from '@axelar-network/axelarjs-sdk';
 
 const PREPARING_TEXT = "Packing..";
 const BRIDGING_TEXT = "Travelling..";
-const isTestnet = true;
+const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
 // assign chain info based on env
 const BscChain = isTestnet ? BSC_TEST : BSC;
@@ -103,6 +103,7 @@ const Inventory = ({ setAudio }: BasePage) => {
         }
         setSelected(false);
         setSelectedMob(false);
+        setTravellingMob([]);
         getInventory(chain, address);
     }, [chain, address, getInventory]);
 
@@ -299,6 +300,91 @@ const Inventory = ({ setAudio }: BasePage) => {
         }
     }, [chain, selectedMob, travellingMob, address]);
 
+
+    const BridgeLog = (data: any) => {
+        let component: JSX.Element[] = [];
+        for (let d of data) {
+            const currChain: any = _.find(chains, { id: d.from_chain_id });
+            const destChain: any = _.find(chains, { id: d.to_chain_id });
+            const cardFooterEnd = ( d.updated_at &&
+                <div className="card-footer-start">
+                    <i className="mdi mdi-check-all"></i>{' '}{moment(d.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                </div>
+            )
+            component.push(
+                <Card className="bridge-ticket" border="light">
+                    <Card.Header className={destChain.evmChain}>
+                        <div className="ticket-header">
+                            <span className="ticket-header-title">
+                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all mdi-green'></i> : ''}
+                                {' '}Axelar
+                            </span>
+                            <span className="ticket-header-info">
+                                Boarding Pass
+                            </span>
+                        </div>
+                    </Card.Header>
+                    <Card.Body>
+                        <Card.Title>
+                            <div className="ticket-bridging-location">
+                                <div className="ticket-bridging-location-info">
+                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain)} alt="bridging"/> {currChain.shortName}
+                                </div>
+                                <i className="mdi mdi-airplane-takeoff"></i>
+                                <div className="ticket-bridging-location-info">
+                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain)} alt="bridging"/> {destChain.shortName}
+                                </div>
+                            </div>
+                        </Card.Title>
+                        <Card.Text className="card-text">
+                            <div className="ticket-body">
+                                <table className='ticket-body-table'>
+                                    <tbody>
+                                        <tr>
+                                            <th>Token</th>
+                                            <th>Receipt</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div className="ticket-body-token" onClick={() => {copyText(d.token_id)}}>{truncateStr(d.token_id, 10)}</div>
+                                            </td>
+                                            <td>
+                                                <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${d.tx_hash}`}>{truncateStr(d.tx_hash, 10)}</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className={`card-footer ${destChain.evmChain}`}>
+                                <div className="card-footer-start">
+                                    <i className="mdi mdi-alarm"></i>{' '}{moment(d.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                                </div>
+                                {cardFooterEnd}
+                            </div>
+                        </Card.Text>
+                    </Card.Body>
+                </Card>
+            );
+        }
+
+        return <>{component}</>
+    }
+
+
+    const showBridgeLog = useCallback (async () => {
+        const data: any = await instance.get(`/bridgeLog/${address}`);
+        const MySwal = withReactContent(Swal)
+
+        MySwal.fire({
+            title: (<p>Bridge History</p>),
+            html: BridgeLog(data.data),
+            customClass: {
+                container: "swal-bridge-log"
+            }
+        })
+    }, [BridgeLog])
+
     const ActionButton = useCallback(() => {
         let component: JSX.Element;
         if (selectedMob && selectedMob.equipped === 1) {
@@ -340,7 +426,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             );
         }
         return component;
-    }, [chain, selectedMob, equipMob, unEquipMob, sendMob]);
+    }, [chain, selectedMob, equipMob, unEquipMob, sendMob, showBridgeLog, travellingMob]);
 
     const copyText = async (text: string) => {
         await copyToClipboard(text);
@@ -460,95 +546,6 @@ const Inventory = ({ setAudio }: BasePage) => {
         }
         return component;
     }, [unequippedMonsterPaginated, selectMob, travellingMob]);
-
-    const BridgeLog = (data: any) => {
-        let component: JSX.Element[] = [];
-        for (let d of data) {
-            const currChain: any = _.find(chains, { id: d.from_chain_id });
-            const destChain: any = _.find(chains, { id: d.to_chain_id });
-            const cardFooterEnd = ( d.updated_at &&
-                <div className="card-footer-start">
-                    <i className="mdi mdi-check-all"></i>{' '}{moment(d.updated_at).format('YYYY-MM-DD HH:mm:ss')}
-                </div>
-            )
-            component.push(
-                <Card className="bridge-ticket" border="light">
-                    <Card.Header className={destChain.evmChain}>
-                        <div className="ticket-header">
-                            <span className="ticket-header-title">
-                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all mdi-green'></i> : ''}
-                                {' '}Axelar
-                            </span>
-                            <span className="ticket-header-info">
-                                Boarding Pass
-                            </span>
-                        </div>
-                    </Card.Header>
-                    <Card.Body>
-                        <Card.Title>
-                            <div className="ticket-bridging-location">
-                                <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain)} alt="bridging"/> {currChain.shortName}
-                                </div>
-                                <i className="mdi mdi-airplane-takeoff"></i>
-                                <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain)} alt="bridging"/> {destChain.shortName}
-                                </div>
-                            </div>
-                        </Card.Title>
-                        <Card.Text className="card-text">
-                            <div className="ticket-body">
-                                <table className='ticket-body-table'>
-                                    <tbody>
-                                        <tr>
-                                            <th>Token</th>
-                                            <th>Receipt</th>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div className="ticket-body-token" onClick={() => {copyText(d.token_id)}}>{truncateStr(d.token_id, 10)}</div>
-                                            </td>
-                                            <td>
-                                                <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${d.tx_hash}`}>{truncateStr(d.tx_hash, 10)}</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div className={`card-footer ${destChain.evmChain}`}>
-                                <div className="card-footer-start">
-                                    <i className="mdi mdi-alarm"></i>{' '}{moment(d.created_at).format('YYYY-MM-DD HH:mm:ss')}
-                                </div>
-                                {cardFooterEnd}
-                            </div>
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
-            );
-        }
-
-        return <>{component}</>
-    }
-
-    const showBridgeLog = async () => {
-        const data: any = await instance.get(`/bridgeLog/${address}`);
-        const MySwal = withReactContent(Swal)
-
-        MySwal.fire({
-            title: (<p>Bridge History</p>),
-            html: BridgeLog(data.data),
-            customClass: {
-                container: "swal-bridge-log"
-            }
-        // didOpen: () => {
-        //     // `MySwal` is a subclass of `Swal` with all the same instance & static methods
-        //     MySwal.showLoading()
-        // },
-        // }).then(() => {
-        //     return MySwal.fire(<p>Shorthand works too</p>)
-        })
-    }
 
     const BridgeLogButton = () => {
         return (

@@ -1,6 +1,6 @@
 import { ChainConfig } from "./types";
 import { ethers } from 'ethers';
-import {EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
+import {EvmChain } from '@axelar-network/axelarjs-sdk';
 
 // chains
 export const BSC_TEST: ChainConfig = {
