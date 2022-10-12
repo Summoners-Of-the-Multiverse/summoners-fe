@@ -26,7 +26,7 @@ const requestSwitchChain = async(
     } 
     catch (e: any) {
         // This error code indicates that the chain has not been added to MetaMask
-        if (e.code === 4902) {
+        if (e.code === 4902 || e.data?.originalError?.code === 4902) {
 
             try {
                 await window.ethereum!.request({
