@@ -22,6 +22,7 @@ import withReactContent from 'sweetalert2-react-content'
 import { Card, Popover, Button, OverlayTrigger } from 'react-bootstrap';
 import moment from 'moment';
 import { BasePage } from '../../types';
+import { sleep } from '@axelar-network/axelarjs-sdk';
 
 const PREPARING_TEXT = "Packing..";
 const BRIDGING_TEXT = "Travelling..";
@@ -255,6 +256,7 @@ const Inventory = ({ setAudio }: BasePage) => {
     const sendMob = useCallback(async (destChainId: string) => {
         try {
             setIsBridging(true);
+            await sleep(1);
             setTravellingMob(_.concat(travellingMob, [selectedMob.id]));
 
             // destination this
@@ -291,6 +293,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
             setBridgingText(PREPARING_TEXT);
             setIsBridging(false);
+            toast.warning(`Bridging cancelled..`)
             // console.log(e);
             return false;
         }
@@ -643,7 +646,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
             <LoadingIndicator
                 show={isBridging}
-                type={"bridging"}
+                type={bridgingText === "Packing.." ? "packing" : "bridging"}
                 mode={"white"}
                 text={bridgingText}
             ></LoadingIndicator>

@@ -50,7 +50,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 			}
 
 			catch {
-				toast.error('Unable to get battle results');
+				toast.error('Logs are messed up');
 			}
 			
 			// setIsLoading(false);
@@ -105,12 +105,22 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 			<BackButton
 				onButtonClick={() => { navigate('/home'); }}
 			/>
-			<div className="pagination">
-				<button onClick={onLeftClick}><i className="fa fa-chevron-left"></i></button>
-				<span>{page + 1} / {maxPage + 1}</span>
-				<button onClick={onRightClick}><i className="fa fa-chevron-right"></i></button>
-			</div>
+			{
+				paginated.length > 0 &&
+				<div className="pagination">
+					<button onClick={onLeftClick}><i className="fa fa-chevron-left"></i></button>
+					<span>{page + 1} / {maxPage + 1}</span>
+					<button onClick={onRightClick}><i className="fa fa-chevron-right"></i></button>
+				</div>
+			}
 			<div className="battle-history-container">
+			{
+				paginated.length === 0 &&
+				<>
+					<div className="h1">It's Empty..</div>
+					<div className="h3">Pls go hunt</div>
+				</>
+			}
 			{
 				paginated.map((x, index) => {
 					let result = "defeat";

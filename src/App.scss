@@ -27,6 +27,10 @@ body {
 
     &.loading {
         overflow: hidden;
+
+        * { 
+            display: none !important;
+        }
     }
 
     > .loader {
@@ -65,7 +69,7 @@ body {
 
         position: absolute;
         top: calc(5%);;
-        left: calc(50% - $halfLogoWidth);
+        left: calc(50% - #{$halfLogoWidth});
         max-width: 900px;
         margin: auto;
 
@@ -201,6 +205,18 @@ body {
                 margin-left: 0px;
                 margin-bottom: 10px;
             }
+        }
+    }
+
+    .link-toast {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+
+        > a {
+            color: white !important;
+            text-decoration: none;
+            text-transform: uppercase;
         }
     }
 }
