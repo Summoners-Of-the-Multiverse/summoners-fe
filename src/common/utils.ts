@@ -226,7 +226,7 @@ export const getBg = (areaId: number, blur = false) => {
         default:
             break;
     }
-    return `/assets/${folder}/${name}_bg.png`;
+    return `/assets/${folder}/${name}_bg.jpg`;
 }
 
 export const getAreaName = (areaId: number, blur = false) => {
