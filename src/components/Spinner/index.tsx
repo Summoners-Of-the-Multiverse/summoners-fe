@@ -5,7 +5,7 @@ import './styles.scss';
 interface P{
     show: boolean,
     mode: "light" | "dark" | "white",
-    type: "pulse" | "rotate" | "propagate" | "scale" | "clip" | "bridging",
+    type: "pulse" | "rotate" | "propagate" | "scale" | "clip" | "bridging" | "packing",
     text: string
     fullScreen?: boolean;
 }
@@ -59,6 +59,10 @@ export default class Spinner extends React.Component<P,S> {
 
             case "bridging":
                 dom = <img src="/assets/gif/mob.gif" alt="bridging"/>
+                break;
+
+            case "packing":
+                dom = <img src="/assets/gif/packing.webp" alt="packing"/>
                 break;
 
             default:
