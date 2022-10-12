@@ -294,7 +294,7 @@ const Inventory = ({ setAudio }: BasePage) => {
             setTravellingMob(_.filter(travellingMob, (i) => i !== selectedMob.id));
             setBridgingText(PREPARING_TEXT);
             setIsBridging(false);
-            toast.warning(`Bridging cancelled..`)
+            toast.warning(`Trip cancelled..`)
             // console.log(e);
             return false;
         }
