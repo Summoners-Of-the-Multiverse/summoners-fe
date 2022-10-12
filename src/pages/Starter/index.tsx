@@ -138,6 +138,7 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
         <div className='starter-page'>
             {
                 !shouldShowSwitcher &&
+                address &&
                 <MintPrompt
                     monsters={starterMonsters}
                     onMint={onMint}
@@ -150,6 +151,7 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
             }
             {
                 shouldShowSwitcher &&
+                address &&
                 <>
                     <h1>Choose Your Realm</h1>
                     <EVMSwitcher

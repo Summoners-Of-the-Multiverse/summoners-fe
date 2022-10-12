@@ -154,8 +154,16 @@ function App() {
             return;
         }
 
-        //if not intermediate then navigate to starter if has not minted
-        if(!hasMinted && currentPath !== "/" && currentPath !== "/starter") {
+        //if not logged in and not intermediate
+        if(currentPath !== "/" && !address) {
+            // no random pages
+            navigate('/starter');
+            setShouldRenderHeader(true);
+            return;
+        }
+
+        //if not intermediate and if not minted
+        if(!hasMinted && currentPath !== "/" && currentPath !== "/starter" /** prevent endless loop */) {
             navigate('/starter');
             // need the connect button
             return;
@@ -164,6 +172,7 @@ function App() {
         //redirect to home if page is starter and has minted
         if (hasMinted && currentPath === "/starter") {
             navigate('/home');
+            setShouldRenderHeader(false);
             // need the connect button
             return;
         }
@@ -231,7 +240,7 @@ function App() {
 
             <div className={`${currentPath === "/"? 'd-none' : ''} bg-container`}>
                 {
-                    ((!isLoading && areaId !== 0)|| currentPath === "/starter") &&
+                    ((!isLoading && areaId !== 0) || currentPath === "/starter") &&
                     <>
                     <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
                     
