@@ -174,6 +174,7 @@ const Battle = ({ setAudio }: BasePage) => {
         if(isInvalid) {
             navigate('/home');
             toast.error(msg ?? 'Monsters hibernating');
+            socket.disconnect();
             return;
         }
         

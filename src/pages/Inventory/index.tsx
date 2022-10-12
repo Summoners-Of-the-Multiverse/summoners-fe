@@ -195,7 +195,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
                 // refresh subMob list & equipped list
                 setSkip(0);
-                toast.success(<div>Added <b>{selectedMob.name}</b> from party</div>);
+                toast.success(<div>Added <b>{selectedMob.name}</b> to party</div>);
             } else {
                 toast.error(<div>Failed to equip <b>{selectedMob.name}</b></div>);
             }
