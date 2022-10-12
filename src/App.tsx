@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
 import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter, Intermediate } from './pages';
 import { io, Socket } from 'socket.io-client';
-import { AddressAreaResponse } from './types';
+import { AddressAreaResponse, StarterStatusResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useCurrentPath } from './hooks/useCurrentPath';
@@ -33,10 +33,6 @@ const pagesWithBlur = [
     '/battleHistory',
     '/battleResult/:id',
     '/battleResult/:id/:returnToPage',
-];
-
-const pagesWithoutAreaValidation = [
-    '/',
 ];
 
 export const AddressContext = createContext({
@@ -74,6 +70,7 @@ function App() {
     const [shouldMask, setShouldMask] = useState(false);
     const [shouldBlur, setShouldBlur] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasMinted, setHasMinted] = useState(true);
     const [audio, setAudio] = useState("");
 
     const audioPlayer = useRef(new Audio());
@@ -101,6 +98,27 @@ function App() {
     }, []); */
 
 
+    // get if address has minted free mon
+    useEffect(() => {
+        const getStarterStatus = async() => {
+            try {
+                if(!address) {
+                    return;
+                }
+                let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
+                setHasMinted(res.data.hasMinted);
+            }
+
+            catch {
+                //always set as false on error
+                setHasMinted(false);
+            }
+        }
+
+        getStarterStatus();
+    }, [address]);
+
+    // get address area
     useEffect(() => {
         if(!address) {
             return;
@@ -118,7 +136,6 @@ function App() {
 
             catch {
                 setAreaId(0);
-                setShowLoader(false);
                 // toast.error('Unable to get current area');
             }
         }
@@ -133,20 +150,24 @@ function App() {
             return;
         }
 
-        if(isLoading) {
+        //if not intermediate then navigate to starter if has not minted
+        if(!hasMinted && currentPath !== "/" && currentPath !== "/starter") {
+            navigate('/starter');
+            // need the connect button
             return;
         }
 
-        //if not intermediate then navigate to starter if there's no area id
-        if(!address && !pagesWithoutAreaValidation.includes(currentPath)) {
-            navigate('/starter');
+        //redirect to home if page is starter and has minted
+        if (hasMinted && currentPath === "/starter") {
+            navigate('/home');
             // need the connect button
-            setShouldRenderHeader(true);
+            return;
         }
 
-        else if (currentPath === "/starter" && !address) {
+        //if has minted and current path is starter and is connected
+        if (currentPath === "/starter") {
             // need the connect button
-            setShouldRenderHeader(true);
+            setShouldRenderHeader(!address);
         }
 
         else {
@@ -156,7 +177,7 @@ function App() {
 
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath, navigate, areaId, address, isLoading]);
+    }, [currentPath, navigate, areaId, address, isLoading, hasMinted]);
 
     //controls audio
     useEffect(() => {
@@ -188,11 +209,21 @@ function App() {
         setShowLoader(false);
     }
 
+    const onMintCallback = () => {
+        setAreaId(1);
+        setHasMinted(true);
+    }
+
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
+            {
+                isLoading &&
+                <div className="spinner-container"></div>
+            }
+
             <div className={`${currentPath === "/"? 'd-none' : ''} bg-container`}>
                 {
-                    !isLoading &&
+                    ((!isLoading && areaId !== 0)|| currentPath === "/starter") &&
                     <>
                     <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
                     
@@ -236,7 +267,7 @@ function App() {
                     <Route path="/home" element={<Home setAudio={audio => setAudio(audio)}/>}></Route>
                     <Route path="/map" element={<Map setAudio={audio => setAudio(audio)} onAreaChange={setAreaId}/>}></Route>
                     <Route path="/portal" element={<Portal setAudio={audio => setAudio(audio)} onChainChange={handleChainChange}/>}></Route>
-                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={() => setAreaId(1)} onChainChange={handleChainChange}/>}></Route>
+                    <Route path="/starter" element={<Starter setAudio={audio => setAudio(audio)} onMintCallback={onMintCallback} onChainChange={handleChainChange}/>}></Route>
                     <Route path="/inventory" element={<Inventory setAudio={audio => setAudio(audio)} />}></Route>
                     <Route path="/home" element={<Home setAudio={audio => setAudio(audio)} />}></Route>
                     <Route path="/battle" element={<Battle setAudio={audio => setAudio(audio)} />}/>

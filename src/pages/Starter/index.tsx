@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { AddressContext } from '../../App';
 import instance from '../Axios';
-import { MintPromptProps, MonsterBaseMetadata, StarterPageProps, StarterStatusResponse } from './types';
+import { MintPromptProps, MonsterBaseMetadata, StarterPageProps } from './types';
 import './styles.scss';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -32,7 +32,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
     const { address, chain, } = useContext(AddressContext);
     
     const [currentChain, setCurrentChain] = useState(chain);
-    const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
     const [shouldShowSwitcher, setShouldShowSwitcher] = useState(false);
@@ -56,29 +55,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
         onMintCallback();
         navigate('/home');
     }, [navigate, onMintCallback]);
-
-    // get if address has minted free mon
-    useEffect(() => {
-        const getStarterStatus = async() => {
-            try {
-                if(!address) {
-                    return;
-                }
-                let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
-                setHasMinted(res.data.hasMinted);
-                if(res.data.hasMinted) {
-                    onMint();
-                }
-            }
-
-            catch {
-                //always set as true on error
-                setHasMinted(true);
-            }
-        }
-
-        getStarterStatus();
-    }, [address, onMint]);
 
     useEffect(() => {
         const getStarterMonsters = async() => {
@@ -161,7 +137,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
     return (
         <div className='starter-page'>
             {
-                !hasMinted &&
                 !shouldShowSwitcher &&
                 <MintPrompt
                     monsters={starterMonsters}
@@ -174,7 +149,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
                 />
             }
             {
-                !hasMinted &&
                 shouldShowSwitcher &&
                 <>
                     <h1>Choose Your Realm</h1>

@@ -1,7 +1,5 @@
 import { BasePage } from "../../types";
 
-export type StarterStatusResponse = { hasMinted: boolean };
-
 export interface StarterPageProps extends BasePage {
     onMintCallback: () => void;
     onChainChange: (chainId: string) => void;
