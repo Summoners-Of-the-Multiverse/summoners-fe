@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState, createContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { EVMConnector, ChainConfigs } from './components/EVM';
-import { ellipsizeThis, getBg, getRandomNumber, getWsUrl } from './common/utils';
+import { ellipsizeThis, getBg, getWsUrl } from './common/utils';
 import './App.scss';
 import './keyframes.scss';
 import './fog.scss';
@@ -69,7 +69,7 @@ function App() {
     const [chain, setChain] = useState('');
     const [chainName, setChainName] = useState('');
     // const [isMobile, setIsMobile] = useState(false);
-    const [areaId, setAreaId] = useState(getRandomNumber(1, 9, true));
+    const [areaId, setAreaId] = useState(0);
     const [shouldRenderHeader, setShouldRenderHeader] = useState(true);
     const [shouldMask, setShouldMask] = useState(false);
     const [shouldBlur, setShouldBlur] = useState(false);
@@ -118,6 +118,7 @@ function App() {
 
             catch {
                 setAreaId(0);
+                setShowLoader(false);
                 // toast.error('Unable to get current area');
             }
         }
@@ -129,6 +130,10 @@ function App() {
         if(!currentPath) {
             // no random pages
             navigate('/');
+            return;
+        }
+
+        if(isLoading) {
             return;
         }
 
@@ -151,7 +156,7 @@ function App() {
 
         setShouldMask(!pagesWithoutMask.includes(currentPath));
         setShouldBlur(pagesWithBlur.includes(currentPath));
-    }, [currentPath, navigate, areaId, address]);
+    }, [currentPath, navigate, areaId, address, isLoading]);
 
     //controls audio
     useEffect(() => {
@@ -164,6 +169,10 @@ function App() {
     const handleNewAccount = useCallback((address: string) => {
         setIsLoading(false);
         setAddress(address);
+
+        if(address === "") {
+            setAreaId(0);
+        }
     }, []);
 
     const handleChainChange = useCallback(async (chain: string) => {
@@ -182,10 +191,15 @@ function App() {
     return (
         <div className={`App ${chainName} ${showLoader? 'loading' : ''}`}>
             <div className={`${currentPath === "/"? 'd-none' : ''} bg-container`}>
-                <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
-
-                {/** mask only when address is present cause it'll be the login page then */}
-                <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
+                {
+                    !isLoading &&
+                    <>
+                    <img className='bg' src={getBg(areaId, shouldBlur)} alt="background_image" />
+                    
+                    {/** mask only when address is present cause it'll be the login page then */}
+                    <div className={`mask ${shouldMask? '' : 'd-none'}`}></div>
+                    </>
+                }
             </div>
 
             {/** Connectors */}

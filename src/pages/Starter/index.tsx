@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import MonsterCard from '../../components/MonsterCard';
 import ContractCall from '../../components/EVM/ContractCall';
-import { getElementTooltip, truncateStr } from '../../common/utils';
+import { getElementTooltip } from '../../common/utils';
 import _ from 'lodash';
 import { ChainConfigs, EVMSwitcher } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
