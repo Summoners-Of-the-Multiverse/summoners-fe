@@ -21,13 +21,12 @@ const CAPTURING_TEXT = "Convincing Guardian";
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div className='link-toast'>
         Guardian Convinced
-        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Their signature ⬅</a> 
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Their signature ⬅</a>
     </div>
 );
 
 const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) => {
     const { address, chain, } = useContext(AddressContext);
-    
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
     const [mintText, setMintText] = useState(PREPARING_TEXT);
