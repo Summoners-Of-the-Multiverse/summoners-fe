@@ -417,6 +417,7 @@ const Inventory = ({ setAudio }: BasePage) => {
 
     const BridgeLog = useCallback((data: BridgeLogData[]) => {
         let component: JSX.Element[] = [];
+        let index = 0;
         for (let d of data) {
             const currChain = _.find(chains, { id: d.from_chain_id });
             const destChain = _.find(chains, { id: d.to_chain_id });
@@ -431,59 +432,62 @@ const Inventory = ({ setAudio }: BasePage) => {
                 </div>
             )
             component.push(
-                <Card className="bridge-ticket" border="light">
-                    <Card.Header className={destChain.evmChain}>
-                        <div className="ticket-header">
-                            <span className="ticket-header-title">
-                                {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all'></i> : ''}
-                                {' '}Axelar
-                            </span>
-                            <span className="ticket-header-info">
-                                Boarding Pass
-                            </span>
-                        </div>
-                    </Card.Header>
-                    <Card.Body>
-                        <Card.Title>
-                            <div className="ticket-bridging-location">
-                                <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain!)} alt="bridging"/> {currChain.shortName}
-                                </div>
-                                <i className="mdi mdi-airplane-takeoff"></i>
-                                <div className="ticket-bridging-location-info">
-                                    <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain!)} alt="bridging"/> {destChain.shortName}
-                                </div>
+                <div key={`bridge-ticket-index-${index++}`} className="w-100 h-100">
+                    <Card className="bridge-ticket" border="light">
+                        <Card.Header className={destChain.evmChain}>
+                            <div className="ticket-header">
+                                <span className="ticket-header-title">
+                                    {moment.duration(moment().diff(d.created_at)).asMinutes() < 10 && _.isNil(d.updated_at) ? <i className='mdi mdi-new-box mdi-red'></i> : !_.isNil(d.updated_at) ? <i className='mdi mdi-check-all'></i> : ''}
+                                    {' '}Axelar
+                                </span>
+                                <span className="ticket-header-info">
+                                    Boarding Pass
+                                </span>
                             </div>
-                        </Card.Title>
-                        <Card.Text className="card-text">
-                            <div className="ticket-body">
-                                <table className='ticket-body-table'>
-                                    <tbody>
-                                        <tr>
-                                            <th>Token</th>
-                                            <th>Receipt</th>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div className="ticket-body-token" onClick={() => {copyText(d.token_id)}}>{truncateStr(d.token_id, 10)}</div>
-                                            </td>
-                                            <td>
-                                                <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${d.tx_hash}`}>{truncateStr(d.tx_hash, 10)}</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        </Card.Header>
+                        <Card.Body>
+                            <Card.Title>
+                                <div className="ticket-bridging-location">
+                                    <div className="col-5">
+                                        <img className="ticket-bridging-chain" src={getChainLogo(currChain.evmChain!)} alt="bridging"/> {currChain.shortName}
+                                    </div>
+                                    <div className="col-2 d-flex align-items-center">
+                                        <i className="mdi mdi-airplane-takeoff"></i>
+                                    </div>
+                                    <div className="col-5">
+                                        <img className="ticket-bridging-chain" src={getChainLogo(destChain.evmChain!)} alt="bridging"/> {destChain.shortName}
+                                    </div>
+                                </div>
+                            </Card.Title>
+                            <Card.Body className="card-text">
+                                <div className="ticket-body">
+                                    <div className="row p-0 m-0 ticket-body-table">
+                                        <div className="col-6">
+                                            <strong>Token</strong>
+                                        </div>
+                                        <div className="col-6">
+                                            <strong>Receipt</strong>
+                                        </div>
+                                        <div className="col-6">
+                                            <button className="ticket-body-token" onClick={() => {copyText(d.token_id)}}>{truncateStr(d.token_id, 10)}</button>
+                                        </div>
+                                        <div className="col-6">
+                                            <a target="_blank" rel="noopener noreferrer" href={`${axelarScan}${d.tx_hash}`}>{truncateStr(d.tx_hash, 10)}</a>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div className={`card-footer ${destChain.evmChain}`}>
-                                <div className="card-footer-start">
-                                    <i className="mdi mdi-alarm"></i>{' '}{moment(d.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                                <div className={`card-footer ${destChain.evmChain}`}>
+                                    <div className="card-footer-start">
+                                        <i className="mdi mdi-alarm"></i>{' '}{moment(d.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                                    </div>
+                                    {cardFooterEnd}
                                 </div>
-                                {cardFooterEnd}
-                            </div>
-                        </Card.Text>
-                    </Card.Body>
-                </Card>
+                            </Card.Body>
+                        </Card.Body>
+                    </Card>
+
+                </div>
             );
         }
 

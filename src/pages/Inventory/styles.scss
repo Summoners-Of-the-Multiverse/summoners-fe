@@ -29,11 +29,14 @@ No images, no background filters, no javascript, simple CSS and HTML
         flex-direction: column;
         align-items: center;
 
-        .bridge-ticket {
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-            width: 95%;
+        > div {
             max-width: 300px;
             margin-bottom: 10px;
+        }
+
+        .bridge-ticket {
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+            max-width: 300px;
             border-bottom: 0px;
             border-left: 0px;
             border-right: 0px;
@@ -76,26 +79,15 @@ No images, no background filters, no javascript, simple CSS and HTML
             .ticket-bridging-location {
                 display: flex;
                 flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0 5%;
+                padding: 5% 0;
 
-                .mdi-airplane-takeoff {
-                    margin: 0px 10px;
+                .ticket-bridging-chain {
+                    height: 20px;
+                    width: auto;
                 }
-
-                .ticket-bridging-location-info {
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 5% 0;
-
-                    .ticket-bridging-chain {
-                        height: 15px;
-                        width: auto;
-                        margin-right: 5px;
-                    }
+    
+                .mdi-airplane-takeoff {
+                    margin: auto;
                 }
             }
 
@@ -110,12 +102,11 @@ No images, no background filters, no javascript, simple CSS and HTML
 
                 .ticket-body-table {
                     width: 100%;
-                    th {
-                        color: #8e8e8e;
-                    }
+                    color: #8e8e8e;
 
                     .ticket-body-token {
-                        cursor: pointer;
+                        background-color: transparent;
+                        border: none;
                     }
                 }
 
