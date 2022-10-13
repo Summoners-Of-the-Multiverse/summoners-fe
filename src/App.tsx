@@ -13,6 +13,7 @@ import { AddressAreaResponse, StarterStatusResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useCurrentPath } from './hooks/useCurrentPath';
+import { Button } from 'react-bootstrap';
 const { BSC_TEST, POLYGON_TEST, BSC, POLYGON } = ChainConfigs;
 const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
@@ -233,7 +234,7 @@ function App() {
             let chainName = allowedChains.filter(x => x.id === chain)[0]?.shortName ?? '';
             setChainName(chainName.toLowerCase());
             setShouldShowSwitcher(
-                currentPath !== '/' 
+                currentPath !== '/'
                 && !allowedChains.map(x => x.id).includes(chain)
                 && !!address // must be logged in
             );
@@ -259,6 +260,17 @@ function App() {
 
     const handleUnknownError = () => {
         toast.error('Portal fluids gone bad');
+    }
+
+    if (!window.ethereum) {
+        return (
+            <div className="metamask-404">
+                <img src="/assets/metamask404.png" />
+                <Button onClick={() => {
+                    window.location.href = `https://metamask.io/download/`
+                }}>Get Metamask</Button>
+            </div>
+        )
     }
 
     return (
