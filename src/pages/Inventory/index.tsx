@@ -142,7 +142,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                 )
             } else {
                 component.push(
-                    <div key={`mob-${index}`} className="mob-slot">
+                    <div key={`mob-equipped-${index}`} className="mob-slot empty">
                         <div className="slotLabel">{index+1}</div>
                     </div>
                 )
@@ -300,7 +300,7 @@ const Inventory = ({ setAudio }: BasePage) => {
     }
 
     const InfoSlot = useCallback(() => {
-        let mobSkils: JSX.Element[] = [];
+        let mobSkills: JSX.Element[] = [];
         let mobName = '';
         let mobTokenId = '';
         let mobOriginChain = '';
@@ -319,7 +319,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                 elementId = selectedMob.element_id;
                 _.map(selectedMob.skills, (sm, smIndex) => {
                     const popover = (
-                        <Popover id="popover-basic">
+                        <Popover id="popover-basic" key={`info-slot-index-${smIndex}`}>
                             <Popover.Header as="h3">
                                 <div className="mob-skill-stats">
                                     <ElementIcon
@@ -336,8 +336,8 @@ const Inventory = ({ setAudio }: BasePage) => {
                         </Popover>
                     );
 
-                    mobSkils.push(
-                        <OverlayTrigger rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
+                    mobSkills.push(
+                        <OverlayTrigger key={`mob-skill-overlay-${smIndex}`} rootClose={true} trigger="click" placement="right-end" overlay={popover} delay={{ show: 50, hide: 50 }}>
                             <button className="mob-skill-icon">
                                 <img className={sm.element} alt={sm.name} src={getSkillIcon(sm.icon_file)} />
                             </button>
@@ -375,7 +375,7 @@ const Inventory = ({ setAudio }: BasePage) => {
         return (
             <div className="big-slot">
                 <div className="mob-skills">
-                    {mobSkils}
+                    {mobSkills}
                 </div>
                 <div className="mob-info">
                     <Button className='mob-token-id' variant="outline-secondary" onClick={() => {copyText(mobTokenId)}}>{mobOriginChain && <img className="origin-chain-logo" src={mobOriginChain} alt="original_chain_logo"/>}{shortMobTokenId}</Button>
@@ -407,7 +407,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                 )
             } else {
                 component.push(
-                    <div key={`mob-listing-${index}`} className="slot">
+                    <div key={`mob-listing-${index}`} className="slot empty">
                     </div>
                 )
             }
@@ -569,7 +569,7 @@ const Inventory = ({ setAudio }: BasePage) => {
                     onButtonClick={() => navigate('/home')}
                 />
 
-                <BridgeLogButton></BridgeLogButton>
+                <BridgeLogButton />
 
                 <div className="inventory">
                     <div className="title groovy">
@@ -600,9 +600,9 @@ const Inventory = ({ setAudio }: BasePage) => {
 
                         {/* description box */}
                         <div className="description">
-                            <InfoSlot></InfoSlot>
+                            <InfoSlot />
                         </div>
-                        <ActionButton></ActionButton>
+                        <ActionButton />
                     </div>
                     <ul className="tabs">
                         <li>

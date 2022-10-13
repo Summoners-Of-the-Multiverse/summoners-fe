@@ -518,6 +518,10 @@ No images, no background filters, no javascript, simple CSS and HTML
         }
     }
 
+    .mob-slot.empty, .slot.empty {
+        cursor: no-drop;
+    }
+
     .big-slot {
         border-radius: 5px;
         border-top: 3px solid #442434;
