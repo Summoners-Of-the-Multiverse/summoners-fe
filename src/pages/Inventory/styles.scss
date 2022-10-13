@@ -9,6 +9,10 @@ No images, no background filters, no javascript, simple CSS and HTML
         margin-bottom: 0px;
     }
 
+    .swal2-title {
+        font-weight: unset;
+    }
+
     .swal2-confirm {
         width: 150px;
         letter-spacing: 2px;

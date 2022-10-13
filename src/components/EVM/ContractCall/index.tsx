@@ -7,6 +7,7 @@ import { getBaseUrl, ucFirst } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
 // import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
 import { AxelarQueryAPI, Environment, EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
+import { Transaction } from './types';
 const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 // assign chain info based on env
 // const BscChain = isTestnet ? BSC_TEST : BSC;
@@ -63,7 +64,7 @@ export default class ContractCall {
 
         const gasFee = await this._getGasFee(ucFirst(this.chainConfig.evmChain!) as EvmChain, ucFirst(destChain.evmChain!) as EvmChain, this.chainConfig.nativeCurrency.symbol);
 
-        let tx;
+        let tx: Transaction;
         if (token.token_id !== token.curr_token_id) {
             // bridged cross-chain token (native token id != bridged token id)
             tx = await (

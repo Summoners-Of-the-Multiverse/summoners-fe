@@ -151,26 +151,33 @@ const BattleResultPage = ({ setAudio }: BasePage) => {
 			return false;
 		}
 		catch(e: any) {
-			if(e.toString().includes('user rejected transaction')) {
-				toast.error("You've gone soft!")
+            try {
+				if(e.toString().includes('user rejected transaction')) {
+					toast.error("You've gone soft!")
+	
+					//temporarily ignore
+					/* if(tokenId !== 0 && tokenHash !== 0) {
+						try {
+							//cleanup
+							await instance.post(`/unmint`, {
+								address: address,
+								battleId: id,
+								tokenId: tokenId,
+								tokenHash: tokenHash
+							});
+						}
+	
+						catch {
+							// do nothing
+						}
+					} */
+				}
+            }
 
-				//temporarily ignore
-				/* if(tokenId !== 0 && tokenHash !== 0) {
-					try {
-						//cleanup
-						await instance.post(`/unmint`, {
-							address: address,
-							battleId: id,
-							tokenId: tokenId,
-							tokenHash: tokenHash
-						});
-					}
-
-					catch {
-						// do nothing
-					}
-				} */
-			}
+            catch {
+                // do nothing
+                // sometimes e.toString returns null
+            }
 			setMintText(PREPARING_TEXT);
 			setIsMinting(false);
 			return false;

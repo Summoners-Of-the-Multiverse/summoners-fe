@@ -102,8 +102,15 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
             return false;
         }
         catch(e: any) {
-			if(e.toString().includes('user rejected transaction')) {
-                toast.error('Y u staph? :(');
+            try {
+                if(e.toString().includes('user rejected transaction')) {
+                    toast.error('Y u staph? :(');
+                }
+            }
+
+            catch {
+                // do nothing
+                // sometimes e.toString returns null
             }
 			setMintText(PREPARING_TEXT);
             return false;
