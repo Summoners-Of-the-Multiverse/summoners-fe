@@ -125,8 +125,8 @@ export const getSkillIcon = (assetFile: string) => {
     return `/assets/skills/${assetFile}`;
 }
 
-export const getMonsterBattleImage = (assetFile: string) => {
-    return `/assets/sprites/base/${assetFile}`;
+export const getMonsterBattleImage = (assetFile: string, isShiny: boolean) => {
+    return `/assets/sprites/base${isShiny? '_shiny' : ''}/${assetFile}`;
 }
 
 export const getMonsterImage = (assetFile: string, elementId: number, isShiny: boolean) => {

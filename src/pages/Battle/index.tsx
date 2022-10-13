@@ -549,7 +549,7 @@ const EncounterImage = ({ encounter, encounterDamageReceived, playerMonsterSkill
     return (
         <div className='encounter-img-container'>
             {/* <span>{encounter.element_name} {encounter.name}{encounter.is_shiny? '*' : ''}</span> */}
-            <img className={`encounter-img ${battleWon? 'dead' : ''} ${battleWon? 'shake' : ''}`} src={getMonsterBattleImage(encounter.img_file)} alt="encounter_img"></img>
+            <img className={`encounter-img ${battleWon? 'dead' : ''} ${battleWon? 'shake' : ''}`} src={getMonsterBattleImage(encounter.img_file, encounter.is_shiny)} alt="encounter_img"></img>
             {
                 Object.entries(playerMonsterSkills).map(([monsterId, skills], index) => (
                     <EncounterDamagedNumbers
