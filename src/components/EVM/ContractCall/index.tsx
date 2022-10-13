@@ -7,6 +7,7 @@ import { getBaseUrl, ucFirst } from '../../../common/utils';
 import { ChainConfig } from '../ChainConfigs/types';
 // import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../../components/EVM/ChainConfigs';
 import { AxelarQueryAPI, Environment, EvmChain, GasToken } from '@axelar-network/axelarjs-sdk';
+import { Transaction } from './types';
 const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 // assign chain info based on env
 // const BscChain = isTestnet ? BSC_TEST : BSC;
@@ -63,7 +64,7 @@ export default class ContractCall {
 
         const gasFee = await this._getGasFee(ucFirst(this.chainConfig.evmChain!) as EvmChain, ucFirst(destChain.evmChain!) as EvmChain, this.chainConfig.nativeCurrency.symbol);
 
-        let tx;
+        let tx: Transaction;
         if (token.token_id !== token.curr_token_id) {
             // bridged cross-chain token (native token id != bridged token id)
             tx = await (
@@ -181,7 +182,10 @@ export default class ContractCall {
         const environment = isTestnet ? Environment.TESTNET : Environment.MAINNET;
         const api = new AxelarQueryAPI({ environment: environment });
 
-        const gasFee = await api.estimateGasFee(sourceChainName, destinationChainName, sourceChainTokenSymbol, 1000000);
+        let gasFee = await api.estimateGasFee(sourceChainName, destinationChainName, sourceChainTokenSymbol, 1.2e6);
+
+        // bump 40% gas fee to prevent tx stuck on axelar (will get refunded if extra) - encounter multi-time in polygon
+        gasFee = BigInt(Math.floor(Number(gasFee) * 1.4)).toString();
 
         return gasFee;
     };

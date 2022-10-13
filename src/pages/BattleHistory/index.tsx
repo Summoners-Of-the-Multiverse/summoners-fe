@@ -29,7 +29,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 	const navigate = useNavigate();
 
     const [ results, setResults ] = useState<BattleResult[]>([]); 
-	// const [ isLoading, setIsLoading ] = useState(true);
+	const [ isLoading, setIsLoading ] = useState(true);
 	const [ page, setPage ] = useState(0);
 	const [ maxPage, setMaxPage ] = useState(0);
 
@@ -53,7 +53,7 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 				toast.error('Logs are messed up');
 			}
 			
-			// setIsLoading(false);
+			setIsLoading(false);
 		}
 
 		getBattleResult();
@@ -116,8 +116,9 @@ const BattleHistory = ({ setAudio }: BasePage) => {
 			<div className="battle-history-container">
 			{
 				paginated.length === 0 &&
+				!isLoading &&
 				<>
-					<div className="h1">It's Empty..</div>
+					<div className="h1">Such Empty</div>
 					<div className="h3">Pls go hunt</div>
 				</>
 			}

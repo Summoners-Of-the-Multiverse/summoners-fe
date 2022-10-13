@@ -6,7 +6,7 @@ $buttonHeight: 300px;
 
     > button {
         position: absolute;
-        top: calc(49.5% - (#{$buttonHeight} / 2));
+        top: calc(49.5% - (#{$buttonHeight + 50} / 2));
         left: calc(50% - (#{$buttonHeight} / 2));
 
         height: $buttonHeight;
@@ -28,9 +28,19 @@ $buttonHeight: 300px;
         font-size: 50px;
 
         animation: heartbeat 2.5s linear infinite;
+        animation-delay: 0.9s;
 
         @media screen and (max-width: 900px) {
             left: calc(55% - (#{$buttonHeight} / 2));
+            font-size: 30px;
+        }
+        
+        > span {
+            height: 50px;
+
+            @media screen and (max-width: 900px) {
+                height: 30px;
+            }
         }
     }
 

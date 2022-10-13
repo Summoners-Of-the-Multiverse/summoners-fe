@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { AddressContext } from '../../App';
 import instance from '../Axios';
-import { MintPromptProps, MonsterBaseMetadata, StarterPageProps, StarterStatusResponse } from './types';
+import { MintPromptProps, MonsterBaseMetadata, StarterPageProps } from './types';
 import './styles.scss';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -10,7 +10,7 @@ import MonsterCard from '../../components/MonsterCard';
 import ContractCall from '../../components/EVM/ContractCall';
 import { getElementTooltip } from '../../common/utils';
 import _ from 'lodash';
-import { ChainConfigs, EVMSwitcher } from '../../components/EVM';
+import { ChainConfigs } from '../../components/EVM';
 import { ChainConfig } from '../../components/EVM/ChainConfigs/types';
 import Spinner from '../../components/Spinner';
 
@@ -18,24 +18,17 @@ const chains = ChainConfigs;
 const PREPARING_TEXT = "Preparing Ink";
 const CAPTURING_TEXT = "Convincing Guardian";
 
-const { POLYGON_TEST, BSC_TEST } = chains;
-const allowedChains = [BSC_TEST.id, POLYGON_TEST.id];
-
 const SuccessMintToast = (chainConfig: ChainConfig|undefined, tx:any) => (
     <div className='link-toast'>
         Guardian Convinced
-        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Papers here ⬅</a> 
+        <a target="_blank" rel="noopener noreferrer" href={`${chainConfig?.blockExplorerUrl}/tx/${tx.transactionHash}`}>⮕ Their signature ⬅</a>
     </div>
 );
 
 const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) => {
     const { address, chain, } = useContext(AddressContext);
-    
-    const [currentChain, setCurrentChain] = useState(chain);
-    const [hasMinted, setHasMinted] = useState(true);
     const [starterMonsters, setStarterMonsters] = useState<MonsterBaseMetadata[]>([]);
     const [minting, setMinting] = useState(false);
-    const [shouldShowSwitcher, setShouldShowSwitcher] = useState(false);
     const [mintText, setMintText] = useState(PREPARING_TEXT);
 
     const navigate = useNavigate();
@@ -57,29 +50,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
         navigate('/home');
     }, [navigate, onMintCallback]);
 
-    // get if address has minted free mon
-    useEffect(() => {
-        const getStarterStatus = async() => {
-            try {
-                if(!address) {
-                    return;
-                }
-                let res = await instance.get<any, AxiosResponse<StarterStatusResponse>>(`/getStarterStatus/${address}`);
-                setHasMinted(res.data.hasMinted);
-                if(res.data.hasMinted) {
-                    onMint();
-                }
-            }
-
-            catch {
-                //always set as true on error
-                setHasMinted(true);
-            }
-        }
-
-        getStarterStatus();
-    }, [address, onMint]);
-
     useEffect(() => {
         const getStarterMonsters = async() => {
             try {
@@ -95,7 +65,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
             }
         }
 
-        setShouldShowSwitcher(!allowedChains.includes(chain));
         getStarterMonsters();
     }, [address, chain]);
 
@@ -133,36 +102,25 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
             return false;
         }
         catch(e: any) {
-			if(e.toString().includes('user rejected transaction')) {
-                toast.error('Y u staph? :(');
+            try {
+                if(e.toString().includes('user rejected transaction')) {
+                    toast.error('Y u staph? :(');
+                }
+            }
+
+            catch {
+                // do nothing
+                // sometimes e.toString returns null
             }
 			setMintText(PREPARING_TEXT);
             return false;
         }
     }, []);
 
-    const handleChainChange = useCallback(async (chain: string) => {
-        if(currentChain !== chain) {
-            setCurrentChain(chain);
-            onChainChange(chain);
-
-            setShouldShowSwitcher(!allowedChains.includes(chain));
-        }
-    }, [currentChain, onChainChange]);
-
-    const handleUserRejection = () => {
-        toast.error('You sure?');
-    }
-
-    const handleUnknownError = () => {
-        toast.error('Portal fluids gone bad');
-    }
-
     return (
         <div className='starter-page'>
             {
-                !hasMinted &&
-                !shouldShowSwitcher &&
+                address &&
                 <MintPrompt
                     monsters={starterMonsters}
                     onMint={onMint}
@@ -172,33 +130,6 @@ const Starter = ({ onMintCallback, setAudio, onChainChange }: StarterPageProps) 
                     endMinting={endMinting}
                     mint={mint}
                 />
-            }
-            {
-                !hasMinted &&
-                shouldShowSwitcher &&
-                <>
-                    <h1>Choose Your Realm</h1>
-                    <EVMSwitcher
-                        targetChain={BSC_TEST}
-                        handleChainChange={handleChainChange}
-                        handleUserRejection={handleUserRejection}
-                        handleUnknownError={handleUnknownError}
-                        className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
-                        currentChainId={chain}
-                    >
-                        <span>BSC</span>
-                    </EVMSwitcher>
-                    <EVMSwitcher
-                        targetChain={POLYGON_TEST}
-                        handleChainChange={handleChainChange}
-                        handleUserRejection={handleUserRejection}
-                        handleUnknownError={handleUnknownError}
-                        className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
-                        currentChainId={chain}
-                    >
-                        <span>Polygon</span>
-                    </EVMSwitcher>
-                </>
             }
             <Spinner
                 show={minting}

@@ -5,3 +5,5 @@ export type AddressAreaResponse = {
 export type BasePage = {
     setAudio: (audioFile: string) => void;
 }
+
+export type StarterStatusResponse = { hasMinted: boolean };

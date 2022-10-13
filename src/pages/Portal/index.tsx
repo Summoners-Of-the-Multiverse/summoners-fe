@@ -2,11 +2,14 @@ import React, { useCallback, useState, useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { AddressContext } from '../../App';
 import { EVMSwitcher } from '../../components/EVM';
-import { BSC_TEST, POLYGON_TEST } from '../../components/EVM/ChainConfigs';
+import { BSC_TEST, POLYGON_TEST, BSC, POLYGON } from '../../components/EVM/ChainConfigs';
 import { toast } from 'react-toastify'
 import './styles.scss';
 import { PortalProps } from './types';
 import BackButton from '../../components/BackButton';
+const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
+const bscChain = isTestnet ? BSC_TEST : BSC;
+const polygonChain = isTestnet ? POLYGON_TEST : POLYGON;
 
 const Portal = ({onChainChange, setAudio}: PortalProps) => {
     const { chain, } = useContext(AddressContext);
@@ -35,21 +38,21 @@ const Portal = ({onChainChange, setAudio}: PortalProps) => {
                     onButtonClick={() => navigate('/home')}
                 />
                 <EVMSwitcher
-                    targetChain={BSC_TEST}
+                    targetChain={bscChain}
                     handleChainChange={handleChainChange}
                     handleUserRejection={handleUserRejection}
                     handleUnknownError={handleUnknownError}
-                    className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
+                    className={'navigate-button ' + (chain === bscChain.id? 'active' : '')}
                     currentChainId={chain}
                 >
                     <span>BSC</span>
                 </EVMSwitcher>
                 <EVMSwitcher
-                    targetChain={POLYGON_TEST}
+                    targetChain={polygonChain}
                     handleChainChange={handleChainChange}
                     handleUserRejection={handleUserRejection}
                     handleUnknownError={handleUnknownError}
-                    className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
+                    className={'navigate-button ' + (chain === polygonChain.id? 'active' : '')}
                     currentChainId={chain}
                 >
                     <span>Polygon</span>
