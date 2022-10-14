@@ -14,7 +14,7 @@ const PrivacyPolicyBanner = ({show, onPrivacyPolicyAccept}: PrivacyPolicyBannerP
     return (
         <div className="privacy-policy-banner">
             <p>We value your privacy</p>
-            <p>We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.</p>
+            <p>We use cookies to enhance your browsing experience and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.</p>
             
             <div>
                 <button onClick={() => navigate('/privacy-policy')}>Privacy Policy</button>
