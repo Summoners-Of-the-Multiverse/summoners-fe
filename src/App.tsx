@@ -17,6 +17,10 @@ import { Button } from 'react-bootstrap';
 const { BSC_TEST, POLYGON_TEST, BSC, POLYGON } = ChainConfigs;
 const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
+// assign chain info based on env
+const BscChain = isTestnet ? BSC_TEST : BSC;
+const PolygonChain = isTestnet ? POLYGON_TEST : POLYGON;
+
 const allowedChains = isTestnet ? [
     BSC_TEST,
     POLYGON_TEST
@@ -321,21 +325,21 @@ function App() {
                 <div className='realm-chooser-container'>
                     <h1>Choose Your Realm</h1>
                     <EVMSwitcher
-                        targetChain={BSC_TEST}
+                        targetChain={BscChain}
                         handleChainChange={handleChainChange}
                         handleUserRejection={handleUserRejection}
                         handleUnknownError={handleUnknownError}
-                        className={'navigate-button ' + (chain === BSC_TEST.id? 'active' : '')}
+                        className={'navigate-button ' + (chain === BscChain.id? 'active' : '')}
                         currentChainId={chain}
                     >
                         <span>BSC</span>
                     </EVMSwitcher>
                     <EVMSwitcher
-                        targetChain={POLYGON_TEST}
+                        targetChain={PolygonChain}
                         handleChainChange={handleChainChange}
                         handleUserRejection={handleUserRejection}
                         handleUnknownError={handleUnknownError}
-                        className={'navigate-button ' + (chain === POLYGON_TEST.id? 'active' : '')}
+                        className={'navigate-button ' + (chain === PolygonChain.id? 'active' : '')}
                         currentChainId={chain}
                     >
                         <span>Polygon</span>
