@@ -120,9 +120,7 @@ function App() {
 
     //privacy policy
     useEffect(() => {
-        console.log(localStorage.getItem('privacy-policy'));
         let hasClicked = localStorage.getItem('privacy-policy') !== '1';
-        console.log(hasClicked);
         setShouldShowPrivacyPolicyBanner(hasClicked);
     }, []);
 
