@@ -13,6 +13,7 @@
     font-size: 30px;
 
     color: red;
+    z-index: 9999;
 
     @media screen and (max-width: 900px) {
         position: fixed;

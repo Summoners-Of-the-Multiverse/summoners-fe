@@ -7,13 +7,14 @@ import './keyframes.scss';
 import './fog.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes, useNavigate } from 'react-router';
-import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter, Intermediate } from './pages';
+import { Battle, BattleResult, BattleHistory, Home, Inventory, Map, Portal, Starter, Intermediate, PrivacyPolicy } from './pages';
 import { io, Socket } from 'socket.io-client';
 import { AddressAreaResponse, StarterStatusResponse } from './types';
 import instance from './pages/Axios';
 import { AxiosResponse } from 'axios';
 import { useCurrentPath } from './hooks/useCurrentPath';
 import { Button } from 'react-bootstrap';
+import PrivacyPolicyBanner from './components/PrivacyPolicyBanner';
 const { BSC_TEST, POLYGON_TEST, BSC, POLYGON } = ChainConfigs;
 const isTestnet = process.env.REACT_APP_CHAIN_ENV === "testnet";
 
@@ -42,6 +43,7 @@ const pagesWithBlur = [
     '/battleHistory',
     '/battleResult/:id',
     '/battleResult/:id/:returnToPage',
+    '/privacy-policy'
 ];
 
 export const AddressContext = createContext({
@@ -66,6 +68,7 @@ const routes = [
     { path: '/battleHistory' },
     { path: '/inventory' },
     { path: '/home' },
+    { path: '/privacy-policy' },
 ];
 
 function App() {
@@ -84,6 +87,7 @@ function App() {
     const [shouldBlur, setShouldBlur] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [hasMinted, setHasMinted] = useState(true);
+    const [shouldShowPrivacyPolicyBanner, setShouldShowPrivacyPolicyBanner] = useState(true);
 
     //when switcher appears, bg is blurred and masked
     //header will be hidden too
@@ -114,6 +118,13 @@ function App() {
         window.addEventListener('resize', updateWindowDimensions);
     }, []); */
 
+    //privacy policy
+    useEffect(() => {
+        console.log(localStorage.getItem('privacy-policy'));
+        let hasClicked = localStorage.getItem('privacy-policy') !== '1';
+        console.log(hasClicked);
+        setShouldShowPrivacyPolicyBanner(hasClicked);
+    }, []);
 
     // get if address has minted free mon
     useEffect(() => {
@@ -168,6 +179,14 @@ function App() {
         if(!currentPath) {
             // no random pages
             navigate('/');
+            return;
+        }
+
+        if(currentPath === '/privacy-policy') {
+            setShouldMask(true);
+            setShouldBlur(true);
+            setShouldRenderHeader(false);
+            setShouldShowSwitcher(false);
             return;
         }
 
@@ -258,18 +277,23 @@ function App() {
         setHasMinted(true);
     }
 
-    const handleUserRejection = () => {
-        toast.error('You sure?');
-    }
+    const onPrivacyPolicyAccept = useCallback(() => {
+        localStorage.setItem('privacy-policy', '1');
+        setShouldShowPrivacyPolicyBanner(false);
+    }, []);
 
-    const handleUnknownError = () => {
+    const handleUserRejection = useCallback(() => {
+        toast.error('You sure?');
+    }, []);
+
+    const handleUnknownError = useCallback(() => {
         toast.error('Portal fluids gone bad');
-    }
+    }, []);
 
     if (!window.ethereum) {
         return (
             <div className="metamask-404">
-                <img src="/assets/metamask404.png" />
+                <img src="/assets/metamask404.png" alt="404"/>
                 <Button onClick={() => {
                     window.location.href = `https://metamask.io/download/`
                 }}>Get Metamask</Button>
@@ -370,9 +394,12 @@ function App() {
                         <Route path="/battleResult/:id/:returnToPage" element={<BattleResult setAudio={audio => setAudio(audio)} />}/>
                         <Route path="/battleHistory" element={<BattleHistory setAudio={audio => setAudio(audio)} />}/>
                         <Route path="/" element={<Intermediate />}/>
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />}/>
                     </Routes>
                 </AddressContext.Provider>
             }
+
+            <PrivacyPolicyBanner show={shouldShowPrivacyPolicyBanner} onPrivacyPolicyAccept={onPrivacyPolicyAccept}/>
 
             <ToastContainer
                 position="bottom-left"

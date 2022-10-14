@@ -1,0 +1,55 @@
+.privacy-policy-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    padding: 2%;
+    font-size: 15px;
+
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid black;
+
+    @media screen and (max-width: 900px) {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    p {
+        margin: 0;
+        text-align: left;
+    }
+
+    p:nth-child(1) {
+        font-weight: bold;
+    }
+
+    p:nth-child(2) {
+        font-size: 12px;
+
+        @media screen and (max-width: 900px) {
+            font-size: 8px;
+        }
+    }
+
+    > div {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        margin-top: 15px;
+    }
+
+    button {
+        background-color: transparent;
+        border: 1px solid black;
+        border-radius: 5px;
+        margin-right: 10px;
+
+        &:nth-child(2) {
+            background-color: blue;
+            color: white;
+        }
+    }
+}

@@ -7,5 +7,6 @@ import Intermediate from './Intermediate';
 import Starter from './Starter';
 import Map from './Map';
 import Portal from './Portal';
+import PrivacyPolicy from './PrivacyPolicy';
 
-export { Home, Battle, BattleResult, Starter, Map, BattleHistory, Inventory, Portal, Intermediate };
+export { Home, Battle, BattleResult, Starter, Map, BattleHistory, Inventory, Portal, Intermediate, PrivacyPolicy };
